@@ -4,8 +4,7 @@ window.addEventListener('DOMContentLoaded', function() {
         buttons = document.getElementsByTagName('button'),
         alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()!?.,-:;" ',
         key = [],
-        n, c,
-        generation = alphabet.split('');
+        n, c;
     inps[0].value = alphabet;
     inps[2].value = 1;
     generateKey();
