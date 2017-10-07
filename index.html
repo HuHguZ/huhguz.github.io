@@ -1,0 +1,43 @@
+<!DOCTYPE hmtl>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Шифр простой замены</title>
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="script.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <h1>Шифр простой замены</h1>
+        <table class="tb">
+            <tr>
+                <td>
+                    Исходный текст<br/>
+                    <textarea></textarea>
+                </td>
+                <td>
+                    Алфавит - <input type='text'>
+                    <br/>Ключ - <input type='text'>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    Выходной текст<br/>
+                    <textarea></textarea>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <span title="Определяет, сколько раз будет выполняться операция кодирования или декодирования сообщения.">Кол-во кодирований</span> - <input type='number'><br/>
+        <button title="Кодировать данное сообщение">Зашифровать</button>
+        <button title="Декодировать кодированное сообщение">Дешифровать</button>
+        <button title="Из символов алфавита">Случайный ключ</button><br/>
+        <button title="Исходный и выходной тексты">Поменять местами</button>
+        <button title="Очистить поля с текстом">Очистить</button><br/><br/>
+    </div>
+</body>
+
+</html>

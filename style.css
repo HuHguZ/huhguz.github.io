@@ -1,0 +1,70 @@
+* {
+    transition-duration: .8s;
+}
+
+body, html {
+    margin: 0;
+    padding: 0
+}
+
+body {
+    background-image: url(fon_out.jpg);
+    background-size: 100%, 100%;
+    background-attachment: fixed;
+}
+
+.main {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    width: 90%;
+    padding: 5px;
+    background-color: black;
+    opacity: .9;
+    border: solid 2px green;
+    border-radius: 20px;
+    color: green;
+    text-align: center;
+    font-size: 20px;
+    font-family: PT Sans;
+}
+
+.tb {
+    width: 50%;
+    color: green;
+    text-align: center;
+    font-size: 20px;
+    font-family: PT Sans;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+button {
+    color: green;
+    background-color: black;
+    border: 2px solid green;
+    text-align: center;
+    font-size: 20px;
+    font-family: PT Sans;
+    margin: 0 auto;
+    border-radius: 20px;
+}
+
+button:hover {
+    cursor: pointer;
+    transform: scale(1.1, 1.1);
+    background-color: green;
+    color: black;
+    border: 2px solid black;
+}
+
+textarea, input {
+    font-family: PT Sans;
+    max-width: 100%;
+    border: solid 2px green;
+    color: rgb(0, 47, 5);
+    border-radius: 10px;
+}
+input {
+    font-size: 16px;
+}
