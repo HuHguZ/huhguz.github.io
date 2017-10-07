@@ -63,7 +63,7 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         }
         for (let i = 0; i < texts[0].value.length; i++) {
-            if (obj[texts[0].value[i].toLowerCase()] !== undefined) {
+            if (obj[texts[0].value[i]]) {
                 rez += obj[texts[0].value[i]];
             } else {
                 rez += texts[0].value[i];
