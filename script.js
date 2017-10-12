@@ -2,7 +2,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var texts = document.getElementsByTagName('textarea'),
         inps = document.getElementsByTagName('input'),
         buttons = document.getElementsByTagName('button'),
-        alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()!?.,-:;" ',
+        alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}\\/<>~`@#№$%^&*+=!?.,-_:;" ',
         key = [],
         n, c;
     inps[0].value = alphabet;
