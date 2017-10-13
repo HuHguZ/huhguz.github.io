@@ -1,0 +1,47 @@
+* {
+    transition-duration: .7s;
+    color: #0266c3;
+    font-family: Verdana;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-image: url(../resources/fon.jpg);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: 100%, 100%;
+}
+
+.main {
+    background-color: white;
+    text-align: center;
+    opacity: .9;
+    margin: 4%;
+    padding: 5px;
+    border: 3px solid #0266c3;
+    border-radius: 20px;
+}
+
+h1 {
+    font-size: 23px;
+    text-align: center;
+}
+
+input, button {
+    border-radius: 10px;
+    border: 1px solid #0266c3;
+	margin: 3px;
+}
+button {
+	background-color: white;
+}
+button:hover {
+	cursor: pointer;
+	transform: scale(1.2, 1.2);
+	color: white;
+	background-color: #0266c3;
+	border: 1px solid white;
+}
