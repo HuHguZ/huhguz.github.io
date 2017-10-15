@@ -2,11 +2,13 @@ window.addEventListener('DOMContentLoaded', function() {
     var texts = document.getElementsByTagName('textarea'),
         inps = document.getElementsByTagName('input'),
         buttons = document.getElementsByTagName('button'),
-        alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}\\/<>~`@#№$%^&*+=!?.,-_:;" ',
+        select = document.getElementsByTagName('select'),
+        alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}\\/<>«»„“~`@#№$%^&*+=!?.,-_:;" ',
         key = [],
         n, c;
     inps[0].value = alphabet;
     inps[2].value = 1;
+    select[0].value = Math.floor(Math.random()*3);
     generateKey();
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].onclick = function() {
@@ -73,12 +75,29 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 
     function generateKey() {
-        var l = alphabet.length;
-        alphabet = alphabet.split('');
-        for (let i = 0; i < l; i++) {
-            n = Math.floor(Math.random() * alphabet.length);
-            key[key.length] = alphabet[n];
-            alphabet.splice(n, 1);
+        if (!(+select[0].value)) {
+            var l = alphabet.length;
+            alphabet = alphabet.split('');
+            for (let i = 0; i < l; i++) {
+                n = Math.floor(Math.random() * alphabet.length);
+                key[key.length] = alphabet[n];
+                alphabet.splice(n, 1);
+            }
+        } else if (+select[0].value === 1) {
+            var pos = Math.floor(Math.random() * (1114111 - inps[0].value.length));
+            for (let i = pos; i < pos + inps[0].value.length; i++) {
+                key[key.length] = String.fromCharCode(i);
+            }
+        } else if (+select[0].value === 2) {
+            var symbolPosition, positions = [];
+            for (let i = 0; i < inps[0].value.length; i++) {
+                symbolPosition = Math.floor(Math.random() * 1114112);
+                while (positions.join(' ').indexOf(symbolPosition) > -1) {
+                    symbolPosition = Math.floor(Math.random() * 1114112);
+                }
+                positions[positions.length] = symbolPosition;
+                key[key.length] = String.fromCharCode(symbolPosition);
+            }
         }
         inps[1].value = key.join('');
         key.splice(0, key.length);
