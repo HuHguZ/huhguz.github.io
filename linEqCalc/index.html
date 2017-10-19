@@ -38,7 +38,7 @@
     <script>
         var buttons = document.getElementsByTagName('button'),
             texts = document.getElementsByTagName('textarea'),
-            def = 'var a = [[1, 2, -1], [2, -1, 1], [3, -5, 2]],\nb =  [[7], [2], [-7]],\nc = 3;\nvar result = matrixAcompl(a); return result + math.matrix.linearEq(a,b,c);';
+            def = 'var a = [[1, 2, -1], [2, -1, 1], [3, -5, 2]],\nb =  [[7], [2], [-7]],\nc = 3;\nvar result = matrixAcompl(a);\nreturn result + math.matrix.linearEq(a,b,c);';
         texts[0].value = def;
         buttons[0].onclick = function() {
             def = texts[0].value;
