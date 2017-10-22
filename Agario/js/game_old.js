@@ -10,6 +10,8 @@ $('document').ready(function() {
     var w = canvas.width = window.innerWidth,
         h = canvas.height = window.innerHeight - 40,
         key, tick = 0,
+        keyOld, x1 = 0,
+        y1 = 0,
         messageCount = 0,
         foodcount = 450,
         foodr = 5,
@@ -18,7 +20,7 @@ $('document').ready(function() {
         mbc, dr = 7,
         stepcount = 50,
         fdd = 20,
-        botCount = 10,
+        botCount = 5,
         set = true,
         set2 = true,
         set3 = true,
@@ -47,9 +49,10 @@ $('document').ready(function() {
         food = [],
         foodcolor = [],
         chance = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 15, 16, 23];
+        // chance = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 9, 10];
     mbc = chance[19];
 
-    function Bot(x, y, r, xspeed, yspeed, name, defaultXspeed, defaultYspeed, circleColor, strokeColor, xdirection, ydirection, typeOfMoyion, kills, deaths, currentMotion, step) {
+    function Bot(x, y, r, xspeed, yspeed, name, defaultXspeed, defaultYspeed, circleColor, strokeColor, xdirection, ydirection, typeOfMoyion, kills, deaths, currentMotion, step, rndX, rndY) {
         this.x = x;
         this.y = y;
         this.r = r;
@@ -67,9 +70,11 @@ $('document').ready(function() {
         this.step = step;
         this.kills = kills;
         this.deaths = deaths;
+        this.rndX = rndX;
+        this.rndY = rndY;
     }
     for (var i = 0; i < botCount; i++) {
-        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, botname(), 2, 2, color(), color(), 0, 0, Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepcount);
+        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, botname(), 2, 2, color(), color(), 0, 0, Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepcount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h));
     }
     maxr = Math.round(Math.sqrt((0.2 * w * h * scale) / Math.PI));
     ctx.scale(4.5, 4.5);
@@ -80,18 +85,7 @@ $('document').ready(function() {
     for (var i = 0; i < chance.length; i++) {
         chancedef[i] = chance[i];
     }
-    for (var i = 0; i < foodcount * 2; i += 2) {
-        foodcoords(food, player, i);
-    }
-    for (var i = 0; i < foodcount * 3; i++) {
-        if (i == 0 || i % 2 == 0) {
-            foodcolor[i] = Math.round(Math.random() * 255);
-        } else if (i % 3 == 0) {
-            foodcolor[i] = Math.round(Math.random() * 255);
-        } else {
-            foodcolor[i] = Math.round(Math.random() * 255);
-        }
-    }
+    genFood();
 
     function showInfo() {
         $('#inp0').val((performance.now() / 1000).toFixed(2));
@@ -132,6 +126,21 @@ $('document').ready(function() {
         return b;
     }
 
+    function genFood() {
+        for (var i = 0; i < foodcount * 2; i += 2) {
+            foodcoords(food, player, i);
+        }
+        for (var i = 0; i < foodcount * 3; i++) {
+            if (i == 0 || i % 2 == 0) {
+                foodcolor[i] = Math.round(Math.random() * 255);
+            } else if (i % 3 == 0) {
+                foodcolor[i] = Math.round(Math.random() * 255);
+            } else {
+                foodcolor[i] = Math.round(Math.random() * 255);
+            }
+        }
+    }
+
     function randomrspeed() {
         var b, a = (Math.random() * 10).toFixed(2);
         b = a - Math.floor(a);
@@ -154,15 +163,11 @@ $('document').ready(function() {
             key = event.key;
         }
         ctx.translate((pl.x - w / 2), (pl.y - h / 2));
-        if (key === 'w' || key === 'W' || key === 'ц' || key === 'Ц') {
-            botmove(pl, 0);
-        } else if (key === 's' || key === 'S' || key === 'ы' || key === 'Ы') {
-            botmove(pl, 4);
-        } else if (key === 'a' || key === 'A' || key === 'ф' || key === 'Ф') {
-            botmove(pl, 6);
-        } else if (key === 'd' || key === 'D' || key === 'в' || key === 'В') {
-            botmove(pl, 2);
-        } else if (key === 't' || key === 'T' || key === 'е' || key === 'Е' || key === 'ArrowUp') {
+        if (getDistance(x1, y1, player.x, player.y) > 1) {
+            player.x += player.xspeed * ((x1 - player.x) / getDistance(x1, y1, player.x, player.y));
+            player.y += player.yspeed * ((y1 - player.y) / getDistance(x1, y1, player.x, player.y));
+        }
+        if (key === 't' || key === 'T' || key === 'е' || key === 'Е' || key === 'ArrowUp') {
             ctx.translate(0, pl.defaultYspeed);
             pl.xdirection = 0;
             pl.ydirection = 0;
@@ -412,7 +417,7 @@ $('document').ready(function() {
                 player.defaultYspeed = parseFloat($("#yspeed").val());
                 if (+$("#botsCount").val() > bots.length) {
                     for (var i = bots.length; i < +$("#botsCount").val(); i++) {
-                        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, botname(), 2, 2, color(), color(), 0, 0, Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepcount);
+                        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, botname(), 2, 2, color(), color(), 0, 0, Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepcount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h));
                     }
                     table();
                 } else if (+$("#botsCount").val() < bots.length) {
@@ -432,18 +437,7 @@ $('document').ready(function() {
                 maz = parseInt($("#maz").val());
                 dr = parseFloat($("#dr").val());
                 fdd = parseFloat($("#dist").val());
-                for (var i = 0; i < foodcount * 2; i += 2) {
-                    foodcoords(food, player, i);
-                }
-                for (var i = 0; i < foodcount * 3; i++) {
-                    if (i == 0 || i % 2 == 0) {
-                        foodcolor[i] = Math.round(Math.random() * 255);
-                    } else if (i % 3 == 0) {
-                        foodcolor[i] = Math.round(Math.random() * 255);
-                    } else {
-                        foodcolor[i] = Math.round(Math.random() * 255);
-                    }
-                }
+                genFood();
                 speed(player);
                 if ($("#botspeed").val() != '') {
                     for (var i = 0; i < bots.length; i++) {
@@ -453,7 +447,7 @@ $('document').ready(function() {
                 }
             }
         } else if (key === '1' || key === '!') {
-            key = 0;
+            key = keyOld;
             pl.xdirection = 0;
             pl.ydirection = 0;
             if (set3) {
@@ -466,7 +460,7 @@ $('document').ready(function() {
                 $('.tab').css("opacity", "0");
             }
         } else if (key === 'q' || key === 'Q' || key === 'й' || key === 'Й') {
-            key = 0;
+            key = keyOld;
             pl.xdirection = 0;
             pl.ydirection = 0;
             if (set2) {
@@ -478,7 +472,7 @@ $('document').ready(function() {
             }
             set2 = !set2;
         } else if (key === '2' || key === '@' || key === '"') {
-            key = 0;
+            key = keyOld;
             pl.xdirection = 0;
             pl.ydirection = 0;
             if (chat) {
@@ -493,22 +487,16 @@ $('document').ready(function() {
             pl.xdirection = 0;
             pl.ydirection = 0;
         }
-        if (pl.x > scale * w - pl.r) {
-            pl.x = scale * w - pl.r;
-        } else if (pl.x < pl.r) {
-            pl.x = pl.r;
-        }
-        if (pl.y > scale * h - pl.r) {
-            pl.y = scale * h - pl.r;
-        } else if (pl.y < pl.r) {
-            pl.y = pl.r;
-        }
+        checkCoords();
         ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+        keyOld = key;
     }
 
     document.onmousemove = function(e) {
         var x = e.offsetX,
             y = e.offsetY;
+        x1 = e.clientX + (player.x - w / 2),
+            y1 = e.clientY + (player.y - h / 2);
         if (y <= document.getElementsByClassName('chat')[0].offsetHeight && x <= document.getElementsByClassName('chat')[0].offsetWidth && +$('.chat').css('opacity')) {
             canPlay = false;
             key = 0;
@@ -525,6 +513,19 @@ $('document').ready(function() {
             messageCount++;
         }
     });
+
+    function checkCoords() {
+        if (player.x >= scale * w - player.r) {
+            player.x = scale * w - player.r;
+        } else if (player.x <= player.r) {
+            player.x = player.r;
+        }
+        if (player.y >= scale * h - player.r) {
+            player.y = scale * h - player.r;
+        } else if (player.y <= player.r) {
+            player.y = player.r;
+        }
+    }
 
     function checkMessage() {
         if (messageCount >= 13) {
@@ -588,41 +589,6 @@ $('document').ready(function() {
         return (number1 / number2).toFixed(2);
     }
     table();
-
-    function eatfood(fd, ent) {
-        var distance;
-        for (var i = 0; i < foodcount * 2; i += 2) {
-            distance = Math.sqrt((fd[i] - ent.x) * (fd[i] - ent.x) + (fd[i + 1] - ent.y) * (fd[i + 1] - ent.y));
-            if (distance <= foodr + ent.r + fdd) {
-                if (!(fd[i] >= ent.x - 1 && fd[i] <= ent.x + 1)) {
-                    if (fd[i] > ent.x) {
-                        fd[i]--;
-                    } else {
-                        fd[i]++;
-                    }
-                }
-                if (!(fd[i + 1] >= ent.y - 1 && fd[i + 1] <= ent.y + 1)) {
-                    if (fd[i + 1] >= ent.y) {
-                        fd[i + 1]--;
-                    } else {
-                        fd[i + 1]++;
-                    }
-                }
-                if (distance <= foodr + ent.r) {
-                    if (ent.r < maxr) {
-                        ent.r += rspeed;
-                        speed(ent);
-                    }
-                    fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
-                    fd[i + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
-                    while ((fd[i] >= ent.x - ent.y && fd[i] <= ent.x + ent.y && fd[i + 1] >= ent.y - ent.x && fd[i + 1] <= ent.y + ent.x) || (foodgenerate(fd, ent, 1, i) || foodgenerate(fd, ent, 2, i) || foodgenerate(fd, ent, 3, i) || foodgenerate(fd, ent, 4, i))) {
-                        fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
-                        fd[i + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
-                    }
-                }
-            }
-        }
-    }
 
     function foodcoords(fd, ent, i) {
         fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
@@ -809,20 +775,8 @@ $('document').ready(function() {
         for (var i = 0; i < foodcount * 2; i += 2) {
             dist = Math.sqrt((fd[i] - bot.x) * (fd[i] - bot.x) + (fd[i + 1] - bot.y) * (fd[i + 1] - bot.y));
             if (dist <= foodr + bot.r + fdd) {
-                if (!(fd[i] >= bot.x - 1 && fd[i] <= bot.x + 1)) {
-                    if (fd[i] > bot.x) {
-                        fd[i]--;
-                    } else {
-                        fd[i]++;
-                    }
-                }
-                if (!(fd[i + 1] >= bot.y - 1 && fd[i + 1] <= bot.y + 1)) {
-                    if (fd[i + 1] > bot.y) {
-                        fd[i + 1]--;
-                    } else {
-                        fd[i + 1]++;
-                    }
-                }
+                fd[i] += 2 * ((bot.x - fd[i]) / getDistance(bot.x, bot.y, fd[i], fd[i + 1]));
+                fd[i + 1] += 2 * ((bot.y - fd[i + 1]) / getDistance(bot.x, bot.y, fd[i], fd[i + 1]));
                 if (dist <= foodr + bot.r) {
                     if (bot.r < maxr) {
                         bot.r += rspeed;
@@ -925,123 +879,10 @@ $('document').ready(function() {
     }
 
     function runbot(ent1, ent2) {
-        var dist = getDistance(ent1.x, ent1.y, ent2.x, ent2.y);
-        if (tick % 10 == 0) {
-            ent2.typeOfMoyion = Math.round(Math.random() * 2);
-        }
-        if (dist <= ent1.r + ent2.r + 50 || ent1.xdirection == 0 && ent1.ydirection == 0) {
-            if (!(ent2.x >= ent1.x - 1 && ent2.x <= ent1.x + 1)) {
-                if (ent2.x > ent1.x) {
-                    ent2.x += ent2.xspeed;
-                    ent2.xdirection = 1;
-                } else {
-                    ent2.x -= ent2.xspeed;
-                    ent2.xdirection = -1;
-                }
-            } else {
-                ent2.xdirection = 0;
-            }
-            if (!(ent2.y >= ent1.y - 1 && ent2.y <= ent1.y + 1)) {
-                if (ent2.y > ent1.y) {
-                    ent2.y += ent2.yspeed;
-                    ent2.ydirection = 1;
-                } else {
-                    ent2.y -= ent2.yspeed;
-                    ent2.ydirection = +1;
-                }
-            } else {
-                ent2.ydirection = 0;
-            }
-        } else {
-            if (ent1.xdirection == 0 && ent1.ydirection == -1) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 0);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 1);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 7);
-                }
-            }
-            if (ent1.xdirection == 1 && ent1.ydirection == -1) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 1);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 0);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 2);
-                }
-            }
-            if (ent1.xdirection == 1 && ent1.ydirection == 0) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 2);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 1);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 3);
-                }
-            }
-            if (ent1.xdirection == 1 && ent1.ydirection == 1) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 3);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 2);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 4);
-                }
-            }
-            if (ent1.xdirection == 0 && ent1.ydirection == 1) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 4);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 3);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 5);
-                }
-            }
-            if (ent1.xdirection == -1 && ent1.ydirection == 1) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 5);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 4);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 6);
-                }
-            }
-            if (ent1.xdirection == -1 && ent1.ydirection == 0) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 6);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 5);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 7);
-                }
-            }
-            if (ent1.xdirection == -1 && ent1.ydirection == -1) {
-                if (ent2.typeOfMoyion == 0) {
-                    botmove(ent2, 7);
-                }
-                if (ent2.typeOfMoyion == 1) {
-                    botmove(ent2, 6);
-                }
-                if (ent2.typeOfMoyion == 2) {
-                    botmove(ent2, 0);
-                }
-            }
-        }
+        ent2.x -= ent2.xspeed * ((ent1.x - ent2.x) / getDistance(ent1.x, ent1.y, ent2.x, ent2.y));
+        ent2.y -= ent2.yspeed * ((ent1.y - ent2.y) / getDistance(ent1.x, ent1.y, ent2.x, ent2.y));
+        ent2.xdirection = 0;
+        ent2.ydirection = 0;
     }
 
     function botRunWall(wall, ent1, ent2) {
@@ -1127,28 +968,10 @@ $('document').ready(function() {
                         cond2(bot, e1);
                     }
                     if (f) {
-                        if (!(bot.x >= e1.x - 1 && bot.x <= e1.x + 1)) {
-                            if (bot.x > e1.x) {
-                                bot.x -= bot.xspeed;
-                                bot.xdirection = -1;
-                            } else {
-                                bot.x += bot.xspeed;
-                                bot.xdirection = 1;
-                            }
-                        } else {
-                            bot.xdirection = 0;
-                        }
-                        if (!(bot.y >= e1.y - 1 && bot.y <= e1.y + 1)) {
-                            if (bot.y > e1.y) {
-                                bot.y -= bot.yspeed;
-                                bot.ydirection = -1;
-                            } else {
-                                bot.y += bot.yspeed;
-                                bot.ydirection = 1;
-                            }
-                        } else {
-                            bot.ydirection = 0;
-                        }
+                        bot.x += bot.xspeed * ((e1.x - bot.x) / getDistance(bot.x, bot.y, e1.x, e1.y));
+                        bot.y += bot.yspeed * ((e1.y - bot.y) / getDistance(bot.x, bot.y, e1.x, e1.y));
+                        bot.xdirection = 0;
+                        bot.ydirection = 0;
                         dist3 = getDistance(bot.x, bot.y, e1.x, e1.y);;
                         if (dist3 < bot.r + e1.r) {
                             if (bot.r < maxr) {
@@ -1216,32 +1039,31 @@ $('document').ready(function() {
         }
     }
 
+    function botRandomMove(bot) {
+        bot.x += bot.xspeed * ((bot.rndX - bot.x) / getDistance(bot.x, bot.y, bot.rndX, bot.rndY));
+        bot.y += bot.yspeed * ((bot.rndY - bot.y) / getDistance(bot.x, bot.y, bot.rndX, bot.rndY));
+        if (getDistance(bot.x, bot.y, bot.rndX, bot.rndY) < 2) {
+            bot.rndX =  Math.round(Math.random() * scale * w);
+            bot.rndY = Math.round(Math.random() * scale * h);
+        }
+        bot.xdirection = 0;
+        bot.ydirection = 0;
+    }
+
     function botai(bot, fd, number) {
         var distance = [],
             nums = [],
             distance2 = [],
             dist, k;
         if (bot.step <= 0) {
+            bot.rndX =  Math.round(Math.random() * scale * w);
+            bot.rndY = Math.round(Math.random() * scale * h);
             bot.step = Math.round(Math.random() * stepcount);
             bot.currentMotion = Math.round(Math.random() * mbc);
         }
         bot.step--;
-        if (bot.currentMotion >= chance[0] && bot.currentMotion <= chance[1]) {
-            botmove(bot, 0);
-        } else if (bot.currentMotion >= chance[2] && bot.currentMotion <= chance[3]) {
-            botmove(bot, 1);
-        } else if (bot.currentMotion >= chance[4] && bot.currentMotion <= chance[5]) {
-            botmove(bot, 2);
-        } else if (bot.currentMotion >= chance[6] && bot.currentMotion <= chance[7]) {
-            botmove(bot, 3);
-        } else if (bot.currentMotion >= chance[8] && bot.currentMotion <= chance[9]) {
-            botmove(bot, 4);
-        } else if (bot.currentMotion >= chance[10] && bot.currentMotion <= chance[11]) {
-            botmove(bot, 5);
-        } else if (bot.currentMotion >= chance[12] && bot.currentMotion <= chance[13]) {
-            botmove(bot, 6);
-        } else if (bot.currentMotion >= chance[14] && bot.currentMotion <= chance[15]) {
-            botmove(bot, 7);
+        if (bot.currentMotion >= chance[0] && bot.currentMotion <= chance[15]) {
+            botRandomMove(bot);
         } else if (bot.currentMotion >= chance[16] && bot.currentMotion <= chance[17]) {
             for (var i = 0; i < bots.length; i++) {
                 if (i !== number) {
@@ -1276,57 +1098,10 @@ $('document').ready(function() {
                     }
                 }
             }
-            if (!(fd[nums[0]] >= bot.x - 1 && fd[nums[0]] <= bot.x + 1)) {
-                if (bot.x > fd[nums[0]]) {
-                    bot.x -= bot.xspeed;
-                    bot.xdirection = -1;
-                } else {
-                    bot.x += bot.xspeed;
-                    bot.xdirection = 1;
-                }
-            } else {
-                bot.xdirection = 0;
-            }
-            if (!(fd[nums[0] + 1] >= bot.y - 1 && fd[nums[0] + 1] <= bot.y + 1)) {
-                if (bot.y > fd[nums[0] + 1]) {
-                    bot.y -= bot.yspeed;
-                    bot.ydirection = -1;
-                } else {
-                    bot.y += bot.yspeed;
-                    bot.ydirection = 1;
-                }
-            } else {
-                bot.ydirection = 0;
-            }
-            dist = Math.sqrt((fd[nums[0]] - bot.x) * (fd[nums[0]] - bot.x) + (fd[nums[0] + 1] - bot.y) * (fd[nums[0] + 1] - bot.y));
-            if (dist <= foodr + bot.r + fdd) {
-                if (!(fd[nums[0]] >= bot.x - 1 && fd[nums[0]] <= bot.x + 1)) {
-                    if (fd[nums[0]] > bot.x) {
-                        fd[nums[0]]--;
-                    } else {
-                        fd[nums[0]]++;
-                    }
-                }
-                if (!(fd[nums[0] + 1] >= bot.y - 1 && fd[nums[0] + 1] <= bot.y + 1)) {
-                    if (fd[nums[0] + 1] > bot.y) {
-                        fd[nums[0] + 1]--;
-                    } else {
-                        fd[nums[0] + 1]++;
-                    }
-                }
-                if (dist <= foodr + bot.r) {
-                    if (bot.r < maxr) {
-                        bot.r += rspeed;
-                        speed(bot);
-                    }
-                    fd[nums[0]] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
-                    fd[nums[0] + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
-                    while ((fd[nums[0]] >= bot.x - bot.r && fd[nums[0]] <= bot.x + bot.r && fd[nums[0] + 1] >= bot.y - bot.r && fd[nums[0] + 1] <= bot.y + bot.r) || (foodgenerate(fd, bot, 1, i) || foodgenerate(fd, bot, 2, i) || foodgenerate(fd, bot, 3, i) || foodgenerate(fd, bot, 4, i))) {
-                        fd[nums[0]] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
-                        fd[nums[0] + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
-                    }
-                }
-            }
+            bot.x += bot.xspeed * ((fd[nums[0]] - bot.x) / getDistance(bot.x, bot.y, fd[nums[0]], fd[nums[0] + 1]));
+            bot.y += bot.yspeed * ((fd[nums[0] + 1] - bot.y) / getDistance(bot.x, bot.y, fd[nums[0]], fd[nums[0] + 1]));
+            bot.xdirection = 0;
+            bot.ydirection = 0;
         }
         movebot(bot, fd, number);
     }
@@ -1375,6 +1150,134 @@ $('document').ready(function() {
         if (ent.r / maxr >= 0.95) {
             ent.r -= rspeed * Math.round(Math.random() * dr * 2);
         }
+    }
+
+    function bonus(obj) {
+        ctx.translate((player.x - w / 2), (player.y - h / 2));
+        var gen = Math.floor(Math.random() * 38 * 1e+4);
+        if (!gen) {
+            var br = Math.floor(Math.random() * 100);
+            if (obj.r + br <= maxr) {
+                obj.r += br;
+            }
+        } else if (gen === 1) {
+            var br = Math.floor(Math.random() * 100);
+            if (obj.r - br >= dr) {
+                obj.r -= br;
+            }
+        } else if (gen === 2) {
+            obj.name = botname();
+        } else if (gen === 3) {
+            obj.circleColor = color();
+        } else if (gen === 4) {
+            obj.strokeColor = color();
+        } else if (gen === 5) {
+            obj.defaultXspeed += Math.random() * Math.floor(Math.random() * 11);
+        } else if (gen === 6) {
+            obj.defaultYspeed += Math.random() * Math.floor(Math.random() * 11);
+        } else if (gen === 7) {
+            obj.defaultXspeed -= Math.random() * Math.floor(Math.random() * 11);
+            if (obj.defaultXspeed <= 0) {
+                obj.defaultXspeed = 0.5;
+            }
+        } else if (gen === 8) {
+            obj.defaultYspeed -= Math.random() * Math.floor(Math.random() * 11);
+            if (obj.defaultYspeed <= 0) {
+                obj.defaultYspeed = 0.5;
+            }
+        } else if (gen === 9) {
+            rspeed += randomrspeed();
+        } else if (gen === 10) {
+            rspeed -= randomrspeed();
+            if (rspeed < 0) {
+                rspeed = 0;
+            }
+        } else if (gen === 11) {
+            foodcount = Math.floor(Math.random() * foodcount);
+            genFood();
+        } else if (gen === 12) {
+            foodcount += Math.floor(Math.random() * foodcount);
+            genFood();
+        } else if (gen === 13) {
+            foodr = Math.floor(Math.random() * foodr);
+        } else if (gen === 14) {
+            foodr += Math.floor(Math.random() * foodr);
+        } else if (gen === 15) {
+            maxr = Math.floor(Math.random() * maxr);
+        } else if (gen === 16) {
+            maxr += Math.floor(Math.random() * maxr);
+        } else if (gen === 17) {
+            scale += Math.floor(Math.random() * scale);
+            genFood();
+        } else if (gen === 18) {
+            scale = Math.floor(Math.random() * scale);
+            if (!scale) {
+                scale = 1;
+            }
+            respawn(player);
+            for (var i = 0; i < bots.length; i++) {
+                respawn(bots[i]);
+            }
+            genFood();
+        } else if (gen === 19) {
+            obj.x = Math.round(Math.random() * scale * w);
+        } else if (gen === 20) {
+            obj.y = Math.round(Math.random() * scale * h);
+        } else if (gen === 21) {
+            obj.x = Math.round(Math.random() * scale * w);
+            obj.y = Math.round(Math.random() * scale * h);
+        } else if (gen === 22) {
+            dr = Math.floor(Math.random() * dr);
+        } else if (gen === 23) {
+            dr += Math.floor(Math.random() * dr);
+        } else if (gen === 24) {
+            stepcount = Math.floor(Math.random() * stepcount);
+            if (!stepcount) {
+                stepcount = 1;
+            }
+        } else if (gen === 25) {
+            stepcount += Math.floor(Math.random() * stepcount);
+        } else if (gen === 26) {
+            fdd = Math.floor(Math.random() * fdd);
+        } else if (gen === 27) {
+            fdd += Math.floor(Math.random() * fdd);
+        } else if (gen === 28) {
+            maz = Math.floor(Math.random() * maz);
+            if (!maz) {
+                maz = 1;
+            }
+        } else if (gen === 29) {
+            maz += Math.floor(Math.random() * maz);
+        } else if (gen === 30) {
+            razt = Math.floor(Math.random() * razt);
+        } else if (gen === 31) {
+            razt += Math.floor(Math.random() * razt);
+        } else if (gen === 32) {
+            decreaseSpeed = Math.floor(Math.random() * decreaseSpeed);
+        } else if (gen === 33) {
+            decreaseSpeed += 1 + Math.floor(Math.random() * decreaseSpeed);
+        } else if (gen === 34) {
+            obj.r = dr;
+            obj.defaultXspeed = 1;
+            obj.defaultYspeed = 1;
+            obj.name = 'Неудачник';
+            obj.circleColor = '#ff00d6';
+            obj.strokeColor = '#000000';
+        } else if (gen === 35) {
+            obj.name = 'Tiger';
+            obj.circleColor = '#ff6500';
+            obj.strokeColor = '#000000';
+        } else if (gen === 36) {
+            obj.name = 'Putin';
+            obj.circleColor = '#0000ff';
+            obj.strokeColor = '#ff0000';
+        } else if (gen === 37) {
+            obj.name = botname();
+            obj.circleColor = color();
+            obj.strokeColor = color();
+        }
+        speed(obj);
+        ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
     }
 
     $('#canvas2').css("bottom", "45px");
@@ -1456,7 +1359,11 @@ $('document').ready(function() {
                 }
             }
         }
-        for (var i = 0; i < bots.length + 1; i++) {
+        var n = bots.length + 1;
+        if (n > 10) {
+            n = 10;
+        }
+        for (var i = 0; i < n; i++) {
             if (name[i] == player.name) {
                 drawtext("" + ((i + 1) + '. ' + name[i] + ' (' + rads[i] + ')') + "", "rgba(200, 0, 0, 0.95)", 20, canvas3.width / 2, 55 + 25 * i);
             } else {
@@ -1503,30 +1410,42 @@ $('document').ready(function() {
         if (canPlay) {
             moveplayer(player);
         }
-        // if (tick % (Math.floor(60 / decreaseSpeed)) == 0) {
-        //     radius(player);
-        //     radius(bot1);
-        // }
+        if (tick % (Math.floor(60 / decreaseSpeed)) == 0) {
+            radius(player);
+            bonus(player);
+            for (var i = 0; i < bots.length; i++) {
+                radius(bots[i]);
+                bonus(bots[i]);
+            }
+        }
         var b = player.r;
-        var c = 3;
+        var c = 2.5;
         if (b > a && player.r >= dr) {
             var z = a;
             while (z < b) {
                 z += 0.5;
-                ctx.translate((player.x - w / 2), (player.y - h / 2));
-                ctx.scale(1 - c * ((0.5) * 0.002), 1 - c * ((0.5) * 0.002));
-                ctx.translate((c * w * ((0.5) / 1000)), (c * h * ((0.5) / 1000)));
-                ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+                if (z < 450) {
+                    ctx.translate((player.x - w / 2), (player.y - h / 2));
+                    ctx.scale(1 - c * ((0.5) * 0.002), 1 - c * ((0.5) * 0.002));
+                    ctx.translate((c * w * ((0.5) / 1000)), (c * h * ((0.5) / 1000)));
+                    ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+                } else {
+                    break;
+                }
             }
         }
-        if (b < a && player.r >= dr) {
+        if (b < a && player.r > dr) {
             var q = b;
             while (q < a) {
                 q += 0.5;
-                ctx.translate((player.x - w / 2), (player.y - h / 2));
-                ctx.scale(1 + c * ((0.5) * 0.002), 1 + c * ((0.5) * 0.002));
-                ctx.translate(-(c * w * ((0.5) / 1000)), -(c * h * ((0.5) / 1000)));
-                ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+                if (q < 450) {
+                    ctx.translate((player.x - w / 2), (player.y - h / 2));
+                    ctx.scale(1 + c * ((0.5) * 0.002), 1 + c * ((0.5) * 0.002));
+                    ctx.translate(-(c * w * ((0.5) / 1000)), -(c * h * ((0.5) / 1000)));
+                    ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+                } else {
+                    break;
+                }
             }
         }
         minimap(food, foodcolor);
