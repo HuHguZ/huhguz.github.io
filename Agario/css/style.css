@@ -23,6 +23,8 @@ body, html {
 
 #canvas2 {
     position: absolute;
+    bottom: 5px;
+    right: 5px;
     opacity: .7
 }
 
@@ -40,7 +42,7 @@ h1 {
     color: #000
 }
 
-.text, button, .tab {
+button, .tab {
     font-family: Verdana;
     color: #000;
     font-weight: 900;
@@ -59,29 +61,36 @@ h1 {
     color: #fff;
     border-radius: 30px;
     opacity: 0;
-    transform: scale(0,0);
+    transform: scale(0, 0);
 }
+
 .stats {
     color: #fff;
     width: 100%;
     height: 100%;
     border-collapse: collapse;
 }
+
 .border-bottom {
     border-bottom: 2px solid white;
 }
+
 button {
     margin-top: 3px;
+    background-color: rgb(242, 251, 255);
+    border: 2px solid black;
+    outline: 0;
+    border-radius: 10px;
 }
 
-.text {
-    border-top: 2px solid hsla(0, 0%, 0%, 0.5);
-    padding-top: 3px;
+button:hover {
+    cursor: pointer;
+    transform: scale(1.15,1.15);
 }
 
 .settings, .botsettings {
     position: absolute;
-    top: 5%;
+    top: 1%;
     left: 20%;
     opacity: 0;
     transform: scale(0, 0);
@@ -89,7 +98,7 @@ button {
     background-image: url(../resources/fon.png);
     background-size: 100%, 100%;
     width: 60%;
-    height: 80%;
+    height: 94%;
     font-family: Verdana;
     text-align: center;
     padding: 10px;
@@ -108,7 +117,6 @@ button {
 
 .bot {
     border-collapse: collapse;
-    margin: 0 auto
 }
 
 .link {
@@ -132,7 +140,7 @@ button {
     background-color: rgba(0, 0, 0, 0.75);
     width: 300px;
     height: 420px;
-    bottom: 45px;
+    bottom: 5px;
     left: 5px;
     font-family: Code Pro;
 }
@@ -157,6 +165,10 @@ button {
     border: 2px solid black;
 }
 
+#send:hover {
+    cursor: pointer;
+}
+
 .message {
     color: white;
     padding: 5px;
@@ -167,5 +179,8 @@ input {
     color: #000;
     font-size: 15px;
     text-align: center;
-    width: 70px
+    width: 70px;
+    outline: 0;
+    border: 0.5px solid black;
+    border-radius: 10px;
 }

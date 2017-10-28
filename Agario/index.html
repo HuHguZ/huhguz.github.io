@@ -20,10 +20,10 @@
     <div class="tab">
         <table class="stats">
             <tr>
-                <th class ='border-bottom'>Имя</th>
-                <th class ='border-bottom'>Убийства</th>
-                <th class ='border-bottom'>Смерти</th>
-                <th class ='border-bottom'>У/С</th>
+                <th class='border-bottom'>Имя</th>
+                <th class='border-bottom'>Убийства</th>
+                <th class='border-bottom'>Смерти</th>
+                <th class='border-bottom'>У/С</th>
             </tr>
             <tr>
                 <th id="name0"></th>
@@ -93,76 +93,55 @@
             </tr>
         </table>
     </div>
-    <div class="text"> time - <input type="text" id="inp0"> &nbsp;radius - <input type="text" id="inp1"> &nbsp;x - <input type="text" id="inp2"> &nbsp;y - <input type="text" id="inp3"> &nbsp;xspeed - <input type="text" id="inp4"> &nbsp;yspeed - <input type="text" id="inp5">        &nbsp; <button id="guide">Гайд</button></div>
     <div class="settings">
         <h1>Настройки</h1> Цвет игрока - <input type="color" id="color1"><br> Цвет обводки игрока - <input type="color" id="color2"><br> Имя - <input type="text" id="name"><br> Ваша скорость по оси оX -
-        <input type="text" id="xspeed"><br> Ваша скорость по оси оY - <input type="text" id="yspeed"><br> Скорость ботов по обоим осям - <input type="text" id="botspeed"><br> Количество ботов - <input type="text" id="botsCount"><br> Кол-во еды - <input type="text" id="food"><br> Радиус еды - <input type="text"
-            id="food2"><br> <span title="Нужно быть близко к еде на эту величину, чтобы она постепенно начала к вам притягиваться">Притяжение еды</span> - <input type="text" id="dist"><br> <span title="maxr = ((0.2*w*h*scale)/Pi)^0.5;">Максимальный радиус</span>        - <input type="text" id="maxr"><br> <span title="С этим радиусом вы спавнитесь, возрождаетесь после смерти и т.д.">Минимальный радиус</span> - <input type="text" id="dr"><br> Скорость роста - <input type="text" id="rspeed"><br> <span title="Раз в секунду">Скорость уменьшения</span> - <input type="text" id="decreaseSpeed"><br> <span title="Это число (scale) умножается на ширину и высоту экрана">Размер поля</span>        - <input type="text" id="scale"><br> Масштаб сетки - <input type="text" id="maz"><br> <button class="default">Сбросить</button>&nbsp;&nbsp;&nbsp;<button class="random">Случайно</button><br/> <button class="bots">Настроить ботов</button> </div>
+        <input type="text" id="xspeed"><br> Ваша скорость по оси оY - <input type="text" id="yspeed"><br> Скорость ботов по обоим осям - <input type="text" id="botspeed"><br> Количество ботов - <input type="text" id="botsCount"><br> Количество еды -
+        <input type="text" id="food"><br> Радиус еды - <input type="text" id="food2"><br> <span title="Нужно быть близко к еде на эту величину, чтобы она постепенно начала к вам притягиваться">Притяжение еды</span> - <input type="text" id="dist"><br>        Скорость притяжения еды -
+        <input type="text" id="sp"><br> <span title="maxr = ((0.2*w*h*scale)/Pi)^0.5;">Максимальный радиус</span> - <input type="text" id="maxr"><br> <span title="С этим радиусом вы спавнитесь, возрождаетесь после смерти и т.д.">Минимальный радиус</span>        - <input type="text" id="dr"><br> Скорость роста - <input type="text" id="rspeed"><br><span title="Вы можете начать поедать своего оппонента, если отношение вашей массы к его больше, чем число, указанное здесь, и наоборот">Можно атаковать - </span><input type="text" id="canEat"><br> <span title="Раз в секунду">Скорость уменьшения</span> - <input type="text" id="decreaseSpeed"><br> <span title="Это число (scale) умножается на ширину и высоту экрана">Размер поля</span>        - <input type="text" id="scale"><br> Масштаб сетки - <input type="text" id="maz"><br> Отображать сетку - <input type="checkbox" id="grid" checked><br>Режим сумасшедшего - <input type="checkbox" id="crazy"><br>Передать управление ИИ - <input type="checkbox" id="playerBot"><br> <button class="default">Сбросить</button>&nbsp;&nbsp;&nbsp;<button class="random">Случайно</button><br>        <button class="bots">Настроить ботов</button> </div>
     <div class="botsettings">
-        <h1>Настройки ботов</h1> <span title="Генерируется случайно от 0 до заданного числа, используется для повторения однотипных действий бота">Количество шагов</span> - <input type="text" id="stepcount"><br/> Дальность видимости ботов - <input type="text" id="razt">
-        <h1>Вероятности ходов</h1>
-        <table class="bot">
+        <h1>Настройки ботов</h1> <span title="Генерируется случайно от 0 до заданного числа, используется для повторения однотипных действий бота">Количество шагов</span> - <input type="text" id="stepcount"><br> Дальность видимости ботов - <input type="text" id="razt">
+        <table style="margin: 0 auto; text-align: center">
             <tr>
-                <th class='tdh'>&#8593;</th>
-                <th class='tdh'>↗</th>
-                <th class='tdh'>&#8594;</th>
-                <th class='tdh'>↘</th>
-                <th class='tdh'>&#8595;</th>
-                <th class='tdh'>↙</th>
-                <th class='tdh'>&#8592;</th>
-                <th class='tdh'>↖</th>
-                <th class='tdh'><img src="resources/bots1.png" title="Взаимодействие бота с игроком и другими ботами"></th>
-                <th class='tdh'><img src="resources/eat.png" title="Поедание пищи"></th>
+                <td>
+                    <h1>Вероятности ходов</h1>
+                    <table class="bot">
+                        <tr>
+                            <th class='tdh'><img src="resources/rndMove.png" title="Движение в точку, выбранную случайно"></th>
+                            <th class='tdh'><img src="resources/bots1.png" title="Взаимодействие бота с игроком и другими ботами"></th>
+                            <th class='tdh'><img src="resources/eat.png" title="Поедание пищи"></th>
+                        </tr>
+                        <tr>
+                            <td class='tdh'><input type="text" id="chance0"></td>
+                            <td class='tdh'><input type="text" id="chance2"></td>
+                            <td class='tdh'><input type="text" id="chance4"></td>
+                        </tr>
+                        <tr>
+                            <td class='tdh'><input type="text" id="chance1"></td>
+                            <td class='tdh'><input type="text" id="chance3"></td>
+                            <td class='tdh'><input type="text" id="chance5"></td>
+                        </tr>
+                        <tr>
+                            <td class='tdh'><span class="chance0"></span></td>
+                            <td class='tdh'><span class="chance1"></span></td>
+                            <td class='tdh'><span class="chance2"></span></td>
+                        </tr>
+                        <tr>
+                            <td class='tdh'><span class="chan0"></span></td>
+                            <td class='tdh'><span class="chan1"></span></td>
+                            <td class='tdh'><span class="chan2"></span></td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <h1>Характеристики ботов</h1>
+                    Номер бота - <input type="number" id="list" value="0"><br> Имя - <input type="text" id="botname"><br> Цвет круга - <input type="color" id="botCir"><br> Цвет обводки - <input type="color" id="botStroke"><br> Скорость по оси Ox - <input type="text"
+                        id="botXsp"><br> Скорость по оси Oy - <input type="text" id="botYsp"><br> Режим сумасшедшего - <input type="checkbox" id="botCrazy"><br>
+                    <button id="save">Сохранить</button><button id="random">Случайно</button><br>
+                    <button id="saveAll">Применить для всех</button>
+                </td>
             </tr>
-            <tr>
-                <td class='tdh'><input type="text" id="chance0"></td>
-                <td class='tdh'><input type="text" id="chance2"></td>
-                <td class='tdh'><input type="text" id="chance4"></td>
-                <td class='tdh'><input type="text" id="chance6"></td>
-                <td class='tdh'><input type="text" id="chance8"></td>
-                <td class='tdh'><input type="text" id="chance10"></td>
-                <td class='tdh'><input type="text" id="chance12"></td>
-                <td class='tdh'><input type="text" id="chance14"></td>
-                <td class='tdh'><input type="text" id="chance16"></td>
-                <td class='tdh'><input type="text" id="chance18"></td>
-            </tr>
-            <tr>
-                <td class='tdh'><input type="text" id="chance1"></td>
-                <td class='tdh'><input type="text" id="chance3"></td>
-                <td class='tdh'><input type="text" id="chance5"></td>
-                <td class='tdh'><input type="text" id="chance7"></td>
-                <td class='tdh'><input type="text" id="chance9"></td>
-                <td class='tdh'><input type="text" id="chance11"></td>
-                <td class='tdh'><input type="text" id="chance13"></td>
-                <td class='tdh'><input type="text" id="chance15"></td>
-                <td class='tdh'><input type="text" id="chance17"></td>
-                <td class='tdh'><input type="text" id="chance19"></td>
-            </tr>
-            <tr>
-                <td class='tdh'><span class="chance0"></span></td>
-                <td class='tdh'><span class="chance1"></span></td>
-                <td class='tdh'><span class="chance2"></span></td>
-                <td class='tdh'><span class="chance3"></span></td>
-                <td class='tdh'><span class="chance4"></span></td>
-                <td class='tdh'><span class="chance5"></span></td>
-                <td class='tdh'><span class="chance6"></span></td>
-                <td class='tdh'><span class="chance7"></span></td>
-                <td class='tdh'><span class="chance8"></span></td>
-                <td class='tdh'><span class="chance9"></span></td>
-            </tr>
-            <tr>
-                <td class='tdh'><span class="chan0"></span></td>
-                <td class='tdh'><span class="chan1"></span></td>
-                <td class='tdh'><span class="chan2"></span></td>
-                <td class='tdh'><span class="chan3"></span></td>
-                <td class='tdh'><span class="chan4"></span></td>
-                <td class='tdh'><span class="chan5"></span></td>
-                <td class='tdh'><span class="chan6"></span></td>
-                <td class='tdh'><span class="chan7"></span></td>
-                <td class='tdh'><span class="chan8"></span></td>
-                <td class='tdh'><span class="chan9"></span></td>
-            </tr>
-        </table> <button class="restart">Перезапустить ботов</button>&nbsp;&nbsp;&nbsp;<button class="rnd">Случайно</button>&nbsp;&nbsp;&nbsp; <button class="def">Сбросить</button><br/> <button class="ready">Сохранить и выйти</button> </div>
+        </table>
+        <button class="restart">Перезапустить ботов</button>&nbsp;&nbsp;&nbsp;<button class="rnd">Случайно</button>&nbsp;&nbsp;&nbsp; <button class="def">Сбросить</button><br> <button class="ready">Сохранить и выйти</button> </div>
 </body>
 
 </html>

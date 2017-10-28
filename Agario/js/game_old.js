@@ -4,55 +4,41 @@ $('document').ready(function() {
         canvas2 = document.getElementById('canvas2'),
         ctx2 = canvas2.getContext('2d'),
         canvas3 = document.getElementById('canvas3'),
-        ctx3 = canvas3.getContext('2d');
-    canvas3.width = 220;
-    canvas3.height = 300;
-    var w = canvas.width = window.innerWidth,
-        h = canvas.height = window.innerHeight - 40,
+        ctx3 = canvas3.getContext('2d'),
+        w = canvas.width = window.innerWidth,
+        h = canvas.height = window.innerHeight,
         key, tick = 0,
-        keyOld, x1 = 0,
+        x1 = 0,
         y1 = 0,
         messageCount = 0,
-        foodcount = 450,
+        foodcount = 100,
+        speedOfAttOfFood = 1.5,
         foodr = 5,
         maxr, rspeed = 0.5,
         scale = 3,
         mbc, dr = 7,
-        stepcount = 50,
+        stepCount = 120,
         fdd = 20,
         botCount = 5,
         set = true,
-        set2 = true,
-        set3 = true,
-        chat = true,
         canPlay = true,
+        playerBot = false,
+        canEat = 1.2,
+        elements = [true, true, true, true],
         maz = 40,
         razt = 200,
         decreaseSpeed = 1,
-        player = {
-            x: Math.round(Math.random() * scale * w),
-            y: Math.round(Math.random() * scale * h),
-            r: dr,
-            xspeed: 2,
-            yspeed: 2,
-            name: 'HuHguZ',
-            defaultXspeed: 2,
-            defaultYspeed: 2,
-            circleColor: '#ff0000',
-            strokeColor: '#990000',
-            xdirection: 0,
-            ydirection: 0,
-            kills: 0,
-            deaths: 0
-        },
+        player = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, 'HuHguZ', 2, 2, '#ff0000', '#990000', Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false),
         bots = [],
         food = [],
         foodcolor = [],
-        chance = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 15, 16, 23];
-        // chance = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 9, 10];
-    mbc = chance[19];
+        chance = [0, 7, 8, 5000, 5001, 5002];
+    // chance = [0, 7, 8, 15, 16, 23];
+    mbc = chance[chance.length - 1];
+    canvas3.width = 220;
+    canvas3.height = 300;
 
-    function Bot(x, y, r, xspeed, yspeed, name, defaultXspeed, defaultYspeed, circleColor, strokeColor, xdirection, ydirection, typeOfMoyion, kills, deaths, currentMotion, step, rndX, rndY) {
+    function Bot(x, y, r, xspeed, yspeed, name, defaultXspeed, defaultYspeed, circleColor, strokeColor, typeOfMoyion, kills, deaths, currentMotion, step, rndX, rndY, crazyMod) {
         this.x = x;
         this.y = y;
         this.r = r;
@@ -63,8 +49,6 @@ $('document').ready(function() {
         this.defaultYspeed = defaultYspeed;
         this.circleColor = circleColor;
         this.strokeColor = strokeColor;
-        this.xdirection = xdirection;
-        this.ydirection = ydirection;
         this.typeOfMoyion = typeOfMoyion;
         this.currentMotion = currentMotion;
         this.step = step;
@@ -72,48 +56,37 @@ $('document').ready(function() {
         this.deaths = deaths;
         this.rndX = rndX;
         this.rndY = rndY;
+        this.crazyMod = crazyMod;
     }
     for (var i = 0; i < botCount; i++) {
-        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, botname(), 2, 2, color(), color(), 0, 0, Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepcount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h));
+        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, generateName(), 2, 2, color(), color(), Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false);
     }
-    maxr = Math.round(Math.sqrt((0.2 * w * h * scale) / Math.PI));
+    maxr = Math.round(Math.sqrt((0.1 * w * h * scale) / Math.PI));
     ctx.scale(4.5, 4.5);
     ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
     ctx.translate(-(520 * w * 0.00075), -(520 * h * 0.00075));
-    var def = [player.circleColor, player.strokeColor, player.name, player.defaultXspeed, player.defaultYspeed, '', foodcount, foodr, maxr, dr, rspeed, scale, fdd, maz, decreaseSpeed];
+    var def = [player.circleColor, player.strokeColor, player.name, player.defaultXspeed, player.defaultYspeed, '', foodcount, foodr, maxr, dr, rspeed, scale, fdd, maz, decreaseSpeed, bots.length, speedOfAttOfFood, canEat];
     var chancedef = [];
     for (var i = 0; i < chance.length; i++) {
         chancedef[i] = chance[i];
     }
     genFood();
 
-    function showInfo() {
-        $('#inp0').val((performance.now() / 1000).toFixed(2));
-        $('#inp1').val(player.r);
-        $('#inp2').val(player.x);
-        $('#inp3').val(player.y);
-        $('#inp4').val(player.xspeed);
-        $('#inp5').val(player.yspeed);
-    }
-    $('#guide').on('click', function() {
-        alert('Добро пожаловать в пародию на Agar.io, ' + player.name + '\nВ этой версии игры вы будете сражаться с ботами, которых на карте ' + bots.length + '.\nВы, как и они, должны собирать пищу, чтобы расти и становиться больше своих конкурентов.\nКак только немного подрастёте, можете начинать искать и поедать своих врагов.\nИногда в игре будут происходить необъяснимые случайности.\nОбъяснения этому пока никто не дал.\nДля тонкой настройки игры нажмите ё. Там вы можете как и зачитерить, так и подкорректировать текущую симуляцию. (Отнимается 30% радиуса).\nУдачной игры!');
-        alert('Управление - WASD. Управление камерой - стрелочки или клавиши TFGH. Убрать мини-карту - Q, чат - 2, открыть таблицу - 1.');
-    });
-
     function drawobj(obj) {
         ctx.beginPath();
         ctx.arc(obj.x, obj.y, obj.r, 0, Math.PI * 2, false);
-        ctx.closePath();
         ctx.fillStyle = obj.circleColor;
         ctx.fill();
-        ctx.strokeStyle = obj.strokeColor;
+        ctx.lineWidth = 1;
         ctx.lineWidth = Math.round(0.02 * obj.r);
+        ctx.strokeStyle = obj.strokeColor;
         ctx.stroke();
         ctx.fillStyle = obj.strokeColor;
         ctx.textAlign = "center";
         ctx.font = "normal " + (obj.r * 0.3) + "px Code Pro";
         ctx.fillText("" + obj.name + "", obj.x, obj.y);
         ctx.fillText("" + obj.r + "", obj.x, (obj.r * 0.3) + obj.y);
+        ctx.closePath();
     }
 
     function color() {
@@ -128,7 +101,7 @@ $('document').ready(function() {
 
     function genFood() {
         for (var i = 0; i < foodcount * 2; i += 2) {
-            foodcoords(food, player, i);
+            foodCoords(food, player, i);
         }
         for (var i = 0; i < foodcount * 3; i++) {
             if (i == 0 || i % 2 == 0) {
@@ -141,7 +114,7 @@ $('document').ready(function() {
         }
     }
 
-    function randomrspeed() {
+    function randomRspeed() {
         var b, a = (Math.random() * 10).toFixed(2);
         b = a - Math.floor(a);
         a = Math.floor(a);
@@ -158,354 +131,369 @@ $('document').ready(function() {
         return a;
     }
 
-    function moveplayer(pl) {
+    function movePlayer(pl) {
         document.onkeypress = function(event) {
             key = event.key;
         }
         ctx.translate((pl.x - w / 2), (pl.y - h / 2));
-        if (getDistance(x1, y1, player.x, player.y) > 1) {
-            player.x += player.xspeed * ((x1 - player.x) / getDistance(x1, y1, player.x, player.y));
-            player.y += player.yspeed * ((y1 - player.y) / getDistance(x1, y1, player.x, player.y));
+        if (!playerBot) {
+            var xMotion = pl.xspeed * ((x1 - pl.x) / getDistance(x1, y1, pl.x, pl.y)),
+                yMotion = pl.yspeed * ((y1 - pl.y) / getDistance(x1, y1, pl.x, pl.y));
+            pl.x += xMotion;
+            pl.y += yMotion;
+            x1 += xMotion;
+            y1 += yMotion;
         }
-        if (key === 't' || key === 'T' || key === 'е' || key === 'Е' || key === 'ArrowUp') {
-            ctx.translate(0, pl.defaultYspeed);
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-        } else if (key === 'f' || key === 'F' || key === 'а' || key === 'А' || key === 'ArrowLeft') {
-            ctx.translate(pl.defaultXspeed, 0);
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-        } else if (key === 'g' || key === 'G' || key === 'п' || key === 'П' || key === 'ArrowDown') {
-            ctx.translate(0, -pl.defaultYspeed);
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-        } else if (key === 'h' || key === 'H' || key === 'р' || key === 'Р' || key === 'ArrowRight') {
-            ctx.translate(-pl.defaultXspeed, 0);
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-        } else if (key === '`' || key === '~' || key === 'Ё' || key === 'ё') {
-            key = 0;
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-            if (set) {
-                if (player.r > dr) {
-                    player.r = Math.round(0.7 * player.r);
-                    $(".settings").css("opacity", "1");
-                    $(".settings").css("transform", "scale(1, 1)");
-                    $("#canvas").css("opacity", "0");
-                    $(".text").css("opacity", "0");
-                    $("#canvas3").css("opacity", "0");
-                    $('#canvas3').css("transform", "scale(0, 0)");
-                    $('#canvas2').css("opacity", "0");
-                    $('#canvas2').css("transform", "scale(0, 0)");
+        if (canPlay) {
+            if (key === 't' || key === 'T' || key === 'е' || key === 'Е' || key === 'ArrowUp') {
+                ctx.translate(0, pl.defaultYspeed);
+            } else if (key === 'f' || key === 'F' || key === 'а' || key === 'А' || key === 'ArrowLeft') {
+                ctx.translate(pl.defaultXspeed, 0);
+            } else if (key === 'g' || key === 'G' || key === 'п' || key === 'П' || key === 'ArrowDown') {
+                ctx.translate(0, -pl.defaultYspeed);
+            } else if (key === 'h' || key === 'H' || key === 'р' || key === 'Р' || key === 'ArrowRight') {
+                ctx.translate(-pl.defaultXspeed, 0);
+            } else if (key === '`' || key === '~' || key === 'Ё' || key === 'ё') {
+                if (set) {
+                    if (player.r > dr) {
+                        player.r = Math.round(0.7 * player.r);
+                        $(".settings").css("opacity", "1");
+                        $(".settings").css("transform", "scale(1, 1)");
+                        $("#canvas").css("opacity", "0");
+                        $("#canvas3").css("opacity", "0");
+                        $('#canvas3').css("transform", "scale(0, 0)");
+                        $('#canvas2').css("opacity", "0");
+                        $('#canvas2').css("transform", "scale(0, 0)");
+                        $('.tab').css("transform", "scale(0, 0)");
+                        $('.tab').css("opacity", "0");
+                        $('.chat').css('opacity', '0');
+                        $('.chat').css("transform", "scale(0, 0)");
+                        set = false;
+                        $("#color1").val(player.circleColor);
+                        $("#color2").val(player.strokeColor);
+                        $("#name").val(player.name);
+                        $("#xspeed").val(player.defaultXspeed);
+                        $("#yspeed").val(player.defaultYspeed);
+                        $("#botspeed").val();
+                        $("#botsCount").val(bots.length);
+                        $("#food").val(foodcount);
+                        $("#food2").val(foodr);
+                        $("#dist").val(fdd);
+                        $("#sp").val(speedOfAttOfFood);
+                        $("#maxr").val(maxr);
+                        $("#rspeed").val(rspeed);
+                        $("#canEat").val(canEat);
+                        $("#decreaseSpeed").val(decreaseSpeed);
+                        $("#scale").val(scale);
+                        $("#maz").val(maz);
+                        $("#dr").val(dr);
+                        document.getElementById('crazy').checked = player.crazyMod;
+                        document.getElementById('playerBot').checked = playerBot;
+                        $('.default').on('click', function() {
+                            $("#color1").val(def[0]);
+                            $("#color2").val(def[1]);
+                            $("#name").val(def[2]);
+                            $("#xspeed").val(def[3]);
+                            $("#yspeed").val(def[4]);
+                            $("#botspeed").val(def[5]);
+                            $("#botsCount").val(def[15]);
+                            $("#food").val(def[6]);
+                            $("#food2").val(def[7]);
+                            $("#maxr").val(def[8]);
+                            $("#rspeed").val(def[10]);
+                            $("#decreaseSpeed").val(def[14]);
+                            $("#scale").val(def[11]);
+                            $("#dr").val(def[9]);
+                            $("#dist").val(def[12]);
+                            $("#sp").val(def[16]);
+                            $("#maz").val(def[13]);
+                            $("#canEat").val(def[17]);
+                        });
+                        $('.random').on('click', function() {
+                            $("#color1").val(color());
+                            $("#color2").val(color());
+                            player.name = generateName();
+                            $("#name").val(player.name);
+                            $("#xspeed").val((Math.random() * 10).toFixed(2));
+                            $("#yspeed").val((Math.random() * 10).toFixed(2));
+                            $("#botspeed").val((Math.random() * 10).toFixed(2));
+                            $("#botsCount").val(Math.round(Math.random() * 500));
+                            $("#food").val(Math.round(Math.random() * 400));
+                            $("#food2").val(Math.round(Math.random() * 10));
+                            $("#dist").val(Math.round(Math.random() * 200));
+                            $("#sp").val((Math.random() * 20).toFixed(3));
+                            $("#rspeed").val(randomRspeed());
+                            $("#canEat").val((Math.random() * 20).toFixed(3));
+                            $("#decreaseSpeed").val((Math.random() * 60).toFixed(2));
+                            $("#scale").val((Math.random() * 7).toFixed(2));
+                            $("#maz").val(Math.round(Math.random() * 200));
+                            $("#dr").val(Math.round(Math.random() * 10));
+                            $("#maxr").val(Math.round(Math.random() * Math.sqrt((0.2 * w * h * parseFloat($("#scale").val())) / Math.PI)));
+                            document.getElementById('crazy').checked = !!Math.floor(Math.random() * 2);
+                            document.getElementById('playerBot').checked = !!Math.floor(Math.random() * 2);
+                        });
+                        $('.bots').on('click', function() {
+                            $(".settings").css("opacity", "0");
+                            $(".settings").css("transform", "scale(0, 0)");
+                            $(".botsettings").css("opacity", "1");
+                            $(".botsettings").css("transform", "scale(1, 1)");
+                            $("#stepcount").val(stepCount);
+                            $("#razt").val(razt);
+                            for (var i = 0; i < chance.length; i++) {
+                                $("#chance" + i + "").val(chance[i]);
+                            }
+                            for (var i = 0; i < chance.length; i += 2) {
+                                $(".chance" + i / 2 + "").html("[" + chance[i] + ";" + chance[i + 1] + "]");
+                            }
+                            mbc = parseInt($("#chance5").val());
+                            for (var i = 0; i < chance.length; i += 2) {
+                                if (parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) == 0) {
+                                    $(".chan" + i / 2 + "").html("" + (1 / mbc * 100).toFixed(2) + "%");
+                                } else {
+                                    $(".chan" + i / 2 + "").html("" + ((parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) + 1) / mbc * 100).toFixed(2) + "%");
+                                }
+                            }
+                            $("#chance0").on('keyup', function() {
+                                $("#chance1").val(1 + parseInt($("#chance0").val()));
+                            });
+                            $("#chance1").on('keyup', function() {
+                                $("#chance2").val(1 + parseInt($("#chance1").val()));
+                            });
+                            $("#chance2").on('keyup', function() {
+                                $("#chance3").val(1 + parseInt($("#chance2").val()));
+                            });
+                            $("#chance3").on('keyup', function() {
+                                $("#chance4").val(1 + parseInt($("#chance3").val()));
+                            });
+                            $("#chance4").on('keyup', function() {
+                                $("#chance5").val(1 + parseInt($("#chance4").val()));
+                            });
+                            $('.def').on('click', function() {
+                                for (var i = 0; i < chance.length; i++) {
+                                    $("#chance" + i + "").val(chancedef[i]);
+                                }
+                                for (var i = 1; i < chance.length; i += 2) {
+                                    if (i > 2) {
+                                        $("#chance" + (i - 1) + "").val(1 + parseInt($("#chance" + (i - 2) + "").val()));
+                                    }
+                                }
+                                for (var i = 0; i < chance.length; i += 2) {
+                                    $(".chance" + i / 2 + "").html("[" + parseInt($("#chance" + (i) + "").val()) + ";" + parseInt($("#chance" + (i + 1) + "").val()) + "]");
+                                }
+                                mbc = parseInt($("#chance5").val());
+                                for (var i = 0; i < chance.length; i += 2) {
+                                    if (parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) == 0) {
+                                        $(".chan" + i / 2 + "").html("" + (1 / mbc * 100).toFixed(2) + "%");
+                                    } else {
+                                        $(".chan" + i / 2 + "").html("" + ((parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) + 1) / mbc * 100).toFixed(2) + "%");
+                                    }
+                                }
+                            });
+                            $('.restart').on('click', function() {
+                                for (var i = 0; i < bots.length; i++) {
+                                    respawn(bots[i]);
+                                }
+                            });
+                            $('.rnd').on('click', function() {
+                                $("#stepcount").val(Math.round(Math.random() * 500));
+                                $("#razt").val(Math.round(Math.random() * 500));
+                                for (var i = 1; i < chance.length; i += 2) {
+                                    if (i > 2) {
+                                        $("#chance" + (i - 1) + "").val(1 + parseInt($("#chance" + (i - 2) + "").val()));
+                                    }
+                                    $("#chance" + i + "").val(Math.round(Math.random() * (100 + parseInt($("#chance" + (i - 1) + "").val()) - parseInt($("#chance" + (i - 1) + "").val())) + parseInt($("#chance" + (i - 1) + "").val())));
+                                }
+                                mbc = parseInt($("#chance5").val());
+                                for (var i = 0; i < chance.length; i += 2) {
+                                    $(".chance" + i / 2 + "").html("[" + parseInt($("#chance" + (i) + "").val()) + ";" + parseInt($("#chance" + (i + 1) + "").val()) + "]");
+                                }
+                                for (var i = 0; i < chance.length; i += 2) {
+                                    if (parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) == 0) {
+                                        $(".chan" + i / 2 + "").html("" + (1 / mbc * 100).toFixed(2) + "%");
+                                    } else {
+                                        $(".chan" + i / 2 + "").html("" + ((parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) + 1) / mbc * 100).toFixed(2) + "%");
+                                    }
+                                }
+                            });
+                            showStats();
+
+                            function setStats(n) {
+                                if (bots.length) {
+                                    bots[n].name = $('#botname').val();
+                                    bots[n].circleColor = $('#botCir').val();
+                                    bots[n].strokeColor = $('#botStroke').val();
+                                    bots[n].defaultXspeed = +$('#botXsp').val();
+                                    bots[n].defaultYspeed = +$('#botYsp').val();
+                                    bots[n].crazyMod = document.getElementById('botCrazy').checked;
+                                }
+                            }
+
+                            function showStats() {
+                                var n = +$('#list').val();
+                                if (bots.length) {
+                                    $('#botname').val(bots[n].name);
+                                    $('#botCir').val(bots[n].circleColor);
+                                    $('#botStroke').val(bots[n].strokeColor);
+                                    $('#botXsp').val(bots[n].defaultXspeed);
+                                    $('#botYsp').val(bots[n].defaultYspeed);
+                                    document.getElementById('botCrazy').checked = bots[n].crazyMod;
+                                }
+                            }
+                            $('#list').on('change click', function() {
+                                if (+$('#list').val() < 0) {
+                                    $('#list').val(0);
+                                } else if (+$('#list').val() >= bots.length) {
+                                    $('#list').val(bots.length - 1);
+                                }
+                                showStats();
+                            });
+                            $('#random').on('click', function() {
+                                if (bots.length) {
+                                    $('#botname').val(generateName());
+                                    $('#botCir').val(color());
+                                    $('#botStroke').val(color());
+                                    $('#botXsp').val((Math.random() * 20).toFixed(3));
+                                    $('#botYsp').val((Math.random() * 20).toFixed(3));
+                                    document.getElementById('botCrazy').checked = !!Math.floor(Math.random() * 2);
+                                }
+                            });
+                            $('#saveAll').on('click', function() {
+                                for (var i = 0; i < bots.length; i++) {
+                                    setStats(i);
+                                }
+                            });
+                            $('#save').on('click', function() {
+                                setStats(+$('#list').val());
+                            });
+                            $('.ready').on('click', function() {
+                                $(".botsettings").css("opacity", "0");
+                                $(".botsettings").css("transform", "scale(0, 0)");
+                                stepCount = parseInt($("#stepcount").val());
+                                razt = parseInt($("#razt").val());
+                                for (var i = 0; i < chance.length; i++) {
+                                    chance[i] = parseInt($("#chance" + i + "").val());
+                                }
+                                mbc = chance[chance.length - 1];
+                                if (!set) {
+                                    $(".settings").css("opacity", "1");
+                                    $(".settings").css("transform", "scale(1, 1)");
+                                }
+                            });
+                        });
+                    }
+                } else {
+                    $(".settings").css("opacity", "0");
+                    $(".settings").css("transform", "scale(0, 0)");
+                    $("#canvas").css("opacity", "1");
+                    if (elements[3]) {
+                        $('#canvas2').css("opacity", ".7");
+                        $('#canvas2').css("transform", "scale(1, 1)");
+                    }
+                    if (elements[2]) {
+                        $("#canvas3").css("opacity", "1");
+                        $('#canvas3').css("transform", "scale(1, 1)");
+                    }
+                    if (elements[0]) {
+                        $('.chat').css('opacity', '1');
+                        $('.chat').css("transform", "scale(1, 1)");
+                    }
+                    set = true;
+                    player.circleColor = $("#color1").val();
+                    player.strokeColor = $("#color2").val();
+                    player.name = $("#name").val();
+                    player.defaultXspeed = parseFloat($("#xspeed").val());
+                    player.defaultYspeed = parseFloat($("#yspeed").val());
+                    player.crazyMod = document.getElementById('crazy').checked;
+                    playerBot = document.getElementById('playerBot').checked;
+                    if (+$("#botsCount").val() > bots.length) {
+                        for (var i = bots.length; i < +$("#botsCount").val(); i++) {
+                            bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, generateName(), 2, 2, color(), color(), Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false);
+                        }
+                        table();
+                    } else if (+$("#botsCount").val() < bots.length) {
+                        if (+$("#botsCount").val() <= 0) {
+                            bots.splice(0, bots.length);
+                        } else {
+                            bots.splice(+$("#botsCount").val(), bots.length);
+                        }
+                        table();
+                    }
+                    foodcount = parseFloat($("#food").val());
+                    foodr = parseFloat($("#food2").val());
+                    maxr = parseFloat($("#maxr").val());
+                    rspeed = parseFloat($("#rspeed").val());
+                    canEat = parseFloat($("#canEat").val());
+                    decreaseSpeed = parseFloat($("#decreaseSpeed").val());
+                    scale = parseFloat($("#scale").val());
+                    maz = parseInt($("#maz").val());
+                    dr = parseFloat($("#dr").val());
+                    fdd = parseFloat($("#dist").val());
+                    speedOfAttOfFood = parseFloat($("#sp").val());
+                    genFood();
+                    speed(player);
+                    if ($("#botspeed").val()) {
+                        for (var i = 0; i < bots.length; i++) {
+                            bots[i].defaultXspeed = parseFloat($("#botspeed").val());
+                            bots[i].defaultYspeed = parseFloat($("#botspeed").val());
+                        }
+                    }
+                }
+            } else if ((key === '1' || key === '!') && set) {
+                if (elements[1]) {
+                    $('.tab').css("transform", "scale(1, 1)");
+                    $('.tab').css("opacity", "1");
+                } else {
                     $('.tab').css("transform", "scale(0, 0)");
                     $('.tab').css("opacity", "0");
+                }
+                elements[1] = !elements[1];
+            } else if ((key === 'q' || key === 'Q' || key === 'й' || key === 'Й') && set) {
+                if (elements[3]) {
+                    $('#canvas2').css("opacity", "0");
+                    $('#canvas2').css("transform", "scale(0, 0)");
+                } else {
+                    $('#canvas2').css("opacity", ".7");
+                    $('#canvas2').css("transform", "scale(1, 1)");
+                }
+                elements[3] = !elements[3];
+            } else if ((key === '2' || key === '@' || key === '"') && set) {
+                if (elements[0]) {
                     $('.chat').css('opacity', '0');
                     $('.chat').css("transform", "scale(0, 0)");
-                    set = false;
-                    $("#color1").val(player.circleColor);
-                    $("#color2").val(player.strokeColor);
-                    $("#name").val(player.name);
-                    $("#xspeed").val(player.defaultXspeed);
-                    $("#yspeed").val(player.defaultYspeed);
-                    $("#botspeed").val();
-                    $("#botsCount").val(bots.length);
-                    $("#food").val(foodcount);
-                    $("#food2").val(foodr);
-                    $("#dist").val(fdd);
-                    $("#maxr").val(maxr);
-                    $("#rspeed").val(rspeed);
-                    $("#decreaseSpeed").val(decreaseSpeed);
-                    $("#scale").val(scale);
-                    $("#maz").val(maz);
-                    $("#dr").val(dr);
-                    $('.default').on('click', function() {
-                        $("#color1").val(def[0]);
-                        $("#color2").val(def[1]);
-                        $("#name").val(def[2]);
-                        $("#xspeed").val(def[3]);
-                        $("#yspeed").val(def[4]);
-                        $("#botspeed").val(def[5]);
-                        $("#botsCount").val(10);
-                        $("#food").val(def[6]);
-                        $("#food2").val(def[7]);
-                        $("#maxr").val(def[8]);
-                        $("#rspeed").val(def[10]);
-                        $("#decreaseSpeed").val(def[14]);
-                        $("#scale").val(def[11]);
-                        $("#dr").val(def[9]);
-                        $("#dist").val(def[12]);
-                        $("#maz").val(def[13]);
-                    });
-                    $('.random').on('click', function() {
-                        $("#color1").val(color());
-                        $("#color2").val(color());
-                        player.name = botname();
-                        $("#name").val(player.name);
-                        $("#xspeed").val((Math.random() * 10).toFixed(2));
-                        $("#yspeed").val((Math.random() * 10).toFixed(2));
-                        $("#botspeed").val((Math.random() * 10).toFixed(2));
-                        $("#botsCount").val(Math.round(Math.random() * 500));
-                        $("#food").val(Math.round(Math.random() * 400));
-                        $("#food2").val(Math.round(Math.random() * 10));
-                        $("#dist").val(Math.round(Math.random() * 200));
-                        $("#rspeed").val(randomrspeed());
-                        $("#decreaseSpeed").val((Math.random() * 60).toFixed(2));
-                        $("#scale").val((Math.random() * 7).toFixed(2));
-                        $("#maz").val(Math.round(Math.random() * 200));
-                        $("#dr").val(Math.round(Math.random() * 10));
-                        $("#maxr").val(Math.round(Math.random() * Math.sqrt((0.2 * w * h * parseFloat($("#scale").val())) / Math.PI)));
-                    });
-                    $('.bots').on('click', function() {
-                        //
-                        $(".settings").css("opacity", "0");
-                        $(".settings").css("transform", "scale(0, 0)");
-                        $(".botsettings").css("opacity", "1");
-                        $(".botsettings").css("transform", "scale(1, 1)");
-                        $("#stepcount").val(stepcount);
-                        $("#razt").val(razt);
-                        for (var i = 0; i < chance.length; i++) {
-                            $("#chance" + i + "").val(chance[i]);
-                        }
-                        for (var i = 0; i < chance.length; i += 2) {
-                            $(".chance" + i / 2 + "").html("[" + chance[i] + ";" + chance[i + 1] + "]");
-                        }
-                        for (var i = 0; i < chance.length; i += 2) {
-                            if (chance[i + 1] - chance[i] == 0) {
-                                $(".chan" + i / 2 + "").html("" + (1 / mbc * 100).toFixed(2) + "%");
-                            } else {
-                                $(".chan" + i / 2 + "").html("" + ((chance[i + 1] - chance[i] + 1) / mbc * 100).toFixed(2) + "%");
-                            }
-                        }
-                        $("#chance0").on('keyup', function() {
-                            $("#chance1").val(1 + parseInt($("#chance0").val()));
-                        });
-                        $("#chance1").on('keyup', function() {
-                            $("#chance2").val(1 + parseInt($("#chance1").val()));
-                        });
-                        $("#chance2").on('keyup', function() {
-                            $("#chance3").val(1 + parseInt($("#chance2").val()));
-                        });
-                        $("#chance3").on('keyup', function() {
-                            $("#chance4").val(1 + parseInt($("#chance3").val()));
-                        });
-                        $("#chance4").on('keyup', function() {
-                            $("#chance5").val(1 + parseInt($("#chance4").val()));
-                        });
-                        $("#chance5").on('keyup', function() {
-                            $("#chance6").val(1 + parseInt($("#chance5").val()));
-                        });
-                        $("#chance6").on('keyup', function() {
-                            $("#chance7").val(1 + parseInt($("#chance6").val()));
-                        });
-                        $("#chance7").on('keyup', function() {
-                            $("#chance8").val(1 + parseInt($("#chance7").val()));
-                        });
-                        $("#chance8").on('keyup', function() {
-                            $("#chance9").val(1 + parseInt($("#chance8").val()));
-                        });
-                        $("#chance9").on('keyup', function() {
-                            $("#chance10").val(1 + parseInt($("#chance9").val()));
-                        });
-                        $("#chance10").on('keyup', function() {
-                            $("#chance11").val(1 + parseInt($("#chance10").val()));
-                        });
-                        $("#chance11").on('keyup', function() {
-                            $("#chance12").val(1 + parseInt($("#chance11").val()));
-                        });
-                        $("#chance12").on('keyup', function() {
-                            $("#chance13").val(1 + parseInt($("#chance12").val()));
-                        });
-                        $("#chance13").on('keyup', function() {
-                            $("#chance14").val(1 + parseInt($("#chance13").val()));
-                        });
-                        $("#chance14").on('keyup', function() {
-                            $("#chance15").val(1 + parseInt($("#chance14").val()));
-                        });
-                        $("#chance15").on('keyup', function() {
-                            $("#chance16").val(1 + parseInt($("#chance15").val()));
-                        });
-                        $("#chance16").on('keyup', function() {
-                            $("#chance17").val(1 + parseInt($("#chance16").val()));
-                        });
-                        $("#chance17").on('keyup', function() {
-                            $("#chance18").val(1 + parseInt($("#chance17").val()));
-                        });
-                        $("#chance18").on('keyup', function() {
-                            $("#chance19").val(1 + parseInt($("#chance18").val()));
-                        });
-                        $('.def').on('click', function() {
-                            for (var i = 0; i < chance.length; i++) {
-                                $("#chance" + i + "").val(chancedef[i]);
-                            }
-                            for (var i = 1; i < chance.length; i += 2) {
-                                if (i > 2) {
-                                    $("#chance" + (i - 1) + "").val(1 + parseInt($("#chance" + (i - 2) + "").val()));
-                                }
-                            }
-                            for (var i = 0; i < chance.length; i += 2) {
-                                $(".chance" + i / 2 + "").html("[" + parseInt($("#chance" + (i) + "").val()) + ";" + parseInt($("#chance" + (i + 1) + "").val()) + "]");
-                            }
-                            mbc = parseInt($("#chance19").val());
-                            for (var i = 0; i < chance.length; i += 2) {
-                                if (parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) == 0) {
-                                    $(".chan" + i / 2 + "").html("" + (1 / mbc * 100).toFixed(2) + "%");
-                                } else {
-                                    $(".chan" + i / 2 + "").html("" + ((parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) + 1) / mbc * 100).toFixed(2) + "%");
-                                }
-                            }
-                        });
-                        $('.restart').on('click', function() {
-                            for (var i = 0; i < bots.length; i++) {
-                                respawn(bots[i]);
-                            }
-                        });
-                        $('.rnd').on('click', function() {
-                            $("#stepcount").val(Math.round(Math.random() * 500));
-                            $("#razt").val(Math.round(Math.random() * 500));
-                            $("#chance0").val(Math.round(Math.random() * 100));
-                            for (var i = 1; i < chance.length; i += 2) {
-                                if (i > 2) {
-                                    $("#chance" + (i - 1) + "").val(1 + parseInt($("#chance" + (i - 2) + "").val()));
-                                }
-                                $("#chance" + i + "").val(Math.round(Math.random() * (100 + parseInt($("#chance" + (i - 1) + "").val()) - parseInt($("#chance" + (i - 1) + "").val())) + parseInt($("#chance" + (i - 1) + "").val())));
-                            }
-                            mbc = parseInt($("#chance19").val());
-                            for (var i = 0; i < chance.length; i += 2) {
-                                $(".chance" + i / 2 + "").html("[" + parseInt($("#chance" + (i) + "").val()) + ";" + parseInt($("#chance" + (i + 1) + "").val()) + "]");
-                            }
-                            for (var i = 0; i < chance.length; i += 2) {
-                                if (parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) == 0) {
-                                    $(".chan" + i / 2 + "").html("" + (1 / mbc * 100).toFixed(2) + "%");
-                                } else {
-                                    $(".chan" + i / 2 + "").html("" + ((parseInt($("#chance" + (i + 1) + "").val()) - parseInt($("#chance" + (i) + "").val()) + 1) / mbc * 100).toFixed(2) + "%");
-                                }
-                            }
-                        });
-                        $('.ready').on('click', function() {
-                            $(".botsettings").css("opacity", "0");
-                            $(".botsettings").css("transform", "scale(0, 0)");
-                            stepcount = parseInt($("#stepcount").val());
-                            razt = parseInt($("#razt").val());
-                            for (var i = 0; i < chance.length; i++) {
-                                chance[i] = parseInt($("#chance" + i + "").val());
-                            }
-                            mbc = chance[chance.length - 1];
-                            if (set == false) {
-                                $(".settings").css("opacity", "1");
-                                $(".settings").css("transform", "scale(1, 1)");
-                            }
-                        });
-                    });
+                } else {
+                    $('.chat').css('opacity', '1');
+                    $('.chat').css("transform", "scale(1, 1)");
                 }
-            } else {
-                $(".settings").css("opacity", "0");
-                $(".settings").css("transform", "scale(0, 0)");
-                $("#canvas").css("opacity", "1");
-                $(".text").css("opacity", "1");
-                $('#canvas2').css("opacity", ".7");
-                $("#canvas3").css("opacity", "1");
-                $('#canvas2').css("transform", "scale(1, 1)");
-                $('#canvas3').css("transform", "scale(1, 1)");
-                $('.chat').css('opacity', '1');
-                $('.chat').css("transform", "scale(1, 1)");
-                set = true;
-                player.circleColor = $("#color1").val();
-                player.strokeColor = $("#color2").val();
-                player.name = $("#name").val();
-                player.defaultXspeed = parseFloat($("#xspeed").val());
-                player.defaultYspeed = parseFloat($("#yspeed").val());
-                if (+$("#botsCount").val() > bots.length) {
-                    for (var i = bots.length; i < +$("#botsCount").val(); i++) {
-                        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, botname(), 2, 2, color(), color(), 0, 0, Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepcount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h));
-                    }
-                    table();
-                } else if (+$("#botsCount").val() < bots.length) {
-                    if (+$("#botsCount").val() <= 0) {
-                        bots.splice(0, bots.length);
-                    } else {
-                        bots.splice(+$("#botsCount").val(), bots.length);
-                    }
-                    table();
+                elements[0] = !elements[0];
+            } else if ((key === '3' || key === '#' || key === '№') && set) {
+                if (elements[2]) {
+                    $("#canvas3").css("opacity", "0");
+                    $('#canvas3').css("transform", "scale(0, 0)");
+                } else {
+                    $("#canvas3").css("opacity", "1");
+                    $('#canvas3').css("transform", "scale(1, 1)");
                 }
-                foodcount = parseFloat($("#food").val());
-                foodr = parseFloat($("#food2").val());
-                maxr = parseFloat($("#maxr").val());
-                rspeed = parseFloat($("#rspeed").val());
-                decreaseSpeed = parseFloat($("#decreaseSpeed").val());
-                scale = parseFloat($("#scale").val());
-                maz = parseInt($("#maz").val());
-                dr = parseFloat($("#dr").val());
-                fdd = parseFloat($("#dist").val());
-                genFood();
-                speed(player);
-                if ($("#botspeed").val() != '') {
-                    for (var i = 0; i < bots.length; i++) {
-                        bots[i].defaultXspeed = parseFloat($("#botspeed").val());
-                        bots[i].defaultYspeed = parseFloat($("#botspeed").val());
-                    }
-                }
+                elements[2] = !elements[2];
             }
-        } else if (key === '1' || key === '!') {
-            key = keyOld;
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-            if (set3) {
-                set3 = !set3;
-                $('.tab').css("transform", "scale(1, 1)");
-                $('.tab').css("opacity", "1");
-            } else {
-                set3 = !set3;
-                $('.tab').css("transform", "scale(0, 0)");
-                $('.tab').css("opacity", "0");
-            }
-        } else if (key === 'q' || key === 'Q' || key === 'й' || key === 'Й') {
-            key = keyOld;
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-            if (set2) {
-                $('#canvas2').css("opacity", "0");
-                $('#canvas2').css("transform", "scale(0, 0)");
-            } else {
-                $('#canvas2').css("opacity", ".7");
-                $('#canvas2').css("transform", "scale(1, 1)");
-            }
-            set2 = !set2;
-        } else if (key === '2' || key === '@' || key === '"') {
-            key = keyOld;
-            pl.xdirection = 0;
-            pl.ydirection = 0;
-            if (chat) {
-                $('.chat').css('opacity', '0');
-                $('.chat').css("transform", "scale(0, 0)");
-            } else {
-                $('.chat').css('opacity', '1');
-                $('.chat').css("transform", "scale(1, 1)");
-            }
-            chat = !chat;
-        } else {
-            pl.xdirection = 0;
-            pl.ydirection = 0;
+            key = 0;
         }
         checkCoords();
         ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
-        keyOld = key;
     }
 
     document.onmousemove = function(e) {
         var x = e.offsetX,
             y = e.offsetY;
-        x1 = e.clientX + (player.x - w / 2),
-            y1 = e.clientY + (player.y - h / 2);
+        x1 = e.clientX + (player.x - w / 2);
+        y1 = e.clientY + (player.y - h / 2);
         if (y <= document.getElementsByClassName('chat')[0].offsetHeight && x <= document.getElementsByClassName('chat')[0].offsetWidth && +$('.chat').css('opacity')) {
             canPlay = false;
             key = 0;
-            player.xdirection = 0;
-            player.ydirection = 0;
         } else {
             canPlay = true;
         }
     }
+
     $('#send').on('click', function() {
         checkMessage();
         if ($('#playermessage').val() !== '') {
@@ -528,13 +516,13 @@ $('document').ready(function() {
     }
 
     function checkMessage() {
-        if (messageCount >= 13) {
+        if (document.getElementsByClassName('msg')[0].offsetHeight >= document.getElementsByClassName('chat')[0].offsetHeight) {
             $('.msg').html('');
             messageCount = 0;
         }
     }
 
-    function drawfood(fd, fdcl) {
+    function drawFood(fd, fdcl) {
         for (var i = 0; i < foodcount * 2; i += 2) {
             ctx.beginPath();
             ctx.arc(fd[i], fd[i + 1], foodr, 0, Math.PI * 2, false);
@@ -590,16 +578,16 @@ $('document').ready(function() {
     }
     table();
 
-    function foodcoords(fd, ent, i) {
+    function foodCoords(fd, ent, i) {
         fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
         fd[i + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
-        while ((fd[i] >= ent.x - ent.r && fd[i] <= ent.x + ent.r && fd[i + 1] >= ent.y - ent.r && fd[i + 1] <= ent.y + ent.r) || (foodgenerate(fd, ent, 1, i) || foodgenerate(fd, ent, 2, i) || foodgenerate(fd, ent, 3, i) || foodgenerate(fd, ent, 4, i))) {
+        while ((fd[i] >= ent.x - ent.r && fd[i] <= ent.x + ent.r && fd[i + 1] >= ent.y - ent.r && fd[i + 1] <= ent.y + ent.r) || (foodGenerate(fd, ent, 1, i) || foodGenerate(fd, ent, 2, i) || foodGenerate(fd, ent, 3, i) || foodGenerate(fd, ent, 4, i))) {
             fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
             fd[i + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
         }
     }
 
-    function foodgenerate(fd, ent, angle, i) {
+    function foodGenerate(fd, ent, angle, i) {
         var distance;
         if (angle == 1) {
             distance = Math.sqrt((fd[i] - w * scale) * (fd[i] - w * scale) + (fd[i + 1] - h * scale) * (fd[i + 1] - h * scale)) + 50;
@@ -643,16 +631,16 @@ $('document').ready(function() {
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
     }
 
-    function botname() {
-        var a = Math.round(Math.random() * 450),
-            name, names = ['Jacob', 'Michael', 'Joshua', 'Matthew', 'HuHguZ', 'Foxy', 'Ethan', 'mQ', 'MamBa', 'KyKyPy3a', 'Ceme4ka', 'CmeTanKa', 'Nessa', 'Lemon4ik', 'W1zarD', 'Agressor', 'Noob', 'Fuck', 'NeZoX', 'KoTuk', 'LIJyXeP', 'GreeM', 'PloHish', 'Miwka', 'smailik', 'Bonifacy', 'Бублик', 'Karapuz', 'Whisper', 'Krit', 'AgreSir', 'D-man', 'IWUBIT', 'IWUFIK', 'maD', 'NoNeTam', 'RGOGUCI', 'poncheg', 'Last_ik', 'Kitch', 'Kiss', 'SilverName', 'Iner', 'Штаны', 'Даун', 'AdreN', 'Fucker', 'Faker', 'Hero', 'Happy', 'Super', 'Moon', 'Edward', 'Eeoneguy', 'Alexis', 'Соскевич', 'Freed', 'Cow', 'Крыс', '.mQ!', 'ExC!uT*', 'Scream', 'Bot_pro', 'Sisi', 'Ваня', 'Игорь', 'Максим', 'Илья', 'Zimmer', 'Грешник', '=GLuk=', 'Stalker', 'МАЖОР', 'Hapkomuk', 'Winner', 'Di11er', 'Лирик', 'Пушкин', 'iMan', 'Niyaz', 'L0ki', 'Sans', 'EpicMan', 'Zero', 'BERTOR', 'RPK', 'Vaon', 'mordvig', 'NONAME', 'WASD', 'qwerty', 'kilo', 'jog', 'R.I.P', 'Siro', 'Agar.io', 'Cheater', 'HYGO', 'DooeX', '_OmeN_', 'Admin', 'iJseven', 'РачОк', 'Frost', 'Kuplinov', 'Tomatos', 'Himan', 'Alermo', 'Zaltir', 'Crisp', 'iFresHD', 'Fosters', 'Saspens', 'Trolden', 'Jumbo', 'Tanko', 'banany', 'Adamson', 'Лирой', 'Dorrian', 'Justie', 'OneZee', 'Red21', 'Simon', 'Tiger', 'Snailkick', 'Topa', 'Itpedia', 'M9snik', 'Mamix', 'Nemagia', 'Thoisoi', 'Сыендук', 'Топлес', 'Bonqi', 'BEAV!SE', 'Naval"nyj', 'Mazafack', 'LegendarY', 'Logarifm', 'Fant0m', 'Aragorn', 'Moralore', 'Lymu', 'PsiX', 'Vanish', 'AdeoN', 'Tuk', 'Corben', 'Gaben', 'Fothis', 'Lear', 'Letal', 'панда', 'KUFFO', 'Darik', 'Shadow', 'Yanis', 'Penis', 'Artash', 'Hanojun', 'Iarrid', 'Khoror', 'Gargas', 'Iak', 'Morza', 'Maulabar', 'Celv', 'Gh0st', 'Eriatea', 'Frayko', 'Gerbion', 'Kaekia', 'Shaera', 'Astrello', 'Arr0w', 'Boozai', 'Charter', 'Dep3ku1', 'Foturn', 'Dominant', 'KaJIuH', 'Haroros', 'Khaera', 'Kysun', 'Aqutea', 'Kristallik', 'joker', 'DarkRage', 'Dilleron', 'ZonG', 'Jesus', 'Mamkoeb', 'Griffon', 'PaZiTiV', 'EnderGuy', 'Remsi', 'Kronos', 'lager', 'Viper', 'Be3uH4uk', 'Дед_Пыхто', 'ПУТИН', 'ЦойЖив', 'lopata', 'Mr.Epic', 'ИзяГудман', 'ЛblсоКоHb', 'donkyHOT', 'ZadNizza', '90x60x90', 'in100gramm', 'Batmen', 'QQshka', 'ВАЖАК', ' Гравицапа', 'Жжженя', 'ПеРеПykeR', 'hotelkin', 'Бадик', 'Girl', 'Пигмейка', 'AlphaGo', 'Deep Blue', 'Текун', 'BCTAHbKA', 'cheLentano', 'Овцекот', 'BUNNY', 'пурген', 'Куропеко', 'Чучо', 'Platon', 'Konfucij', 'Evklid', 'Fallos', 'Arhimed', 'Kasjapa', 'Popka', 'Gautama', 'Russia', 'Magnickiy', 'Brashman', 'Vavilov', 'leNIN', 'Додик', 'Франшиза', 'Пластун', 'Ваточка', 'Кремлебот', 'Аколит', 'Толостоп', 'uhadi', 'Qurtasen', 'Balermah', 'Acelaica', 'Qurllisa', 'Joetol', 'Elabra', 'Gorana', 'Vireni', 'Zharud', 'Naleya', 'Freiro', 'Bubble', 'Factory', 'Qunise', 'Darezi', 'Chalar', 'Ganele', 'Kikree', 'Пуфыстик', 'Andro', 'Kira', 'Cedar', 'Zolobar', 'Dianalore', 'Femand', 'Kekus', 'Dragon', 'Adolace', 'believer', 'Coinara', 'CoinFlip', 'Kalune', 'Kebandis', 'Vibrator', 'Blademaster', 'Burisida', 'Direforge', 'KapJlc0H', 'Gashish', 'RaNDoM', 'Chernoslav', 'Santiaga', 'Wincent', 'Pirest', 'Кровельщик', 'Roman', 'Detonator', 'Antonio', 'Oxxxy', 'Чушка', 'localhost', 'Глебкин', 'Крайнов', 'Суетнов', 'Кононов', 'Веселов', 'Лук', 'Белянин', 'Domask MC', 'Ильина'];
+    function generateName() {
+        var name, names = ['Jacob', 'Michael', 'Joshua', 'Matthew', 'HuHguZ', 'Foxy', 'Ethan', 'mQ', 'MamBa', 'KyKyPy3a', 'Ceme4ka', 'CmeTanKa', 'Nessa', 'Lemon4ik', 'W1zarD', 'Agressor', 'Noob', 'Fuck', 'NeZoX', 'KoTuk', 'LIJyXeP', 'GreeM', 'PloHish', 'Miwka', 'smailik', 'Bonifacy', 'Бублик', 'Karapuz', 'Whisper', 'Krit', 'AgreSir', 'D-man', 'IWUBIT', 'IWUFIK', 'maD', 'NoNeTam', 'RGOGUCI', 'poncheg', 'Last_ik', 'Kitch', 'Kiss', 'SilverName', 'Iner', 'Штаны', 'Даун', 'AdreN', 'Fucker', 'Faker', 'Hero', 'Happy', 'Super', 'Moon', 'Edward', 'Eeoneguy', 'Alexis', 'Соскевич', 'Freed', 'Cow', 'Крыс', '.mQ!', 'ExC!uT*', 'Scream', 'Bot_pro', 'Sisi', 'Ваня', 'Игорь', 'Максим', 'Илья', 'Zimmer', 'Грешник', '=GLuk=', 'Stalker', 'МАЖОР', 'Hapkomuk', 'Winner', 'Di11er', 'Лирик', 'Пушкин', 'iMan', 'Niyaz', 'L0ki', 'Sans', 'EpicMan', 'Zero', 'BERTOR', 'RPK', 'Vaon', 'mordvig', 'NONAME', 'WASD', 'qwerty', 'kilo', 'jog', 'R.I.P', 'Siro', 'Agar.io', 'Cheater', 'HYGO', 'DooeX', '_OmeN_', 'Admin', 'iJseven', 'РачОк', 'Frost', 'Kuplinov', 'Tomatos', 'Himan', 'Alermo', 'Zaltir', 'Crisp', 'iFresHD', 'Fosters', 'Saspens', 'Trolden', 'Jumbo', 'Tanko', 'banany', 'Adamson', 'Лирой', 'Dorrian', 'Justie', 'OneZee', 'Red21', 'Simon', 'Tiger', 'Snailkick', 'Topa', 'Itpedia', 'M9snik', 'Mamix', 'Nemagia', 'Thoisoi', 'Сыендук', 'Топлес', 'Bonqi', 'BEAV!SE', 'Naval"nyj', 'Mazafack', 'LegendarY', 'Logarifm', 'Fant0m', 'Aragorn', 'Moralore', 'Lymu', 'PsiX', 'Vanish', 'AdeoN', 'Tuk', 'Corben', 'Gaben', 'Fothis', 'Lear', 'Letal', 'панда', 'KUFFO', 'Darik', 'Shadow', 'Yanis', 'Penis', 'Artash', 'Hanojun', 'Iarrid', 'Khoror', 'Gargas', 'Iak', 'Morza', 'Maulabar', 'Celv', 'Gh0st', 'Eriatea', 'Frayko', 'Gerbion', 'Kaekia', 'Shaera', 'Astrello', 'Arr0w', 'Boozai', 'Charter', 'Dep3ku1', 'Foturn', 'car', 'Dominant', 'KaJIuH', 'Haroros', 'Khaera', 'Kysun', 'Aqutea', 'Kristallik', 'joker', 'DarkRage', 'Dilleron', 'ZonG', 'Jesus', 'Mamkoeb', 'Griffon', 'PaZiTiV', 'EnderGuy', 'Remsi', 'Kronos', 'lager', 'Viper', 'Be3uH4uk', 'Дед_Пыхто', 'ПУТИН', 'ЦойЖив', 'lopata', 'Mr.Epic', 'ИзяГудман', 'ЛblсоКоHb', 'donkyHOT', 'ZadNizza', '90x60x90', 'in100gramm', 'Batmen', 'QQshka', 'ВАЖАК', ' Гравицапа', 'Жжженя', 'ПеРеПykeR', 'hotelkin', 'Бадик', 'Girl', 'Пигмейка', 'AlphaGo', 'Deep Blue', 'Текун', 'BCTAHbKA', 'cheLentano', 'Овцекот', 'BUNNY', 'пурген', 'Куропеко', 'Чучо', 'Platon', 'Konfucij', 'Evklid', 'Fallos', 'Arhimed', 'Kasjapa', 'Popka', 'Gautama', 'Russia', 'Magnickiy', 'Brashman', 'Vavilov', 'leNIN', 'Додик', 'Франшиза', 'Пластун', 'Ваточка', 'Кремлебот', 'Аколит', 'Толостоп', 'uhadi', 'Qurtasen', 'Balermah', 'Acelaica', 'Qurllisa', 'Joetol', 'Elabra', 'Gorana', 'Vireni', 'Zharud', 'Naleya', 'Freiro', 'Bubble', 'Factory', 'Qunise', 'Darezi', 'Chalar', 'Ganele', 'Kikree', 'Пуфыстик', 'Andro', 'Kira', 'Cedar', 'Zolobar', 'Dianalore', 'Femand', 'Kekus', 'Dragon', 'Adolace', 'believer', 'Coinara', 'CoinFlip', 'Kalune', 'Kebandis', 'Vibrator', 'Blademaster', 'Burisida', 'Direforge', 'KapJlc0H', 'Gashish', 'RaNDoM', 'Chernoslav', 'Santiaga', 'Wincent', 'Pirest', 'Кровельщик', 'Roman', 'Detonator', 'Antonio', 'Oxxxy', 'Чушка', 'localhost', 'GL3Bk1N', 'Крайнов', 'Суетнов', 'Кононов', 'Веселов', 'Лук', 'Белянин', 'Domask MC', 'Ильина', 'Marvel', 'Math', 'NaN', 'Js', 'Pascal', 'C++', 'PHP', 'C', 'C#'],
+            a = Math.round(Math.random() * (names.length + 150));
         if (a < names.length) {
             name = names[a];
         }
-        if (a >= names.length && a <= 450) {
+        if (a >= names.length) {
             name = "";
 
-            function nickname() {
+            function nickName() {
                 var str1, str2, f, y, fl, ff, q, member = ["a", "e", "i", "o", "u", "y", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z"];
                 ff = Math.round(Math.random() * 1);
                 if (ff == 1) {
@@ -692,7 +680,7 @@ $('document').ready(function() {
                     }
                 }
             }
-            nickname();
+            nickName();
         }
         if (name.length <= 6) {
             function tun() {
@@ -723,10 +711,10 @@ $('document').ready(function() {
         return name;
     }
 
-    function movebothelp(bot, fd, e1) {
+    function moveBotHelp(bot, fd, e1) {
         var distance = getDistance(bot.x, bot.y, e1.x, e1.y);
         if (distance < bot.r + e1.r) {
-            if (bot.r > e1.r) {
+            if (bot.r / e1.r >= canEat) {
                 if (bot.r < maxr) {
                     bot.r += rspeed;
                     speed(bot);
@@ -739,9 +727,7 @@ $('document').ready(function() {
                     e1.deaths++;
                     table();
                 }
-            } else if (bot.r == e1.r) {
-                bot.currentMotion = Math.round(Math.random() * chance[16]);
-            } else if (bot.r < e1.r) {
+            } else if (e1.r / bot.r >= canEat) {
                 if (e1.r < maxr) {
                     e1.r += rspeed;
                     speed(e1);
@@ -749,18 +735,16 @@ $('document').ready(function() {
                 bot.r -= rspeed;
                 speed(bot);
                 if (bot.r <= 0) {
-                    ctx.translate((player.x - w / 2), (player.y - h / 2));
                     respawn(bot);
                     bot.deaths++;
                     e1.kills++;
-                    ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
                     table();
                 }
             }
         }
     }
 
-    function movebot(bot, fd, num) {
+    function moveBot(bot, fd, num) {
         var dist;
         if (bot.x > scale * w - bot.r) {
             bot.x = scale * w - bot.r;
@@ -775,8 +759,8 @@ $('document').ready(function() {
         for (var i = 0; i < foodcount * 2; i += 2) {
             dist = Math.sqrt((fd[i] - bot.x) * (fd[i] - bot.x) + (fd[i + 1] - bot.y) * (fd[i + 1] - bot.y));
             if (dist <= foodr + bot.r + fdd) {
-                fd[i] += 2 * ((bot.x - fd[i]) / getDistance(bot.x, bot.y, fd[i], fd[i + 1]));
-                fd[i + 1] += 2 * ((bot.y - fd[i + 1]) / getDistance(bot.x, bot.y, fd[i], fd[i + 1]));
+                fd[i] += speedOfAttOfFood * ((bot.x - fd[i]) / getDistance(bot.x, bot.y, fd[i], fd[i + 1]));
+                fd[i + 1] += speedOfAttOfFood * ((bot.y - fd[i + 1]) / getDistance(bot.x, bot.y, fd[i], fd[i + 1]));
                 if (dist <= foodr + bot.r) {
                     if (bot.r < maxr) {
                         bot.r += rspeed;
@@ -784,7 +768,7 @@ $('document').ready(function() {
                     }
                     fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
                     fd[i + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
-                    while ((fd[i] >= bot.x - bot.r && fd[i] <= bot.x + bot.r && fd[i + 1] >= bot.y - bot.r && fd[i + 1] <= bot.y + bot.r) || (foodgenerate(fd, bot, 1, i) || foodgenerate(fd, bot, 2, i) || foodgenerate(fd, bot, 3, i) || foodgenerate(fd, bot, 4, i))) {
+                    while ((fd[i] >= bot.x - bot.r && fd[i] <= bot.x + bot.r && fd[i + 1] >= bot.y - bot.r && fd[i + 1] <= bot.y + bot.r) || (foodGenerate(fd, bot, 1, i) || foodGenerate(fd, bot, 2, i) || foodGenerate(fd, bot, 3, i) || foodGenerate(fd, bot, 4, i))) {
                         fd[i] = Math.round(Math.random() * (scale * w - foodr * 2) + foodr);
                         fd[i + 1] = Math.round(Math.random() * (scale * h - foodr * 2) + foodr);
                     }
@@ -793,206 +777,121 @@ $('document').ready(function() {
         }
         for (var i = 0; i < bots.length; i++) {
             if (i !== num) {
-                movebothelp(bot, fd, bots[i]);
+                moveBotHelp(bot, fd, bots[i]);
             }
         }
     }
 
-    function cond(bot, distance2, en1) {
-        var dist3 = getDistance(bot.x, bot.y, en1.x, en1.y);
-        if (dist3 == distance2[1] && bot.r < en1.r && dist3 <= bot.r + en1.r + 50) {
-            return true;
-        }
-        return false;
-    }
-
-    function cond2(bot, en1) {
-        if (!(bot.x >= en1.x - 1 && bot.x <= en1.x + 1)) {
-            if (bot.x > en1.x) {
-                bot.x += bot.xspeed;
-                bot.xdirection = 1;
-            } else {
-                bot.x -= bot.xspeed;
-                bot.xdirection = -1;
-            }
-        } else {
-            bot.xdirection = 0;
-        }
-        if (!(bot.y >= en1.y - 1 && bot.y <= en1.y + 1)) {
-            if (bot.y > en1.y) {
-                bot.y += bot.yspeed;
-                bot.ydirection = 1;
-            } else {
-                bot.y -= bot.yspeed;
-                bot.ydirection = -1;
-            }
-        } else {
-            bot.ydirection = 0;
-        }
-    }
-
-    function botmove(ent, direction) {
-        if (direction == 0) {
+    function botMove(ent, direction) {
+        if (!direction) {
             ent.y -= ent.yspeed;
-            ent.ydirection = -1;
-            ent.xdirection = 0;
         }
         if (direction == 1) {
             ent.x += ent.xspeed;
             ent.y -= ent.yspeed;
-            ent.xdirection = 1;
-            ent.ydirection = -1;
         }
         if (direction == 2) {
             ent.x += ent.xspeed;
-            ent.xdirection = 1;
-            ent.ydirection = 0;
         }
         if (direction == 3) {
             ent.x += ent.xspeed;
             ent.y += ent.yspeed;
-            ent.xdirection = 1;
-            ent.ydirection = 1;
         }
         if (direction == 4) {
             ent.y += ent.yspeed;
-            ent.ydirection = 1;
-            ent.xdirection = 0;
         }
         if (direction == 5) {
             ent.x -= ent.xspeed;
             ent.y += ent.yspeed;
-            ent.xdirection = -1;
-            ent.ydirection = 1;
         }
         if (direction == 6) {
             ent.x -= ent.xspeed;
-            ent.xdirection = -1;
-            ent.ydirection = 0;
         }
         if (direction == 7) {
             ent.x -= ent.xspeed;
             ent.y -= ent.yspeed;
-            ent.xdirection = -1;
-            ent.ydirection = -1;
         }
     }
 
     function runbot(ent1, ent2) {
-        ent2.x -= ent2.xspeed * ((ent1.x - ent2.x) / getDistance(ent1.x, ent1.y, ent2.x, ent2.y));
-        ent2.y -= ent2.yspeed * ((ent1.y - ent2.y) / getDistance(ent1.x, ent1.y, ent2.x, ent2.y));
-        ent2.xdirection = 0;
-        ent2.ydirection = 0;
+        var x = ent2.x,
+            y = ent2.y;
+        ent2.x -= ent2.xspeed * ((ent1.x - x) / getDistance(ent1.x, ent1.y, x, y));
+        ent2.y -= ent2.yspeed * ((ent1.y - y) / getDistance(ent1.x, ent1.y, x, y));
     }
 
     function botRunWall(wall, ent1, ent2) {
         if (wall === 0) {
             if (ent1.y > ent2.y) {
-                botmove(ent2, 0);
+                botMove(ent2, 0);
             } else {
-                botmove(ent2, 4);
+                botMove(ent2, 4);
             }
         } else if (wall === 1) {
             if (ent1.x > ent2.x) {
-                botmove(ent2, 6);
+                botMove(ent2, 6);
             } else {
-                botmove(ent2, 2);
+                botMove(ent2, 2);
             }
         } else if (wall === 2) {
             if (ent1.x < scale * w - ent1.r * 2 && ent1.y > scale * h - ent1.r * 2) {
-                botmove(ent2, 1);
+                botMove(ent2, 1);
             } else if (ent1.y < scale * h - ent1.r * 2 && ent1.x > scale * w - ent1.r * 2) {
-                botmove(ent2, 5);
+                botMove(ent2, 5);
             } else {
                 if (Math.floor(ent2.r) % 2 === 0) {
-                    botmove(ent2, 5);
+                    botMove(ent2, 5);
                 } else {
-                    botmove(ent2, 1);
+                    botMove(ent2, 1);
                 }
             }
         } else if (wall === 3) {
             if (ent1.x < scale * w - ent1.r * 2 && ent1.y < ent1.r * 2) {
-                botmove(ent2, 3);
+                botMove(ent2, 3);
             } else if (ent1.x > scale * w - ent1.r * 2 && ent1.y > ent1.r * 2) {
-                botmove(ent2, 7);
+                botMove(ent2, 7);
             } else {
                 if (Math.floor(ent2.r) % 2 === 0) {
-                    botmove(ent2, 7);
+                    botMove(ent2, 7);
                 } else {
-                    botmove(ent2, 3);
+                    botMove(ent2, 3);
                 }
             }
         } else if (wall === 4) {
             if (ent1.x > ent1.r * 2 && ent1.y < ent1.r * 2) {
-                botmove(ent2, 5);
+                botMove(ent2, 5);
             } else if (ent1.x < ent1.r * 2 && ent1.y > ent1.r * 2) {
-                botmove(ent2, 1);
+                botMove(ent2, 1);
             } else {
                 if (Math.floor(ent2.r) % 2 === 0) {
-                    botmove(ent2, 1);
+                    botMove(ent2, 1);
                 } else {
-                    botmove(ent2, 5);
+                    botMove(ent2, 5);
                 }
             }
         } else if (wall === 5) {
             if (ent1.x > ent1.r * 2 && ent1.y > scale * h - ent1.r * 2) {
-                botmove(ent2, 7);
+                botMove(ent2, 7);
             } else if (ent1.x < ent1.r * 2 && ent1.y < scale * h - ent1.r * 2) {
-                botmove(ent2, 3);
+                botMove(ent2, 3);
             } else {
                 if (Math.floor(ent2.r) % 2 === 0) {
-                    botmove(ent2, 3);
+                    botMove(ent2, 3);
                 } else {
-                    botmove(ent2, 7);
+                    botMove(ent2, 7);
                 }
             }
         }
     }
 
     function interaction(distance2, bot, fd, dist2, e1, n) {
-        var dist3 = getDistance(bot.x, bot.y, e1.x, e1.y),
-            f = true;
+        var dist3 = getDistance(bot.x, bot.y, e1.x, e1.y);
         if (dist3 == distance2[0]) {
             if (dist3 <= dist2) {
-                if (bot.r > e1.r) {
-                    for (var i = 0; i < bots.length; i++) {
-                        if (i !== n) {
-                            if (cond(bot, distance2, bots[i])) {
-                                f = false;
-                                cond2(bot, bots[i]);
-                            }
-                        }
-                    }
-                    if (cond(bot, distance2, e1)) {
-                        f = false;
-                        cond2(bot, e1);
-                    }
-                    if (f) {
-                        bot.x += bot.xspeed * ((e1.x - bot.x) / getDistance(bot.x, bot.y, e1.x, e1.y));
-                        bot.y += bot.yspeed * ((e1.y - bot.y) / getDistance(bot.x, bot.y, e1.x, e1.y));
-                        bot.xdirection = 0;
-                        bot.ydirection = 0;
-                        dist3 = getDistance(bot.x, bot.y, e1.x, e1.y);;
-                        if (dist3 < bot.r + e1.r) {
-                            if (bot.r < maxr) {
-                                bot.r += rspeed;
-                                speed(bot);
-                            }
-                            e1.r -= rspeed;
-                            speed(e1);
-                            if (e1.r <= 0) {
-                                ctx.translate((player.x - w / 2), (player.y - h / 2));
-                                respawn(e1);
-                                bot.kills++;
-                                e1.deaths++;
-                                table();
-                                ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
-                            }
-                        }
-                    }
-                } else if (bot.r == e1.r) {
-                    bot.currentMotion = chance[chance.length - 1];
-                } else {
+                if (bot.r / e1.r >= canEat) {
+                    bot.x += bot.xspeed * ((e1.x - bot.x) / getDistance(bot.x, bot.y, e1.x, e1.y));
+                    bot.y += bot.yspeed * ((e1.y - bot.y) / getDistance(bot.x, bot.y, e1.x, e1.y));
+                } else if (e1.r / bot.r >= canEat) {
                     if (bot.x < scale * w - bot.r - 1 && bot.x > bot.r + 1 && bot.y < scale * h - bot.r - 1 && bot.y > bot.r + 1 && !(bot.x > scale * w - e1.r * 2 && bot.y > scale * h - e1.r * 2) && !(bot.x > scale * w - e1.r * 2 && bot.y < e1.r * 2) && !(bot.x < e1.r * 2 && bot.y < e1.r * 2) && !(bot.x < e1.r * 2 && bot.y > scale * h - e1.r * 2)) {
                         runbot(e1, bot);
                     } else {
@@ -1017,21 +916,8 @@ $('document').ready(function() {
                             }
                         }
                     }
-                    dist3 = getDistance(bot.x, bot.y, e1.x, e1.y);
-                    if (dist3 < bot.r + e1.r) {
-                        if (e1.r < maxr) {
-                            e1.r += rspeed;
-                            speed(e1);
-                        }
-                        bot.r -= rspeed;
-                        speed(bot);
-                        if (bot.r <= 0) {
-                            respawn(bot);
-                            bot.deaths++;
-                            e1.kills++;
-                            table();
-                        }
-                    }
+                } else {
+                    bot.currentMotion = chance[chance.length - 1];
                 }
             } else {
                 bot.currentMotion = chance[chance.length - 1];
@@ -1040,70 +926,73 @@ $('document').ready(function() {
     }
 
     function botRandomMove(bot) {
-        bot.x += bot.xspeed * ((bot.rndX - bot.x) / getDistance(bot.x, bot.y, bot.rndX, bot.rndY));
-        bot.y += bot.yspeed * ((bot.rndY - bot.y) / getDistance(bot.x, bot.y, bot.rndX, bot.rndY));
-        if (getDistance(bot.x, bot.y, bot.rndX, bot.rndY) < 2) {
-            bot.rndX =  Math.round(Math.random() * scale * w);
+        var dst = getDistance(bot.x, bot.y, bot.rndX, bot.rndY);
+        bot.x += bot.xspeed * ((bot.rndX - bot.x) / dst);
+        bot.y += bot.yspeed * ((bot.rndY - bot.y) / dst);
+        if (dst < bot.r / 2) {
+            bot.rndX = Math.round(Math.random() * scale * w);
             bot.rndY = Math.round(Math.random() * scale * h);
         }
-        bot.xdirection = 0;
-        bot.ydirection = 0;
     }
 
-    function botai(bot, fd, number) {
+    function botAI(bot, fd, number) {
         var distance = [],
-            nums = [],
+            nums, min = Infinity,
             distance2 = [],
             dist, k;
         if (bot.step <= 0) {
-            bot.rndX =  Math.round(Math.random() * scale * w);
+            bot.rndX = Math.round(Math.random() * scale * w);
             bot.rndY = Math.round(Math.random() * scale * h);
-            bot.step = Math.round(Math.random() * stepcount);
+            bot.step = Math.round(Math.random() * stepCount);
             bot.currentMotion = Math.round(Math.random() * mbc);
         }
         bot.step--;
-        if (bot.currentMotion >= chance[0] && bot.currentMotion <= chance[15]) {
+        if (bot.currentMotion >= chance[0] && bot.currentMotion <= chance[1]) {
             botRandomMove(bot);
-        } else if (bot.currentMotion >= chance[16] && bot.currentMotion <= chance[17]) {
+        } else if (bot.currentMotion >= chance[2] && bot.currentMotion <= chance[3]) {
             for (var i = 0; i < bots.length; i++) {
                 if (i !== number) {
                     distance2[distance2.length] = getDistance(bot.x, bot.y, bots[i].x, bots[i].y);
                 }
             }
-            distance2[distance2.length] = getDistance(bot.x, bot.y, player.x, player.y);
-            distance2 = JSsort(distance2);
-            if (distance2[0] !== getDistance(bot.x, bot.y, player.x, player.y)) {
+            if (bot === player) {
+                JSsort(distance2);
                 for (var i = 0; i < bots.length; i++) {
-                    if (i !== number) {
-                        interaction(distance2, bot, fd, bot.r + bots[i].r + razt, bots[i], number);
-                    }
+                    interaction(distance2, bot, fd, bot.r + bots[i].r + razt, bots[i], number);
                 }
             } else {
-                interaction(distance2, bot, fd, bot.r + player.r + razt, player, number);
-            }
-        } else if (bot.currentMotion >= chance[18] && bot.currentMotion <= chance[19]) {
-            for (var i = 0; i < foodcount * 2; i += 2) {
-                distance[i] = getDistance(bot.x, bot.y, fd[i], fd[i + 1]);
-                nums[i] = i;
-            }
-            for (var i = 0; i < distance.length - 1; i += 2) {
-                for (var j = 0; j < distance.length - i - 1; j += 2) {
-                    if (distance[j] > distance[j + 2]) {
-                        k = distance[j];
-                        distance[j] = distance[j + 2];
-                        distance[j + 2] = k;
-                        k = nums[j];
-                        nums[j] = nums[j + 2];
-                        nums[j + 2] = k;
+                distance2[distance2.length] = getDistance(bot.x, bot.y, player.x, player.y);
+                JSsort(distance2);
+                if (distance2[0] !== getDistance(bot.x, bot.y, player.x, player.y)) {
+                    for (var i = 0; i < bots.length; i++) {
+                        if (i !== number) {
+                            interaction(distance2, bot, fd, bot.r + bots[i].r + razt, bots[i], number);
+                        }
                     }
+                } else {
+                    interaction(distance2, bot, fd, bot.r + player.r + razt, player, number);
                 }
             }
-            bot.x += bot.xspeed * ((fd[nums[0]] - bot.x) / getDistance(bot.x, bot.y, fd[nums[0]], fd[nums[0] + 1]));
-            bot.y += bot.yspeed * ((fd[nums[0] + 1] - bot.y) / getDistance(bot.x, bot.y, fd[nums[0]], fd[nums[0] + 1]));
-            bot.xdirection = 0;
-            bot.ydirection = 0;
+        } else if (bot.currentMotion >= chance[4] && bot.currentMotion <= chance[5]) {
+            if (!foodcount) {
+                bot.currentMotion = chance[0];
+                botRandomMove(bot);
+            } else {
+                for (var i = 0; i < foodcount * 2; i += 2) {
+                    distance[i] = getDistance(bot.x, bot.y, fd[i], fd[i + 1]);
+                    nums = i;
+                }
+                for (var i = 0; i < distance.length; i += 2) {
+                    if (distance[i] < min) {
+                        min = distance[i];
+                        nums = i;
+                    }
+                }
+                bot.x += bot.xspeed * ((fd[nums] - bot.x) / getDistance(bot.x, bot.y, fd[nums], fd[nums + 1]));
+                bot.y += bot.yspeed * ((fd[nums + 1] - bot.y) / getDistance(bot.x, bot.y, fd[nums], fd[nums + 1]));
+            }
         }
-        movebot(bot, fd, number);
+        moveBot(bot, fd, number);
     }
 
     function respawn(ent) {
@@ -1131,30 +1020,37 @@ $('document').ready(function() {
         }
     }
 
+    //изменить логику
     function radius(ent) {
         if (ent.r / maxr >= 0.2) {
-            ent.r -= rspeed;
+            ent.r -= Math.round(0.01 * ent.r);
         }
         if (ent.r / maxr >= 0.35) {
-            ent.r -= rspeed * 2;
+            ent.r -= Math.round(0.015 * ent.r);
         }
         if (ent.r / maxr >= 0.5) {
-            ent.r -= rspeed * Math.round(Math.random() * 3);
+            ent.r -= Math.round(0.02 * ent.r);
         }
         if (ent.r / maxr >= 0.7) {
-            ent.r -= rspeed * Math.round(Math.random() * 5);
+            ent.r -= Math.round(0.025 * ent.r);
         }
         if (ent.r / maxr >= 0.85) {
-            ent.r -= rspeed * Math.round(Math.random() * dr);
+            ent.r -= Math.round(0.03 * ent.r);
         }
         if (ent.r / maxr >= 0.95) {
-            ent.r -= rspeed * Math.round(Math.random() * dr * 2);
+            ent.r -= Math.round(0.035 * ent.r);
         }
+    }
+
+    function crazy(obj) {
+        obj.name = generateName();
+        obj.circleColor = color();
+        obj.strokeColor = color();
     }
 
     function bonus(obj) {
         ctx.translate((player.x - w / 2), (player.y - h / 2));
-        var gen = Math.floor(Math.random() * 38 * 1e+4);
+        var gen = Math.floor(Math.random() * 39 * 1e+4);
         if (!gen) {
             var br = Math.floor(Math.random() * 100);
             if (obj.r + br <= maxr) {
@@ -1166,7 +1062,7 @@ $('document').ready(function() {
                 obj.r -= br;
             }
         } else if (gen === 2) {
-            obj.name = botname();
+            obj.name = generateName();
         } else if (gen === 3) {
             obj.circleColor = color();
         } else if (gen === 4) {
@@ -1186,9 +1082,9 @@ $('document').ready(function() {
                 obj.defaultYspeed = 0.5;
             }
         } else if (gen === 9) {
-            rspeed += randomrspeed();
+            rspeed += randomRspeed();
         } else if (gen === 10) {
-            rspeed -= randomrspeed();
+            rspeed -= randomRspeed();
             if (rspeed < 0) {
                 rspeed = 0;
             }
@@ -1231,12 +1127,12 @@ $('document').ready(function() {
         } else if (gen === 23) {
             dr += Math.floor(Math.random() * dr);
         } else if (gen === 24) {
-            stepcount = Math.floor(Math.random() * stepcount);
-            if (!stepcount) {
-                stepcount = 1;
+            stepCount = Math.floor(Math.random() * stepCount);
+            if (!stepCount) {
+                stepCount = 1;
             }
         } else if (gen === 25) {
-            stepcount += Math.floor(Math.random() * stepcount);
+            stepCount += Math.floor(Math.random() * stepCount);
         } else if (gen === 26) {
             fdd = Math.floor(Math.random() * fdd);
         } else if (gen === 27) {
@@ -1272,16 +1168,17 @@ $('document').ready(function() {
             obj.circleColor = '#0000ff';
             obj.strokeColor = '#ff0000';
         } else if (gen === 37) {
-            obj.name = botname();
+            obj.name = generateName();
             obj.circleColor = color();
             obj.strokeColor = color();
+        } else if (gen === 38) {
+            obj.crazyMod = !obj.crazyMod;
+        } else if (gen === 39) {
+            playerBot = !playerBot;
         }
         speed(obj);
         ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
     }
-
-    $('#canvas2').css("bottom", "45px");
-    $('#canvas2').css("right", "5px");
 
     function minr(a) {
         if (a < 2) {
@@ -1373,44 +1270,56 @@ $('document').ready(function() {
     }
 
     function game() {
-        tick += 1;
-        showInfo();
+        tick++;
         ctx.clearRect(-scale * w, -scale * h, 3 * scale * w, 3 * scale * h);
         ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
         ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
-        var rows = (w * scale) / maz;
-        var cols = (h * scale) / maz;
         leaderboard();
-        for (var i = 1; i < rows; i++) {
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(0,0,0,0.5)";
-            ctx.lineWidth = 1;
-            ctx.moveTo(maz * i, 0);
-            ctx.lineTo(maz * i, scale * h);
-            ctx.stroke();
-            ctx.closePath();
-        }
-        for (var i = 1; i < cols; i++) {
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(0,0,0,0.5)";
-            ctx.lineWidth = 1;
-            ctx.moveTo(0, maz * i);
-            ctx.lineTo(scale * w, maz * i);
-            ctx.stroke();
-            ctx.closePath();
+        if ($("#grid").prop('checked')) {
+            var rows = (w * scale) / maz;
+            var cols = (h * scale) / maz;
+            for (var i = 1; i < rows; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(0,0,0,0.5)";
+                ctx.lineWidth = 1;
+                ctx.moveTo(maz * i, 0);
+                ctx.lineTo(maz * i, scale * h);
+                ctx.stroke();
+                ctx.closePath();
+            }
+            for (var i = 1; i < cols; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(0,0,0,0.5)";
+                ctx.lineWidth = 1;
+                ctx.moveTo(0, maz * i);
+                ctx.lineTo(scale * w, maz * i);
+                ctx.stroke();
+                ctx.closePath();
+            }
         }
         var a = player.r;
         drawobj(player);
         for (var i = 0; i < bots.length; i++) {
             drawobj(bots[i]);
-            botai(bots[i], food, i);
+            botAI(bots[i], food, i);
+            if (bots[i].crazyMod) {
+                crazy(bots[i]);
+            }
         }
-        drawfood(food, foodcolor);
-        movebot(player, food, -1);
-        if (canPlay) {
-            moveplayer(player);
+        if (player.crazyMod) {
+            crazy(player);
         }
-        if (tick % (Math.floor(60 / decreaseSpeed)) == 0) {
+        drawFood(food, foodcolor);
+        if (playerBot) {
+            ctx.translate((player.x - w / 2), (player.y - h / 2));
+            botAI(player, food, -1);
+            ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+        }
+        movePlayer(player);
+        ctx.translate((player.x - w / 2), (player.y - h / 2));
+        moveBot(player, food, -1);
+        ctx.translate(-(player.x - w / 2), -(player.y - h / 2));
+        if (!(tick % (Math.floor(60 / decreaseSpeed)))) {
             radius(player);
             bonus(player);
             for (var i = 0; i < bots.length; i++) {
