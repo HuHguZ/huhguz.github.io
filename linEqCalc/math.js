@@ -162,7 +162,7 @@
                 primeNumbers = [];
             for (var x = 1; x <= Math.floor(Math.sqrt(n)); x++) {
                 for (var y = 1; y <= Math.floor(Math.sqrt(n)); y++) {
-                    t = 4 * x ** 2 + y ** 2;
+                    t = 4 * (x ** 2 + y ** 2);
                     if ((t <= n) && ((t % 12 === 1) || (t % 12 === 5))) {
                         primeNumbers[t] = !primeNumbers[t];
                     }
@@ -170,7 +170,7 @@
                     if (t <= n && t % 12 === 7) {
                         primeNumbers[t] = !primeNumbers[t];
                     }
-                    t -= 2 * y ** 2;
+                    t -= 2 * (y ** 2);
                     if (x > y && t <= n && t % 12 === 11) {
                         primeNumbers[t] = !primeNumbers[t];
                     }
@@ -640,6 +640,103 @@
                 return rez;
             },
 
+            gauss: function(n, f, c) {
+                c = (c === 0) ? 0 : c || DEFAULT_ACCURACY;
+                if (math.checkValueOn('object', n, f) || math.checkValueOn('number', c)) {
+                    return erMsg;
+                }
+                var t = 0,
+                    cop,
+                    roots = [],
+                    nc = this.createClone(n),
+                    fc = this.createClone(f);
+                for (var i = 0; i < nc.length; i++) {
+                    nc[i].push(fc[i][0]);
+                }
+                for (var i = 0; i < nc.length; i++) {
+                    str+=nc[i].join(' ');
+                    str+='\n';
+                }
+                str+='\n';
+                for (; t < nc.length - 1; t++) {
+                    if (nc[t][t] !== 1) {
+                        for (var i = t + 1; i < nc.length; i++) {
+                            if (nc[i][t] === 1) {
+                                swapStrings(nc, i, t);
+                                break;
+                            } else if (math.nod.apply(math, nc[i]) === nc[i][t]) {
+                                edit(nc[i], nc[i][t], '/');
+                                swapStrings(nc, i, t);
+                                break;
+                            }
+                        }
+                    }
+                    for (var i = t + 1; i < nc.length; i++) {
+                        cop = this.createClone(nc[t]);
+                        edit(cop, -(nc[i][t] / nc[t][t]), '*');
+                        nc[i] = sum(nc[i], cop);
+                    }
+                    for (var i = 0; i < nc.length; i++) {
+                        str+=nc[i].join(' ');
+                        str+='\n';
+                    }
+                    str+='\n';
+                }
+                roots.push(+(nc[nc.length - 1][nc[0].length - 2] / nc[nc.length - 1][nc[0].length - 1]).toFixed(c));
+                str += 'Корень '+(nc.length+1-roots.length)+' равен: '+nc[nc.length - 1][nc[0].length - 2]+'/'+nc[nc.length - 1][nc[0].length - 1]+'='+roots[roots.length-1]+'\n';
+                for (var i = nc.length - 2; i >= 0; i--) {
+                    var q1 = rt(nc[i].slice(i + 1,nc[0].length - 1));
+                    roots.push(+((nc[i][nc[0].length - 1] - q1)/nc[i][i]).toFixed(c));
+                    str += 'Корень '+(nc.length+1-roots.length)+' равен: ('+nc[i][nc[0].length - 1]+'-'+q1+')/'+nc[i][i]+'='+roots[roots.length-1]+'\n';
+                }
+                function rt(arr) {
+                    var sum = 0;
+                    for (var i = 0; i < arr.length; i++) {
+                        arr[i] = arr[i] * roots[roots.length - 1 - i];
+                        sum += arr[i];
+                    }
+                    return sum;
+                }
+                function sum(arr1, arr2) {
+                    var a = [];
+                    for (var i = 0; i < arr1.length; i++) {
+                        a[i] = +(arr1[i] + arr2[i]).toFixed(c);
+                    }
+                    return a;
+                }
+
+                function edit(arr, n, op) {
+                    if (op === '/') {
+                        for (var i = 0; i < arr.length; i++) {
+                            arr[i] /= n;
+                        }
+                    } else if (op === '*') {
+                        for (var i = 0; i < arr.length; i++) {
+                            arr[i] *= n;
+                        }
+                    }
+                }
+
+                function swapStrings(arr, s1, s2) {
+                    var c = arr[s2];
+                    arr[s2] = arr[s1];
+                    arr[s1] = c;
+                }
+                return nc;
+            },
+
+            createClone: function(n) {
+                var clone = [];
+                for (var i = 0; i < n.length; i++) {
+                    if (typeof n[i] === 'object') {
+                        clone[i] = this.createClone(n[i]);
+                    } else {
+                        clone[i] = n[i];
+                    }
+                }
+                return clone;
+            },
+
             clip: function(n, a, b) {
                 var d = [];
                 for (var i = 0; i < n.length; i++) {
@@ -972,8 +1069,145 @@
             return frac;
         },
 
-        longArithmetic: {
+        bigNum: {
+            sum: function(a, b) {
+                if (math.checkValueOn('string', a, b) || math.checkStringOn('-.0123456789', a + b)) {
+                    return erMsg;
+                }
+                if (~a.indexOf('-') && !~b.indexOf('-')) {
+                    return this.dif(b, a.slice(1));
+                } else if (!~a.indexOf('-') && ~b.indexOf('-')) {
+                    return this.dif(a, b.slice(1));
+                } else if (~a.indexOf('-') && ~b.indexOf('-')) {
+                    return '-' + this.sum(a.slice(1), b.slice(1));
+                }
+                if (a.length < b.length) {
+                    return this.sum(b, a);
+                }
+                var t = {},
+                    shift,
+                    num = [];
+                shift = a.length - b.length;
+                for (var i = a.length - 1; i >= 0; i--) {
+                    if (!b[i - shift]) {
+                        if (+a[i] + (t[i] ? +t[i] : 0) < 10) {
+                            num[num.length] = +a[i] + (t[i] ? +t[i] : 0);
+                        } else {
+                            num[num.length] = (+a[i] + (t[i] ? +t[i] : 0)) % 10;
+                            t[i - 1] = (+a[i] + (t[i] ? +t[i] : 0)).toString()[0];
+                        }
+                    } else if (+a[i] + +b[i - shift] + (t[i] ? +t[i] : 0) < 10) {
+                        num[num.length] = +a[i] + +b[i - shift] + (t[i] ? +t[i] : 0);
+                    } else {
+                        num[num.length] = (+a[i] + +b[i - shift] + (t[i] ? +t[i] : 0)) % 10;
+                        t[i - 1] = (+a[i] + +b[i - shift] + (t[i] ? +t[i] : 0)).toString()[0];
+                    }
+                }
+                if (t[-1]) {
+                    num[num.length] = t[-1];
+                }
+                return num.reverse().join('').replace(/^0+/, '');
+            },
+            dif: function(a, b) {
+                if (math.checkValueOn('string', a, b) || math.checkStringOn('-.0123456789', a + b)) {
+                    return erMsg;
+                }
+                if (a === b) {
+                    return '0';
+                }
+                if (~a.indexOf('-') && !~b.indexOf('-')) {
+                    return '-' + this.sum(b, a.slice(1));
+                } else if (!~a.indexOf('-') && ~b.indexOf('-')) {
+                    return this.sum(a, b.slice(1));
+                } else if (~a.indexOf('-') && ~b.indexOf('-')) {
+                    return this.dif(b.slice(1), a.slice(1));
+                }
+                if (!this.compare(a, b)) {
+                    return '-' + this.dif(b, a);
+                }
+                var shift, s,
+                    num = [];
+                if (a.length < b.length) {
+                    s = b;
+                    b = a;
+                    a = s;
+                }
+                a = a.split('');
+                b = b.split('');
+                shift = a.length - b.length;
+                for (var i = a.length - 1; i >= 0; i--) {
+                    if (!b[i - shift]) {
+                        if (!(~a[i])) {
+                            num[num.length] = +a[i] + 10;
+                            a[i - 1] = +a[i - 1] - 1;
+                        } else {
+                            num[num.length] = +a[i];
+                        }
+                    } else if (+a[i] - +b[i - shift] >= 0) {
+                        num[num.length] = +a[i] - +b[i - shift];
+                    } else {
+                        num[num.length] = +a[i] + 10 - +b[i - shift];
+                        a[i - 1] = +a[i - 1] - 1;
+                    }
+                }
+                return num.reverse().join('').replace(/^0+/, '');
+            },
+            mul: function(a, b) {
+                if (math.checkValueOn('string', a, b) || math.checkStringOn('-.0123456789', a + b)) {
+                    return erMsg;
+                }
 
+                function mulOnDig(a, b, n) {
+                    var r = [],
+                        t = {};
+                    a = a.split('');
+                    for (var i = a.length - 1; i >= 0; i--) {
+                        if (a[i] * b + (t[i] ? t[i] : 0) < 10) {
+                            r[r.length] = a[i] * b + (t[i] ? t[i] : 0);
+                        } else {
+                            r[r.length] = (a[i] * b + (t[i] ? t[i] : 0)) % 10;
+                            t[i - 1] = +(a[i] * b + (t[i] ? t[i] : 0)).toString()[0];
+                        }
+                    }
+                    if (t[-1]) {
+                        r[r.length] = t[-1];
+                    }
+
+                    function addZero() {
+                        var str = '';
+                        for (var i = 0; i < n; i++) {
+                            str += '0';
+                        }
+                        return str;
+                    }
+                    return r.reverse().join('') + addZero();
+                }
+                var q = [],
+                    r = '0';
+                for (var i = b.length - 1; i >= 0; i--) {
+                    q[q.length] = mulOnDig(a, +b[i], b.length - 1 - i);
+                    r = this.sum(r, q[q.length - 1]);
+                }
+                return r;
+            },
+            compare: function(a, b) {
+                if (math.checkValueOn('string', a, b) || math.checkStringOn('-.0123456789', a + b)) {
+                    return erMsg;
+                }
+                if (a === b || b.length > a.length) {
+                    return false;
+                }
+                if (a.length > b.length) {
+                    return true;
+                }
+                for (var i = 0; i < a.length; i++) {
+                    if (+a[i] > +b[i]) {
+                        return true;
+                    } else if (+a[i] < +b[i]) {
+                        return false;
+                    }
+                }
+            },
         },
 
         //Service methods

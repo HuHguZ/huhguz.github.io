@@ -36,14 +36,18 @@
         <br><textarea></textarea>
     </div>
     <script>
-        var buttons = document.getElementsByTagName('button'),
+        var a, b,str, buttons = document.getElementsByTagName('button'),
             texts = document.getElementsByTagName('textarea'),
-            def = 'var a = [[1, 2, -1], [2, -1, 1], [3, -5, 2]],\nb =  [[7], [2], [-7]],\nc = 3;\nvar result = matrixAcompl(a);\nreturn result + math.matrix.linearEq(a,b,c);';
+            def = 'a = [[1, 2, -1], [2, -1, 1], [3, -5, 2]],\nb =  [[7], [2], [-7]];\nreturn matrixAcompl(a);';
         texts[0].value = def;
         buttons[0].onclick = function() {
             def = texts[0].value;
-            var res = new Function('', def);
-            texts[1].value = res();
+            try {
+                var res = new Function('', def);
+                texts[1].value = res();
+            } catch (e) {
+                texts[1].value = e;
+            }
         }
 
         function matrixAcompl(n) {
@@ -54,24 +58,25 @@
                     c[i][j] = math.matrix.alcompl(n, i, j);
                 }
             }
-            var str = 'A_N\n';
+            str = 'Матричный метод\nНовая матрица\n';
             for (var i = 0; i < n.length; i++) {
                 str += c[i].join(' ');
                 str += '\n';
             }
-            str += 'A_T\n';
+            str += 'Транспонированная матрица\n';
             var s = math.matrix.transpose(c);
             for (var i = 0; i < s.length; i++) {
                 str += s[i].join(' ');
                 str += '\n';
             }
-            str += 'A^-1\n';
+            str += 'Обратная матрица\n';
             var r = math.matrix.inverse(c, 0);
             for (var i = 0; i < r.length; i++) {
                 str += r[i].join(' ');
                 str += '\n';
             }
-            str += 'roots: ';
+            str += 'roots: ' + math.matrix.linearEq(a,b,3) + '\nМетод Гаусса\n';
+            math.matrix.gauss(a,b,3);
             return str;
         }
     </script>
