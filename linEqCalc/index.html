@@ -44,7 +44,7 @@
             def = texts[0].value;
             try {
                 var res = new Function('', def);
-                texts[1].value = res();
+                texts[1].value = res().replace(/--/g, '+');
             } catch (e) {
                 texts[1].value = e;
             }
