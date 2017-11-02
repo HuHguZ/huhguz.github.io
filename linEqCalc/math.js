@@ -683,7 +683,7 @@
                     str+='\n';
                 }
                 roots.push(+(nc[nc.length - 1][nc[0].length - 1] / nc[nc.length - 1][nc[0].length - 2]).toFixed(c));
-                str += 'Корень '+(nc.length+1-roots.length)+' равен: '+nc[nc.length - 1][nc[0].length - 2]+'/'+nc[nc.length - 1][nc[0].length - 1]+'='+roots[roots.length-1]+'\n';
+                str += 'Корень '+(nc.length+1-roots.length)+' равен: '+nc[nc.length - 1][nc[0].length - 1]+'/'+nc[nc.length - 1][nc[0].length - 2]+'='+roots[roots.length-1]+'\n';
                 for (var i = nc.length - 2; i >= 0; i--) {
                     var q1 = rt(nc[i].slice(i + 1,nc[0].length - 1));
                     roots.push(+((nc[i][nc[0].length - 1] - q1)/nc[i][i]).toFixed(c));
