@@ -1,3 +1,4 @@
+﻿
 $('document').ready(function() {
     var canvas = document.getElementById('canvas'),
         ctx = canvas.getContext('2d'),
@@ -16,10 +17,10 @@ $('document').ready(function() {
         foodr = 5,
         maxr, rspeed = 0.5,
         scale = 3,
-        mbc, dr = 7,
+        dr = 7,
         stepCount = 120,
         fdd = 20,
-        botCount = 5,
+        botCount = 10,
         set = true,
         canPlay = true,
         playerBot = false,
@@ -28,17 +29,35 @@ $('document').ready(function() {
         maz = 40,
         razt = 200,
         decreaseSpeed = 1,
-        player = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, 'HuHguZ', 2, 2, '#ff0000', '#990000', Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false),
+        chance = [0, 7, 8, 5000, 5001, 5002],
+        mbc = chance[chance.length - 1],
+        player = new Object(
+            Math.round(Math.random() * scale * w),
+            Math.round(Math.random() * scale * h),
+            dr,
+            2,
+            2,
+            'HuHguZ',
+            2,
+            2,
+            '#ff0000',
+            '#990000',
+            Math.floor(Math.random() * 2),
+            0,
+            0,
+            Math.round(Math.random() * mbc),
+            stepCount,
+            Math.round(Math.random() * scale * w),
+            Math.round(Math.random() * scale * h),
+            false),
         bots = [],
         food = [],
-        foodcolor = [],
-        chance = [0, 7, 8, 5000, 5001, 5002];
+        foodcolor = [];
     // chance = [0, 7, 8, 15, 16, 23];
-    mbc = chance[chance.length - 1];
     canvas3.width = 220;
     canvas3.height = 300;
 
-    function Bot(x, y, r, xspeed, yspeed, name, defaultXspeed, defaultYspeed, circleColor, strokeColor, typeOfMoyion, kills, deaths, currentMotion, step, rndX, rndY, crazyMod) {
+    function Object(x, y, r, xspeed, yspeed, name, defaultXspeed, defaultYspeed, circleColor, strokeColor, bravery, kills, deaths, currentMotion, step, rndX, rndY, crazyMod) {
         this.x = x;
         this.y = y;
         this.r = r;
@@ -49,7 +68,7 @@ $('document').ready(function() {
         this.defaultYspeed = defaultYspeed;
         this.circleColor = circleColor;
         this.strokeColor = strokeColor;
-        this.typeOfMoyion = typeOfMoyion;
+        this.bravery = bravery;
         this.currentMotion = currentMotion;
         this.step = step;
         this.kills = kills;
@@ -59,7 +78,7 @@ $('document').ready(function() {
         this.crazyMod = crazyMod;
     }
     for (var i = 0; i < botCount; i++) {
-        bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, generateName(), 2, 2, color(), color(), Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false);
+        bots[i] = new Object(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, generateName(), 2, 2, color(), color(), Math.floor(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false);
     }
     maxr = Math.round(Math.sqrt((0.1 * w * h * scale) / Math.PI));
     ctx.scale(4.5, 4.5);
@@ -71,6 +90,55 @@ $('document').ready(function() {
         chancedef[i] = chance[i];
     }
     genFood();
+
+
+    // function nickName() {
+    //     var name = '', str1, str2, f, y, fl, ff, q, member = ["a", "e", "i", "o", "u", "y", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z"];
+    //     ff = Math.round(Math.random() * 1);
+    //     if (ff == 1) {
+    //         fl = true;
+    //     } else {
+    //         fl = false;
+    //     }
+    //     for (var i = 1; i <= 6; i++) {
+    //         if (fl) {
+    //             fl = !fl;
+    //             q = member[Math.round(Math.random() * 5)];
+    //             name += q;
+    //         } else {
+    //             fl = !fl;
+    //             q = member[Math.round(Math.random() * (member.length - 1 - 6) + 6)];
+    //             name += q;
+    //             y = Math.round(Math.random() * 18);
+    //             if (y >= 0 && y <= 1) {
+    //                 name += q;
+    //                 i++;
+    //                 f = true;
+    //             }
+    //         }
+    //         if (i <= 2) {
+    //             if (f == true) {
+    //                 name = name.charAt(0).toUpperCase() + name.charAt(0);
+    //                 f = false;
+    //             } else if (i == 1) {
+    //                 name = name.charAt(0).toUpperCase();
+    //             }
+    //         }
+    //         y = Math.round(Math.random() * 36);
+    //         if (y >= 0 && y <= 1) {
+    //             str1 = name.substring(0, i - 1);
+    //             str2 = name.charAt(i - 1).toUpperCase();
+    //             name = str1 + str2;
+    //         }
+    //     }
+    //     return name;
+    // }
+    // var nicki = '';
+    // for (var i = 0; i < 350; i++) {
+    //     nicki += `'${nickName()}', `;
+    // }
+    // nicki = nicki.slice(0, -2);
+    // console.log(nicki);
 
     function drawobj(obj) {
         ctx.beginPath();
@@ -137,8 +205,8 @@ $('document').ready(function() {
         }
         ctx.translate((pl.x - w / 2), (pl.y - h / 2));
         if (!playerBot) {
-            var xMotion = pl.xspeed * ((x1 - pl.x) / getDistance(x1, y1, pl.x, pl.y)),
-                yMotion = pl.yspeed * ((y1 - pl.y) / getDistance(x1, y1, pl.x, pl.y));
+            var xMotion = pl.xspeed * ((x1 - pl.x) / getDistance(x1, y1, pl.x, pl.y)) || 0,
+                yMotion = pl.yspeed * ((y1 - pl.y) / getDistance(x1, y1, pl.x, pl.y)) || 0;
             pl.x += xMotion;
             pl.y += yMotion;
             x1 += xMotion;
@@ -407,7 +475,7 @@ $('document').ready(function() {
                     playerBot = document.getElementById('playerBot').checked;
                     if (+$("#botsCount").val() > bots.length) {
                         for (var i = bots.length; i < +$("#botsCount").val(); i++) {
-                            bots[i] = new Bot(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, generateName(), 2, 2, color(), color(), Math.round(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false);
+                            bots[i] = new Object(Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), dr, 2, 2, generateName(), 2, 2, color(), color(), Math.floor(Math.random() * 2), 0, 0, Math.round(Math.random() * mbc), stepCount, Math.round(Math.random() * scale * w), Math.round(Math.random() * scale * h), false);
                         }
                         table();
                     } else if (+$("#botsCount").val() < bots.length) {
@@ -545,26 +613,16 @@ $('document').ready(function() {
         names.push(player.name);
         kills.push(player.kills);
         deaths.push(player.deaths);
-        for (var i = 0; i < kills.length; i++) {
-            for (var j = 0; j < kills.length - i; j++) {
-                if (kills[j] < kills[j + 1]) {
-                    k = kills[j];
-                    kills[j] = kills[j + 1];
-                    kills[j + 1] = k;
-                    k = names[j];
-                    names[j] = names[j + 1];
-                    names[j + 1] = k;
-                    k = deaths[j];
-                    deaths[j] = deaths[j + 1];
-                    deaths[j + 1] = k;
-                }
-            }
-        }
+        JSsort(false, kills, names, deaths);
         for (var i = 0; i < bots.length + 1; i++) {
-            $('#name' + i + '').html(names[i]);
-            $('#kills' + i + '').html(kills[i]);
-            $('#deaths' + i + '').html(deaths[i]);
-            $('#kpd' + i + '').html(kpd(kills[i], deaths[i]));
+            if (i < 11) {
+                $('#name' + i + '').html(names[i]);
+                $('#kills' + i + '').html(kills[i]);
+                $('#deaths' + i + '').html(deaths[i]);
+                $('#kpd' + i + '').html(kpd(kills[i], deaths[i]));
+            } else {
+                break;
+            }
         }
     }
 
@@ -620,11 +678,27 @@ $('document').ready(function() {
         }
     }
 
-    function JSsort(a) {
-        function sort(a, b) {
-            return a - b;
+    function JSsort(type, a, ...args) {
+        var i = -1,
+            c = [];
+        if (type) {
+            a.sort((a, b) => {
+                c.push(a - b);
+                return a - b;
+            });
+        } else {
+            a.sort((a, b) => {
+                c.push(b - a);
+                return b - a;
+            });
         }
-        return a.sort(sort);
+        for (var j = 0; j < args.length; j++) {
+            args[j].sort(() => {
+                i++;
+                return c[i];
+            });
+            i = -1;
+        }
     }
 
     function getDistance(x1, y1, x2, y2) {
@@ -632,8 +706,8 @@ $('document').ready(function() {
     }
 
     function generateName() {
-        var name, names = ['Jacob', 'Michael', 'Joshua', 'Matthew', 'HuHguZ', 'Foxy', 'Ethan', 'mQ', 'MamBa', 'KyKyPy3a', 'Ceme4ka', 'CmeTanKa', 'Nessa', 'Lemon4ik', 'W1zarD', 'Agressor', 'Noob', 'Fuck', 'NeZoX', 'KoTuk', 'LIJyXeP', 'GreeM', 'PloHish', 'Miwka', 'smailik', 'Bonifacy', 'Бублик', 'Karapuz', 'Whisper', 'Krit', 'AgreSir', 'D-man', 'IWUBIT', 'IWUFIK', 'maD', 'NoNeTam', 'RGOGUCI', 'poncheg', 'Last_ik', 'Kitch', 'Kiss', 'SilverName', 'Iner', 'Штаны', 'Даун', 'AdreN', 'Fucker', 'Faker', 'Hero', 'Happy', 'Super', 'Moon', 'Edward', 'Eeoneguy', 'Alexis', 'Соскевич', 'Freed', 'Cow', 'Крыс', '.mQ!', 'ExC!uT*', 'Scream', 'Bot_pro', 'Sisi', 'Ваня', 'Игорь', 'Максим', 'Илья', 'Zimmer', 'Грешник', '=GLuk=', 'Stalker', 'МАЖОР', 'Hapkomuk', 'Winner', 'Di11er', 'Лирик', 'Пушкин', 'iMan', 'Niyaz', 'L0ki', 'Sans', 'EpicMan', 'Zero', 'BERTOR', 'RPK', 'Vaon', 'mordvig', 'NONAME', 'WASD', 'qwerty', 'kilo', 'jog', 'R.I.P', 'Siro', 'Agar.io', 'Cheater', 'HYGO', 'DooeX', '_OmeN_', 'Admin', 'iJseven', 'РачОк', 'Frost', 'Kuplinov', 'Tomatos', 'Himan', 'Alermo', 'Zaltir', 'Crisp', 'iFresHD', 'Fosters', 'Saspens', 'Trolden', 'Jumbo', 'Tanko', 'banany', 'Adamson', 'Лирой', 'Dorrian', 'Justie', 'OneZee', 'Red21', 'Simon', 'Tiger', 'Snailkick', 'Topa', 'Itpedia', 'M9snik', 'Mamix', 'Nemagia', 'Thoisoi', 'Сыендук', 'Топлес', 'Bonqi', 'BEAV!SE', 'Naval"nyj', 'Mazafack', 'LegendarY', 'Logarifm', 'Fant0m', 'Aragorn', 'Moralore', 'Lymu', 'PsiX', 'Vanish', 'AdeoN', 'Tuk', 'Corben', 'Gaben', 'Fothis', 'Lear', 'Letal', 'панда', 'KUFFO', 'Darik', 'Shadow', 'Yanis', 'Penis', 'Artash', 'Hanojun', 'Iarrid', 'Khoror', 'Gargas', 'Iak', 'Morza', 'Maulabar', 'Celv', 'Gh0st', 'Eriatea', 'Frayko', 'Gerbion', 'Kaekia', 'Shaera', 'Astrello', 'Arr0w', 'Boozai', 'Charter', 'Dep3ku1', 'Foturn', 'car', 'Dominant', 'KaJIuH', 'Haroros', 'Khaera', 'Kysun', 'Aqutea', 'Kristallik', 'joker', 'DarkRage', 'Dilleron', 'ZonG', 'Jesus', 'Mamkoeb', 'Griffon', 'PaZiTiV', 'EnderGuy', 'Remsi', 'Kronos', 'lager', 'Viper', 'Be3uH4uk', 'Дед_Пыхто', 'ПУТИН', 'ЦойЖив', 'lopata', 'Mr.Epic', 'ИзяГудман', 'ЛblсоКоHb', 'donkyHOT', 'ZadNizza', '90x60x90', 'in100gramm', 'Batmen', 'QQshka', 'ВАЖАК', ' Гравицапа', 'Жжженя', 'ПеРеПykeR', 'hotelkin', 'Бадик', 'Girl', 'Пигмейка', 'AlphaGo', 'Deep Blue', 'Текун', 'BCTAHbKA', 'cheLentano', 'Овцекот', 'BUNNY', 'пурген', 'Куропеко', 'Чучо', 'Platon', 'Konfucij', 'Evklid', 'Fallos', 'Arhimed', 'Kasjapa', 'Popka', 'Gautama', 'Russia', 'Magnickiy', 'Brashman', 'Vavilov', 'leNIN', 'Додик', 'Франшиза', 'Пластун', 'Ваточка', 'Кремлебот', 'Аколит', 'Толостоп', 'uhadi', 'Qurtasen', 'Balermah', 'Acelaica', 'Qurllisa', 'Joetol', 'Elabra', 'Gorana', 'Vireni', 'Zharud', 'Naleya', 'Freiro', 'Bubble', 'Factory', 'Qunise', 'Darezi', 'Chalar', 'Ganele', 'Kikree', 'Пуфыстик', 'Andro', 'Kira', 'Cedar', 'Zolobar', 'Dianalore', 'Femand', 'Kekus', 'Dragon', 'Adolace', 'believer', 'Coinara', 'CoinFlip', 'Kalune', 'Kebandis', 'Vibrator', 'Blademaster', 'Burisida', 'Direforge', 'KapJlc0H', 'Gashish', 'RaNDoM', 'Chernoslav', 'Santiaga', 'Wincent', 'Pirest', 'Кровельщик', 'Roman', 'Detonator', 'Antonio', 'Oxxxy', 'Чушка', 'localhost', 'GL3Bk1N', 'Крайнов', 'Суетнов', 'Кононов', 'Веселов', 'Лук', 'Белянин', 'Domask MC', 'Ильина', 'Marvel', 'Math', 'NaN', 'Js', 'Pascal', 'C++', 'PHP', 'C', 'C#'],
-            a = Math.round(Math.random() * (names.length + 150));
+        var name, names = ['Jacob', 'Michael', 'Joshua', 'Matthew', 'HuHguZ', 'Foxy', 'Ethan', 'mQ', 'MamBa', 'KyKyPy3a', 'Ceme4ka', 'CmeTanKa', 'Nessa', 'Lemon4ik', 'W1zarD', 'Agressor', 'Noob', 'Fuck', 'NeZoX', 'KoTuk', 'LIJyXeP', 'GreeM', 'PloHish', 'Miwka', 'smailik', 'Bonifacy', 'Бублик', 'Karapuz', 'Whisper', 'Krit', 'AgreSir', 'D-man', 'IWUBIT', 'IWUFIK', 'maD', 'NoNeTam', 'RGOGUCI', 'poncheg', 'Last_ik', 'Kitch', 'Kiss', 'SilverName', 'Iner', 'Штаны', 'Даун', 'AdreN', 'Fucker', 'Faker', 'Hero', 'Happy', 'Super', 'Moon', 'Edward', 'Eeoneguy', 'Alexis', 'Соскевич', 'Freed', 'Cow', 'Крыс', '.mQ!', 'ExC!uT*', 'Scream', 'Bot_pro', 'Sisi', 'Ваня', 'Игорь', 'Максим', 'Илья', 'Zimmer', 'Грешник', '=GLuk=', 'Stalker', 'МАЖОР', 'Hapkomuk', 'Winner', 'Di11er', 'Лирик', 'Пушкин', 'iMan', 'Niyaz', 'L0ki', 'Sans', 'EpicMan', 'Zero', 'BERTOR', 'RPK', 'Vaon', 'mordvig', 'NONAME', 'WASD', 'qwerty', 'kilo', 'jog', 'R.I.P', 'Siro', 'Agar.io', 'Cheater', 'HYGO', 'DooeX', '_OmeN_', 'Admin', 'iJseven', 'РачОк', 'Frost', 'Kuplinov', 'Tomatos', 'Himan', 'Alermo', 'Zaltir', 'Crisp', 'iFresHD', 'Fosters', 'Saspens', 'Trolden', 'Jumbo', 'Tanko', 'banany', 'Adamson', 'Лирой', 'Dorrian', 'Justie', 'OneZee', 'Red21', 'Simon', 'Tiger', 'Snailkick', 'Topa', 'Itpedia', 'M9snik', 'Mamix', 'Nemagia', 'Thoisoi', 'Сыендук', 'Топлес', 'Bonqi', 'BEAV!SE', 'Naval"nyj', 'Mazafack', 'LegendarY', 'Logarifm', 'Fant0m', 'Aragorn', 'Moralore', 'Lymu', 'PsiX', 'Vanish', 'AdeoN', 'Tuk', 'Corben', 'Gaben', 'Fothis', 'Lear', 'Letal', 'панда', 'KUFFO', 'Darik', 'Shadow', 'Yanis', 'Penis', 'Artash', 'Hanojun', 'Iarrid', 'Khoror', 'Gargas', 'Iak', 'Morza', 'Maulabar', 'Celv', 'Gh0st', 'Eriatea', 'Frayko', 'Gerbion', 'Kaekia', 'Shaera', 'Astrello', 'Arr0w', 'Boozai', 'Charter', 'Dep3ku1', 'Foturn', 'car', 'Dominant', 'KaJIuH', 'Haroros', 'Khaera', 'Kysun', 'Aqutea', 'Kristallik', 'joker', 'DarkRage', 'Dilleron', 'ZonG', 'Jesus', 'Mamkoeb', 'Griffon', 'PaZiTiV', 'EnderGuy', 'Remsi', 'Kronos', 'lager', 'Viper', 'Be3uH4uk', 'Дед_Пыхто', 'ПУТИН', 'ЦойЖив', 'lopata', 'Mr.Epic', 'ИзяГудман', 'ЛblсоКоHb', 'donkyHOT', 'ZadNizza', '90x60x90', 'in100gramm', 'Batmen', 'QQshka', 'ВАЖАК', ' Гравицапа', 'Жжженя', 'ПеРеПykeR', 'hotelkin', 'Бадик', 'Girl', 'Пигмейка', 'AlphaGo', 'Deep Blue', 'Текун', 'BCTAHbKA', 'cheLentano', 'Овцекот', 'BUNNY', 'пурген', 'Куропеко', 'Чучо', 'Platon', 'Konfucij', 'Evklid', 'Fallos', 'Arhimed', 'Kasjapa', 'Popka', 'Gautama', 'Russia', 'Magnickiy', 'Brashman', 'Vavilov', 'leNIN', 'Додик', 'Франшиза', 'Пластун', 'Ваточка', 'Кремлебот', 'Аколит', 'Толостоп', 'uhadi', 'Qurtasen', 'Balermah', 'Acelaica', 'Qurllisa', 'Joetol', 'Elabra', 'Gorana', 'Vireni', 'Zharud', 'Naleya', 'Freiro', 'Bubble', 'Factory', 'Qunise', 'Darezi', 'Chalar', 'Ganele', 'Kikree', 'Пуфыстик', 'Andro', 'Kira', 'Cedar', 'Zolobar', 'Dianalore', 'Femand', 'Kekus', 'Dragon', 'Adolace', 'believer', 'Coinara', 'CoinFlip', 'Kalune', 'Kebandis', 'Vibrator', 'Blademaster', 'Burisida', 'Direforge', 'KapJlc0H', 'Gashish', 'RaNDoM', 'Chernoslav', 'Santiaga', 'Wincent', 'Pirest', 'Кровельщик', 'Roman', 'Detonator', 'Antonio', 'Oxxxy', 'Чушка', 'localhost', 'GL3Bk1N', 'Крайнов', 'Суетнов', 'Кононов', 'Веселов', 'Лук', 'Белянин', 'Domask MC', 'Ильина', 'Marvel', 'Math', 'NaN', 'Js', 'Pascal', 'C++', 'PHP', 'C', 'C#', 'Java', 'Haskell', 'Basic', 'Perl', 'Ruby', 'Action', 'Script', 'ColdFusion', 'D', 'Delphi', 'Dylan', 'Eiffel', 'Groovy', 'haXe', 'Io', 'MC#', 'Pike', 'Python', 'Self', 'Simula', 'Smalltalk', 'Swift', 'Vala', 'Zonnon', 'Ada', 'abando', 'ned', 'NEW', 'abate', 'abbey', 'TR', 'abbrev', 'iation', 'ABC', 'abide', 'able', 'aboard', 'abode', 'lodge', 'abomin', 'able', 'about', 'above', 'abroad', 'abrupt', 'abrupt', 'ly', 'NEW', 'absent', 'absolu', 'te', 'absolu', 'tely', 'absorb', 'absorb', 'ed', 'NEW', 'absorp', 'tion', 'TR', 'abstra', 'ct', 'absurd', 'absurd', 'ity', 'abunda', 'Agodde', 'Epynoq', 'Ivunna', 'Vukuly', 'Fuhivi', 'Ikegel', 'DedIci', 'Mijare', 'Ekollo', 'Ibujuw', 'Palame', 'RyfFag', 'Xedapi', 'Commed', 'OpusOq', 'Mapeto', 'TOsezi', 'Sesafo', 'Lejixa', 'ElejYvv', 'Iffyri', 'TUdosa', 'Egubok', 'Osihos', 'Ukajek', 'Alurri', 'Oxahaf', 'Wywaca', 'Moteno', 'Vofese', 'Uhigot', 'Lyfehh', 'OGetyw', 'Quxuwy', 'Ylukev', 'Ukivem', 'Ywuqop', 'Upyrif', 'Usimef', 'Yrenos', 'Buxuhe', 'Petosu', 'Amoxul', 'Cisixu', 'Odimmu', 'Igiqym', 'Memiso', 'Fonigo', 'Rimiju', 'FecOll', 'InanIr', 'Hukogo', 'VareBu', 'Umepap', 'Exosir', 'Ijigof', 'Ocevvo', 'SejjOz', 'Opomev', 'Onnaso', 'Guhefo', 'Ubujjy', 'Edexap', 'Otijys', 'Udupoh', 'AwiriM', 'Esocce', 'EtUryv', 'Tiwopi', 'Deximu', 'Cofekk', 'Zewiku', 'Uwawud', 'Sannej', 'Usitos', 'Ymidim', 'Ixiler', 'Guroqo', 'EpehhI', 'Hymecu', 'LEtoje', 'Jowiha', 'Tuqixa', 'Apetow', 'Qqiguw', 'Uxofem', 'Ejitir', 'Fekomo', 'SehaRo', 'Ebbill', 'Homuho', 'ACofyl', 'Inoruq', 'Gemije', 'Dukela', 'DylutU', 'Uqimiq', 'Ynanej', 'Ipyvic', 'Faxyso', 'Onilic', 'Sotohy', 'Tiguji', 'Kiposi', 'KAqufu', 'Kyfeta', 'Hubyka', 'Evifof', 'Ejifed', 'Nnejuj', 'Hosuru', 'Oboruq', 'UhacoT', 'OjiTozz', 'Iroduh', 'Sogitt', 'Imoddy', 'Oddita', 'Xesaxi', 'OMecug', 'Ilipov', 'Acydun', 'Qqivvu', 'Dorydo', 'Oveccu', 'Wisipy', 'Buvuga', 'Utoniq', 'Inuwwi', 'Sukosy', 'Ityserr', 'Kevorr', 'Nuvagy', 'Ukejihh', 'Tirufy', 'Ujikon', 'QEnnev', 'Evilahh', 'ElijEw', 'OwetYh', 'Uqqoco', 'ComEcu', 'Ssoleg', 'Ttiwwu', 'Joguci', 'MevijO', 'Turuqa', 'Aqekef', 'JItupu', 'Kicuve', 'YpoxEk', 'Gomofi', 'Eqiryg', 'Nisywe', 'Igusso', 'Ususad', 'Woqime', 'UpoqyN', 'Gyboro', 'Aggyse', 'IkIRiz', 'Ufajyw', 'Lemoff', 'Paloxx', 'Efigip', 'Gudolo', 'Qamebb', 'Yxover', 'Fuxiho', 'Legugo', 'Cehija', 'Nebyje', 'IGufev', 'Omiwuww', 'WYcidu', 'Ypykex', 'EfeJot', 'Jumixe', 'QeFoni', 'FineWe', 'Qigyza', 'Lagupo', 'Ewynev', 'GgyRus', 'Cisogi', 'Nejehy', 'Irepoc', 'Fozizz', 'Iburyq', 'Uxecox', 'Ggavyp', 'Alumuq', 'Ydewid', 'ReMili', 'Vovujy', 'KKixoc', 'OfYwIl', 'Yssimo', 'YwuvIv', 'ONimekk', 'Otybbo', 'Ymebijj', 'Ucenyv', 'Ygokiq', 'Umuvutt', 'Xanone', 'Eloxex', 'Duqoww', 'Iwwoqu', 'Exojuh', 'Offuje', 'Ezujuf', 'Gulajy', 'UbejyW', 'Amicig', 'Emijyg', 'DyciTu', 'Bacahe', 'Norrol', 'Ameruf', 'Ucomeq', 'Rrygyc', 'Nefejj', 'Elekumm', 'Tomeno', 'GipiCu', 'Gykore', 'Amohex', 'Luduse', 'Tihett', 'Esyrri', 'Fokiqi', 'Cajjoh', 'Ylekem', 'Ijomes', 'Poxunu', 'Ejovegg', 'Wywihh', 'Itiwiw', 'Uvyfyv', 'Kiwewe', 'OwwYje', 'Togoto', 'Aviref', 'Rojela', 'Ubbiga', 'Olujim', 'Tegoto', 'Jireqi', 'Usihox', 'Jysevo', 'Ofihet', 'Ppasyx', 'Givoga', 'Apemif', 'CCapob', 'Uvihyh', 'OwwytI', 'Uzemmy', 'CColur', 'Exuqak', 'Upyxud', 'Hopeca', 'Hoqave', 'Edirogg', 'DyTazi', 'Ofemmu', 'Irrisu', 'Xyryne', 'Zoqell', 'Exymaf', 'Nugihy', 'YPezic', 'PerIro', 'Pegagu', 'Bapywe', 'Jjexir', 'Apofyr', 'Nitaca', 'Uqyggu', 'Unequk', 'Ilohuj', 'AkkySo', 'Huwogu', 'Vucuqe', 'Unujyz', 'Xohavi', 'Upunyk', 'Gujani', 'HorUki', 'Epojyx', 'Osejess', 'Rrorom', 'Ewifun', 'Kogeri', 'SurEku', 'Dehude', 'MaxewI', 'Himesy', 'Usajja', 'Gewomm', 'Jypece', 'Ikigac', 'Esoseh', 'JuSucc', 'TubonU', 'Rufuvy', 'Gumedi', 'Tesawi', 'Afykam', 'Ikihid', 'Odabuc', 'XUqoce', 'Ogyhij', 'Voziti', 'Ofuqin', 'Oqilef', 'IlliCa', 'Mykaro', 'Ixxeju', 'YselyT', 'WoDele', 'Opejoj', 'WwolAl', 'Bijipe', 'Rezefo', 'XAwumo', 'Sygafe', 'Wedafe', 'Gaxoty', 'Qoveqe', 'NOkulo', 'Epevol', 'EwafIj', 'OhuluD', 'Junuqu', 'Gisyfi', 'Kowwoj', 'Xxerri', 'OmexaR', 'Ekefug', 'Oqumyk', 'OkoDof', 'Dohhik', 'Yfexen', 'Ymmute', 'Izesyv', 'BbiqUm', 'Yfugaj', 'Acipop'],
+            a = Math.round(Math.random() * (names.length + 250));
         if (a < names.length) {
             name = names[a];
         }
@@ -715,31 +789,26 @@ $('document').ready(function() {
         var distance = getDistance(bot.x, bot.y, e1.x, e1.y);
         if (distance < bot.r + e1.r) {
             if (bot.r / e1.r >= canEat) {
-                if (bot.r < maxr) {
-                    bot.r += rspeed;
-                    speed(bot);
-                }
-                e1.r -= rspeed;
-                speed(e1);
-                if (e1.r <= 0) {
-                    respawn(e1);
-                    bot.kills++;
-                    e1.deaths++;
-                    table();
-                }
+                collision(bot, e1);
             } else if (e1.r / bot.r >= canEat) {
-                if (e1.r < maxr) {
-                    e1.r += rspeed;
-                    speed(e1);
-                }
-                bot.r -= rspeed;
-                speed(bot);
-                if (bot.r <= 0) {
-                    respawn(bot);
-                    bot.deaths++;
-                    e1.kills++;
-                    table();
-                }
+                collision(e1, bot);
+            }
+        }
+
+        function collision(e1, e2) {
+            if (e1.r < maxr) {
+                e1.r += rspeed;
+                e1.attackNow = e2;
+                speed(e1);
+            }
+            e2.r -= rspeed;
+            speed(e2);
+            if (e2.r <= 0) {
+                delete e1.attackNow;
+                respawn(e2);
+                e1.kills++;
+                e2.deaths++;
+                table();
             }
         }
     }
@@ -884,43 +953,113 @@ $('document').ready(function() {
         }
     }
 
-    function interaction(distance2, bot, fd, dist2, e1, n) {
-        var dist3 = getDistance(bot.x, bot.y, e1.x, e1.y);
-        if (dist3 == distance2[0]) {
-            if (dist3 <= dist2) {
-                if (bot.r / e1.r >= canEat) {
-                    bot.x += bot.xspeed * ((e1.x - bot.x) / getDistance(bot.x, bot.y, e1.x, e1.y));
-                    bot.y += bot.yspeed * ((e1.y - bot.y) / getDistance(bot.x, bot.y, e1.x, e1.y));
-                } else if (e1.r / bot.r >= canEat) {
-                    if (bot.x < scale * w - bot.r - 1 && bot.x > bot.r + 1 && bot.y < scale * h - bot.r - 1 && bot.y > bot.r + 1 && !(bot.x > scale * w - e1.r * 2 && bot.y > scale * h - e1.r * 2) && !(bot.x > scale * w - e1.r * 2 && bot.y < e1.r * 2) && !(bot.x < e1.r * 2 && bot.y < e1.r * 2) && !(bot.x < e1.r * 2 && bot.y > scale * h - e1.r * 2)) {
-                        runbot(e1, bot);
-                    } else {
-                        if (bot.x > scale * w - e1.r * 2 && bot.y > scale * h - e1.r * 2) {
-                            botRunWall(2, e1, bot);
-                        } else if (bot.x > scale * w - e1.r * 2 && bot.y < e1.r * 2) {
-                            botRunWall(3, e1, bot);
-                        } else if (bot.x < e1.r * 2 && bot.y < e1.r * 2) {
-                            botRunWall(4, e1, bot);
-                        } else if (bot.x < e1.r * 2 && bot.y > scale * h - e1.r * 2) {
-                            botRunWall(5, e1, bot);
-                        } else {
-                            if (bot.x > scale * w - bot.r - 1) {
-                                botRunWall(0, e1, bot);
-                            } else if (bot.x < bot.r + 1) {
-                                botRunWall(0, e1, bot);
-                            }
-                            if (bot.y > scale * h - bot.r - 1) {
-                                botRunWall(1, e1, bot);
-                            } else if (bot.y < bot.r + 1) {
-                                botRunWall(1, e1, bot);
-                            }
-                        }
-                    }
-                } else {
-                    bot.currentMotion = chance[chance.length - 1];
+    function interaction(distances, pos, bot, fd, AreaOfVisibility, playerNum) {
+        var maxR = 0,
+            NBotWithMaxR,
+            botsLess = 0,
+            botsMore = {
+                list: [],
+                count: 0
+            },
+            objRun;
+        for (var i = 0; i < distances.length; i++) {
+            if (pos[i] !== playerNum) {
+                if (check(bot, bots[pos[i]]) === false) {
+                    break;
                 }
             } else {
-                bot.currentMotion = chance[chance.length - 1];
+                if (check(bot, player) === false) {
+                    break;
+                }
+            }
+        }
+        if (!botsLess && !botsMore.count) {
+            bot.currentMotion = chance[chance.length - 1];
+            botAI(bot, fd, -1);
+            return;
+        }
+        if (botsLess > botsMore.count) {
+            attack(arguments);
+        } else if (botsLess < botsMore.count) {
+            protect();
+        } else {
+            if (bot.bravery) {
+                attack(arguments);
+            } else {
+                protect();
+            }
+        }
+
+        function attack(args) {
+            if (!bot.attackNow) {
+                bot.x += bot.xspeed * ((NBotWithMaxR.x - bot.x) / getDistance(NBotWithMaxR.x, NBotWithMaxR.y, bot.x, bot.y));
+                bot.y += bot.yspeed * ((NBotWithMaxR.y - bot.y) / getDistance(NBotWithMaxR.x, NBotWithMaxR.y, bot.x, bot.y));
+            } else {
+                if (getDistance(bot.attackNow.x, bot.attackNow.y, bot.x, bot.y) <= bot.r + AreaOfVisibility + bot.attackNow.r) {
+                    bot.x += bot.xspeed * ((bot.attackNow.x - bot.x) / getDistance(bot.attackNow.x, bot.attackNow.y, bot.x, bot.y));
+                    bot.y += bot.yspeed * ((bot.attackNow.y - bot.y) / getDistance(bot.attackNow.x, bot.attackNow.y, bot.x, bot.y));
+                } else {
+                    delete bot.attackNow;
+                    interaction.apply(null, args);
+                }
+            }
+        }
+
+        function protect() {
+            objRun = getArithMeanOfCoords(botsMore.list);
+            if (bot.x < scale * w - bot.r - 1 && bot.x > bot.r + 1 && bot.y < scale * h - bot.r - 1 && bot.y > bot.r + 1 && !(bot.x > scale * w - objRun.r * 2 && bot.y > scale * h - objRun.r * 2) && !(bot.x > scale * w - objRun.r * 2 && bot.y < objRun.r * 2) && !(bot.x < objRun.r * 2 && bot.y < objRun.r * 2) && !(bot.x < objRun.r * 2 && bot.y > scale * h - objRun.r * 2)) {
+                bot.x -= bot.xspeed * ((objRun.x - bot.x) / getDistance(objRun.x, objRun.y, bot.x, bot.y));
+                bot.y -= bot.yspeed * ((objRun.y - bot.y) / getDistance(objRun.x, objRun.y, bot.x, bot.y));
+            } else {
+                if (bot.x > scale * w - objRun.r * 2 && bot.y > scale * h - objRun.r * 2) {
+                    botRunWall(2, objRun, bot);
+                } else if (bot.x > scale * w - objRun.r * 2 && bot.y < objRun.r * 2) {
+                    botRunWall(3, objRun, bot);
+                } else if (bot.x < objRun.r * 2 && bot.y < objRun.r * 2) {
+                    botRunWall(4, objRun, bot);
+                } else if (bot.x < objRun.r * 2 && bot.y > scale * h - objRun.r * 2) {
+                    botRunWall(5, objRun, bot);
+                } else {
+                    if (bot.x > scale * w - bot.r - 1) {
+                        botRunWall(0, objRun, bot);
+                    } else if (bot.x < bot.r + 1) {
+                        botRunWall(0, objRun, bot);
+                    }
+                    if (bot.y > scale * h - bot.r - 1) {
+                        botRunWall(1, objRun, bot);
+                    } else if (bot.y < bot.r + 1) {
+                        botRunWall(1, objRun, bot);
+                    }
+                }
+            }
+        }
+
+        function check(e1, e2) {
+            if (distances[i] <= e1.r + AreaOfVisibility + e2.r) {
+                interHelper(e1, e2);
+            } else {
+                return false;
+            }
+        }
+
+        function getArithMeanOfCoords(a) {
+            return {
+                x: a.reduce((sum, cur) => (sum + cur.x), 0) / botsMore.count,
+                y: a.reduce((sum, cur) => (sum + cur.y), 0) / botsMore.count,
+                r: a.reduce((sum, cur) => (sum + cur.r), 0) / botsMore.count
+            };
+        }
+
+        function interHelper(e1, e2) {
+            if (e1.r / e2.r >= canEat && e2.r > maxR) {
+                if (!e1.attackNow) {
+                    maxR = e2.r;
+                    NBotWithMaxR = e2;
+                }
+                botsLess++;
+            } else if (e2.r / e1.r >= canEat) {
+                botsMore.list.push(e2);
+                botsMore.count++;
             }
         }
     }
@@ -939,7 +1078,8 @@ $('document').ready(function() {
         var distance = [],
             nums, min = Infinity,
             distance2 = [],
-            dist, k;
+            pos = [],
+            dist, k, plNum;
         if (bot.step <= 0) {
             bot.rndX = Math.round(Math.random() * scale * w);
             bot.rndY = Math.round(Math.random() * scale * h);
@@ -952,26 +1092,19 @@ $('document').ready(function() {
         } else if (bot.currentMotion >= chance[2] && bot.currentMotion <= chance[3]) {
             for (var i = 0; i < bots.length; i++) {
                 if (i !== number) {
-                    distance2[distance2.length] = getDistance(bot.x, bot.y, bots[i].x, bots[i].y);
+                    distance2.push(getDistance(bot.x, bot.y, bots[i].x, bots[i].y));
+                    pos.push(i);
                 }
             }
             if (bot === player) {
-                JSsort(distance2);
-                for (var i = 0; i < bots.length; i++) {
-                    interaction(distance2, bot, fd, bot.r + bots[i].r + razt, bots[i], number);
-                }
+                JSsort(true, distance2, pos);
+                interaction(distance2, pos, bot, fd, razt, -1);
             } else {
-                distance2[distance2.length] = getDistance(bot.x, bot.y, player.x, player.y);
-                JSsort(distance2);
-                if (distance2[0] !== getDistance(bot.x, bot.y, player.x, player.y)) {
-                    for (var i = 0; i < bots.length; i++) {
-                        if (i !== number) {
-                            interaction(distance2, bot, fd, bot.r + bots[i].r + razt, bots[i], number);
-                        }
-                    }
-                } else {
-                    interaction(distance2, bot, fd, bot.r + player.r + razt, player, number);
-                }
+                distance2.push(getDistance(bot.x, bot.y, player.x, player.y));
+                plNum = pos.length;
+                pos.push(pos.length);
+                JSsort(true, distance2, pos);
+                interaction(distance2, pos, bot, fd, razt, plNum);
             }
         } else if (bot.currentMotion >= chance[4] && bot.currentMotion <= chance[5]) {
             if (!foodcount) {
@@ -1020,7 +1153,6 @@ $('document').ready(function() {
         }
     }
 
-    //изменить логику
     function radius(ent) {
         if (ent.r / maxr >= 0.2) {
             ent.r -= Math.round(0.01 * ent.r);
@@ -1244,18 +1376,7 @@ $('document').ready(function() {
         }
         rads.push(player.r);
         name.push(player.name);
-        for (var i = 0; i < rads.length; i++) {
-            for (var j = 0; j < rads.length - i; j++) {
-                if (rads[j] < rads[j + 1]) {
-                    k = rads[j];
-                    rads[j] = rads[j + 1];
-                    rads[j + 1] = k;
-                    q = name[j];
-                    name[j] = name[j + 1];
-                    name[j + 1] = q;
-                }
-            }
-        }
+        JSsort(false, rads, name);
         var n = bots.length + 1;
         if (n > 10) {
             n = 10;
