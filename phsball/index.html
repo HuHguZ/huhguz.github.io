@@ -1,0 +1,25 @@
+<!DOCTYPE hmtl>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>phsball</title>
+        <link href="css/style.css" rel="stylesheet" type="text/css"/>
+		<link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+        <script type="text/javascript" src="js/game.js"></script>
+    </head>
+    <body>
+		<canvas id="canvas" onselectstart="return false" onmousedown="return false"></canvas>
+		<div class="text">
+			r - <input type="text" id="inp1">
+			&nbsp;x - <input type="text" id="inp2">
+			&nbsp;y - <input type="text" id="inp3">
+			&nbsp;xspeed - <input type="text" id="inp4">
+			&nbsp;yspeed - <input type="text" id="inp5">
+			&nbsp;gravity - <input type="text" id="inp6">
+			&nbsp;<span title="Сила трения и сопротивления воздуха">deceleration</span> - <input type="text" id="inp7">
+			&nbsp;<span title="Процент оставшейся скорости после удара о стену">loss</span> - <input type="text" id="inp8">
+            &nbsp;<span title="Количество других мячей на карте, не включая вас (изначально вы красный)">balls</span> - <input type="text" id="inp9">
+			&nbsp;<button id = "but">Изменить</button><br>
+		</div>
+    </body>
+</html>
