@@ -10,13 +10,15 @@ window.addEventListener('load', function() {
         blocks = [], // Массив для хранения блоков
         you = 0, // Номер текущего мяча
         skinAngle = 0, //угол поворота скина в меню настроек
-        c = false, // Флаг для кнопки изменить
         setgs = false, // Для настроек
         ballsCount = 1, // Количество мячей
         mouse = {}, // Объект координат, скорости мыши
         images = [], // Массив изображений
         screenX = window.screenX, //Координаты верхнего угла окна браузера
         screenY = window.screenY, //Координаты верхнего угла окна браузера
+        uploaded = false, //Загружены или нет все изображения мячей
+        loadCount = 0, //Кол-во загруженных изображений
+        totalCount = 78, //Общее кол-во изображений
         handlers = [function(obj) { // Массив обработчиков для проверки состояния мяча (на земле или в воздухе). Важно, т.к. без этого мяч будет бесконечно биться о землю
             return obj.position.y >= h - obj.r - 1;
         }, function(obj) {
@@ -50,7 +52,7 @@ window.addEventListener('load', function() {
                     obj.position.y = obj.r;
                     this.lose(obj);
                 }
-                var a = Math.abs((this.gravity.x + this.gravity.y) / 2 + (this.deceleration.x + this.deceleration.y) / 2);
+                var a = Math.abs((obj.gravity.x + obj.gravity.y) / 2 + (obj.deceleration.x + obj.deceleration.y) / 2);
                 obj.velocity.x = Math.abs(obj.velocity.x) <= a ? 0 : obj.velocity.x;
                 obj.velocity.y = Math.abs(obj.velocity.y) <= a ? 0 : obj.velocity.y;
                 return this;
@@ -157,6 +159,7 @@ window.addEventListener('load', function() {
                 return this;
             }
         },
+        progressBar = new Block(w / 2 - 250, h / 2 - 50, 500, 50, '#000000'),
         elements = {
             r: getElem('r'),
             mass: getElem('mass'),
@@ -219,9 +222,29 @@ window.addEventListener('load', function() {
     }
     cns.width = 120;
     cns.height = 120;
-    for (var i = 0; i <= 78; i++) {
+    progressBar.textColor = generateRndcolor();
+    for (var i = 0; i <= totalCount; i++) {
         var img = new Image();
         img.src = `resources/ball${i}.png`;
+        img.onload = function() {
+            loadCount++;
+            if (loadCount === totalCount + 1) {
+                uploaded = !uploaded;
+            }
+            ctx.clearRect(0, 0, w, h);
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = progressBar.color;
+            ctx.stroke();
+            ctx.strokeRect(progressBar.x - ctx.lineWidth / 2, progressBar.y - ctx.lineWidth / 2, progressBar.w + ctx.lineWidth, progressBar.h + ctx.lineWidth);
+            ctx.fillStyle = 'rgb(255, 161, 0)';
+            ctx.fillRect(progressBar.x, progressBar.y, progressBar.w * (loadCount / (totalCount + 1)), progressBar.h);
+            ctx.fillStyle = 'rgb(255, 161, 0)';
+            ctx.textAlign = "center";
+            ctx.font = "normal 25px Verdana";
+            ctx.fillText(`Загрузка: ${(100 * loadCount / (totalCount + 1)).toFixed(3)}%`, w / 2, h / 2 + 30 + ctx.lineWidth);
+            ctx.closePath();
+        }
         images.push(img);
     }
     for (var i = 0; i < ballsCount; i++) { //Добавляем мячи
@@ -627,5 +650,12 @@ window.addEventListener('load', function() {
             oRequestAnimationFrame ||
             msRequestAnimationFrame;﻿
     })();
-    game();
+    var upl = function() {
+        if (uploaded) {
+            game();
+            showElem(getElem('guide'));
+            clearInterval(upl);
+        }
+    }
+    upl = setInterval(upl, 1000);
 });
