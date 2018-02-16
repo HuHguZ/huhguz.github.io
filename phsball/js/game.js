@@ -14,7 +14,7 @@ window.addEventListener('load', function() {
         blockTexture = 4, //Номер текстуры блока, используемой в данный момент
         skinAngle = 0, //угол поворота скина в меню настроек
         setgs = false, // Для настроек
-        ballsCount = 2, // Количество мячей в начале игры
+        ballsCount = 15, // Количество мячей в начале игры
         mouse = {}, // Объект координат, скорости мыши
         imagesForBalls = [], // Массив изображений мячей
         imagesForBlocks = [], //Массив изображений блоков
@@ -27,6 +27,10 @@ window.addEventListener('load', function() {
         acspeed = 5, //На это число ускорится мяч или мячи при нажатии клавиши Q или W
         blw = 32, //Ширина добавляемых блоков
         blh = 32, //Высота добавляемых блоков
+        fvx = getRandomInt(-5, 10),
+        bvx = getRandomInt(-5, 10),
+        fvy = getRandomInt(-5, 10),
+        bvy = getRandomInt(-5, 10),
         handlers = [function(obj) { // Массив обработчиков для проверки состояния мяча (на земле или в воздухе). Важно, т.к. без этого мяч будет бесконечно биться о землю
             return obj.position.y >= h - obj.r - 1;
         }, function(obj) {
@@ -179,27 +183,29 @@ window.addEventListener('load', function() {
                 return (DeltaX * DeltaX + DeltaY * DeltaY) < (ball.r * ball.r);
             },
             resolveCollisionWithBlock(block, ball) {
-                for (var i = 0; i < block.parts.length; i++) {
-                    if (this.collisionDetWithBlock(block.parts[i], ball)) {
-                        if (!~ball.handlers.indexOf(block.handler.checkCollision)) {
-                            ball.handlers.push(block.handler.checkCollision);
-                        }
-                        if (!i || i === 2 || i === 6 || i === 7) {
-                            this.resolveCollision({
-                                position: new Vector2(block.parts[i].x + block.parts[i].w / 2, block.parts[i].y + block.parts[i].h / 2),
-                                velocity: new Vector2(-ball.velocity.x / 1.5, -ball.velocity.y / 1.5),
-                                mass: ball.mass
-                            }, ball);
-                        } else if (i === 1 || i === 4) {
-                            ball.velocity.y *= -1;
-                            this.lose(ball);
-                        } else if (i === 3 || i === 5) {
-                            ball.velocity.x *= -1;
-                            this.lose(ball);
-                        }
-                        if (ball.canCallHand) {
-                            ball.position.x += 2 * (ball.position.x - (block.parts[i].x + block.parts[i].w / 2)) / getDistance(ball.position.x, ball.position.y, block.parts[i].x + block.parts[i].w / 2, block.parts[i].y + block.parts[i].h / 2);
-                            ball.position.y += 2 * (ball.position.y - (block.parts[i].y + block.parts[i].h / 2)) / getDistance(ball.position.x, ball.position.y, block.parts[i].x + block.parts[i].w / 2, block.parts[i].y + block.parts[i].h / 2);
+                if (block.physical) {
+                    for (var i = 0; i < block.parts.length; i++) {
+                        if (this.collisionDetWithBlock(block.parts[i], ball)) {
+                            if (!~ball.handlers.indexOf(block.handler.checkCollision)) {
+                                ball.handlers.push(block.handler.checkCollision);
+                            }
+                            if (!i || i === 2 || i === 6 || i === 7) {
+                                this.resolveCollision({
+                                    position: new Vector2(block.parts[i].x + block.parts[i].w / 2, block.parts[i].y + block.parts[i].h / 2),
+                                    velocity: new Vector2(-ball.velocity.x / 1.5, -ball.velocity.y / 1.5),
+                                    mass: ball.mass
+                                }, ball);
+                            } else if (i === 1 || i === 4) {
+                                ball.velocity.y *= -1;
+                                this.lose(ball);
+                            } else if (i === 3 || i === 5) {
+                                ball.velocity.x *= -1;
+                                this.lose(ball);
+                            }
+                            if (ball.canCallHand) {
+                                ball.position.x += 2 * (ball.position.x - (block.parts[i].x + block.parts[i].w / 2)) / getDistance(ball.position.x, ball.position.y, block.parts[i].x + block.parts[i].w / 2, block.parts[i].y + block.parts[i].h / 2);
+                                ball.position.y += 2 * (ball.position.y - (block.parts[i].y + block.parts[i].h / 2)) / getDistance(ball.position.x, ball.position.y, block.parts[i].x + block.parts[i].w / 2, block.parts[i].y + block.parts[i].h / 2);
+                            }
                         }
                     }
                 }
@@ -234,7 +240,12 @@ window.addEventListener('load', function() {
             acspeed: getElem('acspeed'),
             blw: getElem('blw'),
             blh: getElem('blh'),
-            txtr: getElem('txtr')
+            txtr: getElem('txtr'),
+            phys: getElem('phys'),
+            fvx: getElem('fvx'),
+            bvx: getElem('bvx'),
+            fvy: getElem('fvy'),
+            bvy: getElem('bvy'),
         },
         buttons = document.getElementsByClassName('forAll'),
         properties = [
@@ -285,10 +296,7 @@ window.addEventListener('load', function() {
         blockTexture = +this.value < 1 ? (this.value = 1, 1) : +this.value > 193 ? (this.value = 193, 193) : +this.value;
         showTexture();
     }
-    cns.width = 120;
-    cns.height = 120;
-    cns2.width = 120;
-    cns2.height = 120;
+    cns.width = cns.height = cns2.width = cns2.height = 120;
     for (var i = 0; i <= totalBallsCount; i++) {
         var img = new Image();
         img.src = `resources/balls/ball${i}.png`;
@@ -326,14 +334,21 @@ window.addEventListener('load', function() {
     }
 
     function addBall() {
-        var rnd = [(Math.random() * 2 ^ 0) ? 1 : -1, (Math.random() * 2 ^ 0) ? 1 : -1],
-            r = Math.random() * 15 + 10 ^ 0,
-            ball = new Ball(new Vector2(isNumeric(arguments[0]) ? arguments[0] : Math.random() * w, isNumeric(arguments[1]) ? arguments[1] : Math.random() * h), r, generateRndcolor(), new Vector2(rnd[0] * Math.random() * 10, rnd[1] * Math.random() * 10), r);
+        var r = Math.random() * 15 + 10 ^ 0,
+            ball = new Ball(new Vector2(isNumeric(arguments[0]) ? arguments[0] : Math.random() * w, isNumeric(arguments[1]) ? arguments[1] : Math.random() * h), r, generateRndcolor(), new Vector2(getRandomArbitrary(fvx, bvx), getRandomArbitrary(fvy, bvy)), r);
         if (arguments.length) {
             balls.push(ball);
         } else {
             balls.push(generateNewBall(ball));
         }
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    function getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
     }
 
     function generateNewBall(b) {
@@ -401,6 +416,7 @@ window.addEventListener('load', function() {
         this.w = w;
         this.h = h;
         this.img = img;
+        this.physical = elements.phys.checked;
         this.handler = {
             block: this,
             checkCollision: function(ball) {
@@ -640,6 +656,10 @@ window.addEventListener('load', function() {
         elements.blw.value = blw;
         elements.blh.value = blh;
         elements.txtr.value = blockTexture;
+        elements.fvx.value = fvx;
+        elements.bvx.value = bvx;
+        elements.fvy.value = fvy;
+        elements.bvy.value = bvy;
     }
 
     function setInfo() {
@@ -650,6 +670,10 @@ window.addEventListener('load', function() {
         ballsCount = +elements.balls.value;
         blw = parseFloat(+elements.blw.value) ? elements.blw.value : blw;
         blh = parseFloat(+elements.blh.value) ? elements.blh.value : blh;
+        fvx = typeof parseFloat(+elements.fvx.value) == 'number' ? +elements.fvx.value : fvx;
+        bvx = typeof parseFloat(+elements.bvx.value) == 'number' ? +elements.bvx.value : bvx;
+        fvy = typeof parseFloat(+elements.fvy.value) == 'number' ? +elements.fvy.value : fvy;
+        bvy = typeof parseFloat(+elements.bvy.value) == 'number' ? +elements.bvy.value : bvy;
         if (ballsCount > balls.length) {
             for (var i = balls.length; i < ballsCount; i++) {
                 addBall();
