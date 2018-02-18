@@ -14,6 +14,7 @@ window.addEventListener('load', function() {
         blockTexture = 4, //Номер текстуры блока, используемой в данный момент
         skinAngle = 0, //угол поворота скина в меню настроек
         setgs = false, // Для настроек
+        drawInfo = false, //Рисовать или нет на экране инфу о мяче
         ballsCount = 15, // Количество мячей в начале игры
         mouse = {}, // Объект координат, скорости мыши
         imagesForBalls = [], // Массив изображений мячей
@@ -45,37 +46,22 @@ window.addEventListener('load', function() {
             deceleration: new Vector2(0.08, 0.08), // Сила трения и сопротивления воздуха
             loss: 0.95, // Потеря скорости при ударе об стены
             collisionLoss: 0.97, // Потеря при соударении мячей
+            check(obj, axis, condition, expression, side) {
+                if (condition) {
+                    obj.velocity[axis] *= -1;
+                    obj.position[axis] = expression;
+                    this.lose(obj);
+                    this.groundResistance(side, obj);
+                    if (Math.abs(obj.velocity[axis]) < Math.abs(obj.gravity[axis]) && !obj.onGround) {
+                        obj.velocity[axis] = obj.gravity[axis];
+                    }
+                }
+            },
             checkCoords(obj) {
-                if (obj.position.x >= w - obj.r) {
-                    obj.velocity.x *= -1;
-                    obj.position.x = w - obj.r;
-                    this.lose(obj);
-                    if (Math.abs(obj.velocity.x) < Math.abs(obj.gravity.x) && !obj.onGround) {
-                        obj.velocity.x = obj.gravity.x;
-                    }
-                } else if (obj.position.x <= obj.r) {
-                    obj.velocity.x *= -1;
-                    obj.position.x = obj.r;
-                    this.lose(obj);
-                    if (Math.abs(obj.velocity.x) < Math.abs(obj.gravity.x) && !obj.onGround) {
-                        obj.velocity.x = obj.gravity.x;
-                    }
-                }
-                if (obj.position.y >= h - obj.r) {
-                    obj.velocity.y *= -1;
-                    obj.position.y = h - obj.r;
-                    this.lose(obj);
-                    if (Math.abs(obj.velocity.y) < Math.abs(obj.gravity.y) && !obj.onGround) {
-                        obj.velocity.y = obj.gravity.y;
-                    }
-                } else if (obj.position.y <= obj.r) {
-                    obj.velocity.y *= -1;
-                    obj.position.y = obj.r;
-                    this.lose(obj);
-                    if (Math.abs(obj.velocity.y) < Math.abs(obj.gravity.y) && !obj.onGround) {
-                        obj.velocity.y = obj.gravity.y;
-                    }
-                }
+                this.check(obj, 'x', obj.position.x >= w - obj.r, w - obj.r, 1);
+                this.check(obj, 'x', obj.position.x <= obj.r, obj.r, 3);
+                this.check(obj, 'y', obj.position.y >= h - obj.r, h - obj.r, 0);
+                this.check(obj, 'y', obj.position.y <= obj.r, obj.r, 2);
                 if (obj.onGround) {
                     var a = Math.abs((obj.gravity.x + obj.gravity.y) / 2 + (obj.deceleration.x + obj.deceleration.y) / 2);
                     obj.velocity.x = Math.abs(obj.velocity.x) <= a ? 0 : obj.velocity.x;
@@ -103,7 +89,7 @@ window.addEventListener('load', function() {
                 }
                 return this;
             },
-            resistance(obj) {
+            airResistance(obj) {
                 obj.velocity.add((() => {
                     var xml, yml;
                     if (obj.velocity.x < 0) {
@@ -120,6 +106,22 @@ window.addEventListener('load', function() {
                 })());
                 return this;
             },
+            groundResistance(side, obj) {
+                if (!side || side === 2) {
+                    if (obj.velocity.x > 0) {
+                        obj.velocity.add(new Vector2(-obj.deceleration.x, 0));
+                    } else {
+                        obj.velocity.add(new Vector2(obj.deceleration.x, 0));
+                    }
+                } else {
+                    if (obj.velocity.y > 0) {
+                        obj.velocity.add(new Vector2(0, -obj.deceleration.y));
+                    } else {
+                        obj.velocity.add(new Vector2(0, obj.deceleration.y));
+                    }
+                }
+                return this;
+            },
             resolveCollision(ball, otherball) {
                 var xVelocityDiff = ball.velocity.x - otherball.velocity.x,
                     yVelocityDiff = ball.velocity.y - otherball.velocity.y,
@@ -131,7 +133,9 @@ window.addEventListener('load', function() {
                         m2 = otherball.mass,
                         u1 = this.rotate(ball.velocity, angle),
                         u2 = this.rotate(otherball.velocity, angle),
-                        v1 = {
+                        vec1 = new Vector2(otherball.position.x - ball.position.x, otherball.position.y - ball.position.y),
+                        vec2 = new Vector2(ball.r, 0);
+                    v1 = {
                             x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2),
                             y: u1.y
                         },
@@ -141,23 +145,28 @@ window.addEventListener('load', function() {
                         },
                         vFinal1 = this.rotate(v1, -angle),
                         vFinal2 = this.rotate(v2, -angle);
-                    // if (compareBalls(ball, otherball)) {
-                    //     if (getDistance(ball.position.x, ball.position.y, otherball.position.x, ball.position.y) / otherball.r < 0.4) {
-                    //         alert(true);
-                    //     }
-                    // } else {
-                    //
-                    // }
-                    if (otherball.onGround) {
-                        ball.isCollided = true;
-                    }
-                    if (ball.onGround) {
-                        otherball.isCollided = true;
+                    if (!ball.gravity.x && !otherball.gravity.x) {
+                        if (Math.abs(vec1.cos(vec2) * 180 / Math.PI) < 40) {
+                            collide();
+                        }
+                    } else if (!ball.gravity.y && !otherball.gravity.y) {
+                        if (Math.abs(vec1.cos(vec2) * 180 / Math.PI) > 40) {
+                            collide();
+                        }
+                    } else {
+                        if (Math.abs(vec1.cos(vec2) * 180 / Math.PI) > 10 && Math.abs(vec1.cos(vec2) * 180 / Math.PI) < 50) {
+                            collide();
+                        }
                     }
 
-                    // function compareBalls(ball1, ball2) {
-                    //     return ball2.position.y - ball1.position.y > 0;
-                    // }
+                    function collide() {
+                        if (otherball.onGround) {
+                            ball.isCollided = true;
+                        }
+                        if (ball.onGround) {
+                            otherball.isCollided = true;
+                        }
+                    }
                     ball.velocity.x = this.collisionLoss * vFinal1.x;
                     ball.velocity.y = this.collisionLoss * vFinal1.y;
                     otherball.velocity.x = this.collisionLoss * vFinal2.x;
@@ -283,6 +292,7 @@ window.addEventListener('load', function() {
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].onclick = buttonsHandlers(i);
     }
+
     elements.you.oninput = function() {
         you = +this.value < 0 ? (this.value = 0, 0) : +this.value > balls.length - 1 ? (this.value = balls.length - 1, balls.length - 1) : +this.value;
         updateInfo();
@@ -398,6 +408,12 @@ window.addEventListener('load', function() {
         this.y = y;
     }
 
+    Vector2.prototype.length = function() {
+        return (this.x ** 2 + this.y ** 2) ** 0.5;
+    }
+    Vector2.prototype.cos = function(Vector2) {
+        return (this.x * Vector2.x + this.y * Vector2.y) / (this.length() * Vector2.length());
+    }
     Vector2.prototype.add = function(Vector2) {
         this.x += Vector2.x;
         this.y += Vector2.y;
@@ -621,7 +637,19 @@ window.addEventListener('load', function() {
                     continue;
                 }
                 obj[prop['fp']][prop[p]] = value[p];
+                if (prop['fp'] === 'deceleration') {
+                    if (p === 'sp') {
+                        world.deceleration.x = value[p];
+                    } else {
+                        world.deceleration.y = value[p];
+                    }
+                }
                 if (prop['fp'] === 'gravity') {
+                    if (p === 'sp') {
+                        world.gravity.x = value[p];
+                    } else {
+                        world.gravity.y = value[p];
+                    }
                     checkGravity(obj);
                 }
             }
@@ -684,6 +712,7 @@ window.addEventListener('load', function() {
     }
 
     function checkGravity(obj) {
+        obj.onGround = false;
         if (!obj.gravity.x && !obj.gravity.y) {
             obj.handlers = [function(obj) {
                 return obj.deceleration.x + obj.deceleration.y;
@@ -867,6 +896,8 @@ window.addEventListener('load', function() {
                 blocks[i].y = Math.round(blocks[i].y / blocks[i].h) * blocks[i].h;
                 blocks[i].update();
             }
+        } else if (key.match(/^[rк]$/i)) {
+            drawInfo = !drawInfo;
         }
 
         function goToMouse(obj) {
@@ -927,7 +958,7 @@ window.addEventListener('load', function() {
             for (var j = i + 1; j < balls.length; j++) {
                 world.collisionWithBall(balls[i], balls[j]);
             }
-            world.resistance(balls[i]).addGravity(balls[i]).checkCoords(balls[i]);
+            world.airResistance(balls[i]).addGravity(balls[i]).checkCoords(balls[i]);
             if (balls[i].canMove) {
                 balls[i].position.add(balls[i].velocity);
             }
@@ -938,6 +969,14 @@ window.addEventListener('load', function() {
             for (j = 0; j < balls.length; j++) {
                 world.resolveCollisionWithBlock(blocks[i], balls[j]);
             }
+        }
+        if (drawInfo && balls.length) {
+            ctx.beginPath();
+            ctx.fillStyle = "#000";
+            ctx.textAlign = "center";
+            ctx.font = "Bold 15px Verdana";
+            ctx.fillText(`r: ${balls[you].r} m: ${balls[you].mass} x: ${(balls[you].position.x).toFixed(1)} y: ${(balls[you].position.y).toFixed(1)} xv: ${(balls[you].velocity.x).toFixed(1)} yv: ${(balls[you].velocity.y).toFixed(1)}`, w / 2, 20);
+            ctx.closePath();
         }
         nextGameStep(game);
     }
