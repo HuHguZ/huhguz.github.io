@@ -146,15 +146,15 @@ window.addEventListener('load', function() {
                         vFinal1 = this.rotate(v1, -angle),
                         vFinal2 = this.rotate(v2, -angle);
                     if (!ball.gravity.x && !otherball.gravity.x) {
-                        if (Math.abs(vec1.cos(vec2) * 180 / Math.PI) < 40) {
+                        if (Math.abs(vec1.cos(vec2)) < 0.6981317007977318) {
                             collide();
                         }
                     } else if (!ball.gravity.y && !otherball.gravity.y) {
-                        if (Math.abs(vec1.cos(vec2) * 180 / Math.PI) > 40) {
+                        if (Math.abs(vec1.cos(vec2)) > 0.6981317007977318) {
                             collide();
                         }
                     } else {
-                        if (Math.abs(vec1.cos(vec2) * 180 / Math.PI) > 10 && Math.abs(vec1.cos(vec2) * 180 / Math.PI) < 50) {
+                        if (Math.abs(vec1.cos(vec2)) > 0.3490658503988659 && Math.abs(vec1.cos(vec2)) < 0.8726646259971648) {
                             collide();
                         }
                     }
@@ -255,6 +255,8 @@ window.addEventListener('load', function() {
             bvx: getElem('bvx'),
             fvy: getElem('fvy'),
             bvy: getElem('bvy'),
+            lawOfMotion: getElem('lawOfMotion'),
+            rnd: getElem('rnd')
         },
         buttons = document.getElementsByClassName('forAll'),
         properties = [
@@ -287,12 +289,15 @@ window.addEventListener('load', function() {
                 sp: 'x',
                 tp: 'y'
             },
-            'loss'
+            'loss',
+            'lawOfMotion'
         ];
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].onclick = buttonsHandlers(i);
     }
-
+    elements.rnd.onclick = function() {
+        elements.lawOfMotion.value = 'if (!(Math.round(performance.now()/1000)%2)) {this.velocity.x+=Math.random()*getRandomInt(-10, 10);this.velocity.y+=Math.random()*getRandomInt(-10, 10);function getRandomInt(min, max){return Math.floor(Math.random()*(max-min))+min;}}';
+    }
     elements.you.oninput = function() {
         you = +this.value < 0 ? (this.value = 0, 0) : +this.value > balls.length - 1 ? (this.value = balls.length - 1, balls.length - 1) : +this.value;
         updateInfo();
@@ -617,6 +622,7 @@ window.addEventListener('load', function() {
                     tp: isNumeric(+elements.deceleration.value.match(/[\d.-]+/g)[1]) ? +elements.deceleration.value.match(/[\d.-]+/g)[1] : world.deceleration.y
                 },
                 isNumeric(parseFloat(elements.loss.value)) ? +elements.loss.value : world.loss,
+                new Function('', elements.lawOfMotion.value)
             ];
             if (arguments.length) {
                 for (var i = 0; i < balls.length; i++) {
@@ -955,6 +961,13 @@ window.addEventListener('load', function() {
             balls[i].isCollided = false;
         }
         for (var i = 0; i < balls.length; i++) {
+            if (balls[i].lawOfMotion) {
+                try {
+                    balls[i].lawOfMotion();
+                } catch (e) {
+                    console.error('Your function is wrong! ' + e.message);
+                }
+            }
             for (var j = i + 1; j < balls.length; j++) {
                 world.collisionWithBall(balls[i], balls[j]);
             }
