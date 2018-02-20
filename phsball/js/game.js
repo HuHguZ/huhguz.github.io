@@ -183,17 +183,19 @@ window.addEventListener('load', function() {
                         },
                         vFinal1 = this.rotate(v1, -angle),
                         vFinal2 = this.rotate(v2, -angle);
-                    if (!ball.gravity.x && !otherball.gravity.x) {
-                        if (Math.abs(vec1.cos(vec2)) < 0.6981317007977318) {
-                            collide();
-                        }
-                    } else if (!ball.gravity.y && !otherball.gravity.y) {
-                        if (Math.abs(vec1.cos(vec2)) > 0.6981317007977318) {
-                            collide();
-                        }
-                    } else {
-                        if (Math.abs(vec1.cos(vec2)) > 0.3490658503988659 && Math.abs(vec1.cos(vec2)) < 0.8726646259971648) {
-                            collide();
+                    if (ball.gravity && otherball.gravity) {
+                        if (!ball.gravity.x && !otherball.gravity.x) {
+                            if (Math.abs(vec1.cos(vec2)) < 0.6981317007977318) {
+                                collide();
+                            }
+                        } else if (!ball.gravity.y && !otherball.gravity.y) {
+                            if (Math.abs(vec1.cos(vec2)) > 0.6981317007977318) {
+                                collide();
+                            }
+                        } else {
+                            if (Math.abs(vec1.cos(vec2)) > 0.3490658503988659 && Math.abs(vec1.cos(vec2)) < 0.8726646259971648) {
+                                collide();
+                            }
                         }
                     }
 
