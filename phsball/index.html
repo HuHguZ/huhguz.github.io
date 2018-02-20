@@ -6,7 +6,7 @@
     <title>phsball</title>
     <link href="css/style.css" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/game_min.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
 </head>
 
 <body>
@@ -23,6 +23,8 @@
         <span class="important">[</span> - удалить последний добавленный блок или в позиции курсора мыши<br>
         <span class="important">R(К)</span> - вывести на экран важную информацию о текущем мяче<br>
         <span class="important">P(З)</span> - выровнять все блоки по сетке<br>
+        <span class="important">A(Ф)</span> - создать чёрную дыру в позиции курсора мыши<br>
+        <span class="important">S(Ы)</span> - удалить чёрную дыру<br>
         <span class="important" title="Правая кнопка мыши">Клик на ПКМ</span> - если совершён в пределах мяча, отключает ему гравитацию.<br>
         <span class="important">Клик на колесо</span> - если совершён в пределах мяча, отключает ему сопротивление воздуха.<br>
         <span class="important" title="Левая кнопка мыши">Клик на ЛКМ</span> - если совершён в пределах мяча, позволяет начать перемещать мяч по локации. Если резко дёрнуть мышью, можно неплохо ускорить мяч!<br>
@@ -51,7 +53,10 @@
                     <span title="Высота добавляемых блоков">height</span> <input type="number" id="blh"><br>
                     Добавление новых мячей<br>
                     <span title="Случайное число в указанном диапазоне. Если равны, скорость - константа">Скорость по оси Ох от </span><input type="number" id="fvx"> до <input type="number" id="bvx"><br>
-                    <span title="Случайное число в указанном диапазоне. Если равны, скорость - константа">Скорость по оси Оy от </span><input type="number" id="fvy"> до <input type="number" id="bvy">
+                    <span title="Случайное число в указанном диапазоне. Если равны, скорость - константа">Скорость по оси Оy от </span><input type="number" id="fvy"> до <input type="number" id="bvy"><br>
+                    Черные дыры<br>
+                    <span title="Радиус добавляемых чёрных дыр">r</span> - <input type="number" id="rblackholes"><br>
+                    <span title="Сила чёрной дыры. Чем больше это число, тем сильнее чёрная дыра будет притягивать к себе мячи. Чтобы сделать черную дыру отталкивающей - сделайте это число отрицательным">strength</span> - <input type="number" id="strengthblackholes"><br>
                 </td>
             </tr>
             <tr>

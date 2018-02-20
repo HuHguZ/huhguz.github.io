@@ -28,6 +28,44 @@ window.addEventListener('load', function() {
         acspeed = 5, //На это число ускорится мяч или мячи при нажатии клавиши Q или W
         blw = 32, //Ширина добавляемых блоков
         blh = 32, //Высота добавляемых блоков
+        Black_hole = {
+            radiusOfAction: 135,
+            strength: 5,
+            list: [],
+            proto: {
+                draw() {
+                    this.angle += 1;
+                    ctx.beginPath();
+                    ctx.save();
+                    ctx.translate(this.position.x, this.position.y);
+                    ctx.rotate(this.angle * Math.PI / 180);
+                    ctx.drawImage(imagesForBalls[17], -this.radiusOfAction, -this.radiusOfAction, this.radiusOfAction * 2, this.radiusOfAction * 2);
+                    ctx.restore();
+                    ctx.closePath();
+                    return this;
+                },
+                interact() {
+                    var distance;
+                    for (var i = 0; i < balls.length; i++) {
+                        distance = getDistance(this.position.x, this.position.y, balls[i].position.x, balls[i].position.y);
+                        if (distance <= this.radiusOfAction + balls[i].r) {
+                            balls[i].velocity.x += this.strength * (Math.abs(1 - distance / this.radiusOfAction)) * (this.position.x - balls[i].position.x) / distance;
+                            balls[i].velocity.y += this.strength * (Math.abs(1 - distance / this.radiusOfAction)) * (this.position.y - balls[i].position.y) / distance;
+                        }
+                    }
+                    return this;
+                }
+            },
+            constructor(posX, posY) {
+                this.list.push({
+                    radiusOfAction: this.radiusOfAction,
+                    position: new Vector2(posX, posY),
+                    strength: this.strength,
+                    angle: 0,
+                    __proto__: this.proto
+                });
+            }
+        }, //объёкт черных дыр
         fvx = getRandomInt(-5, 10),
         bvx = getRandomInt(-5, 10),
         fvy = getRandomInt(-5, 10),
@@ -256,7 +294,9 @@ window.addEventListener('load', function() {
             fvy: getElem('fvy'),
             bvy: getElem('bvy'),
             lawOfMotion: getElem('lawOfMotion'),
-            rnd: getElem('rnd')
+            rnd: getElem('rnd'),
+            rBlackHoles: getElem('rblackholes'),
+            strengthBlackHoles: getElem('strengthblackholes')
         },
         buttons = document.getElementsByClassName('forAll'),
         properties = [
@@ -694,6 +734,8 @@ window.addEventListener('load', function() {
         elements.bvx.value = bvx;
         elements.fvy.value = fvy;
         elements.bvy.value = bvy;
+        elements.strengthBlackHoles.value = Black_hole.strength;
+        elements.rBlackHoles.value = Black_hole.radiusOfAction;
     }
 
     function setInfo() {
@@ -708,6 +750,8 @@ window.addEventListener('load', function() {
         bvx = typeof parseFloat(+elements.bvx.value) == 'number' ? +elements.bvx.value : bvx;
         fvy = typeof parseFloat(+elements.fvy.value) == 'number' ? +elements.fvy.value : fvy;
         bvy = typeof parseFloat(+elements.bvy.value) == 'number' ? +elements.bvy.value : bvy;
+        Black_hole.radiusOfAction = typeof parseFloat(+elements.rBlackHoles.value) == 'number' ? Math.abs(+elements.rBlackHoles.value) : Black_hole.radiusOfAction;
+        Black_hole.strength = typeof parseFloat(+elements.strengthBlackHoles.value) == 'number' ? +elements.strengthBlackHoles.value : Black_hole.strength;
         if (ballsCount > balls.length) {
             for (var i = balls.length; i < ballsCount; i++) {
                 addBall();
@@ -904,6 +948,10 @@ window.addEventListener('load', function() {
             }
         } else if (key.match(/^[rк]$/i)) {
             drawInfo = !drawInfo;
+        } else if (key.match(/^[фa]$/i)) {
+            Black_hole.constructor(mouse.x, mouse.y);
+        } else if (key.match(/^[sы]$/i)) {
+            Black_hole.list.pop();
         }
 
         function goToMouse(obj) {
@@ -957,6 +1005,9 @@ window.addEventListener('load', function() {
         h = canvas.height = window.innerHeight
         screenX = window.screenX;
         screenY = window.screenY;
+        for (var i = 0; i < Black_hole.list.length; i++) {
+            Black_hole.list[i].draw().interact();
+        }
         for (var i = 0; i < balls.length; i++) {
             balls[i].isCollided = false;
         }
