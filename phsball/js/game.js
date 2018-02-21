@@ -19,11 +19,16 @@ window.addEventListener('load', function() {
         mouse = {}, // Объект координат, скорости мыши
         imagesForBalls = [], // Массив изображений мячей
         imagesForBlocks = [], //Массив изображений блоков
+        accelerators = [], //Массив ускорителей
+        rAccelerators = 75, // радиус ускорителей
+        strengthAccelerators = 5, //сила ускорителей
+        drawAccelerators = true, //рисовать или нет ускорители?
+        drawBlackHoles = true, //рисовать черные дыры?
         screenX = window.screenX, //Координаты верхнего угла окна браузера
         screenY = window.screenY, //Координаты верхнего угла окна браузера
         uploaded = false, //Загружены или нет все изображения мячей
         loadCount = 0, //Кол-во загруженных изображений
-        totalBallsCount = 79, //Общее кол-во изображений мячей
+        totalBallsCount = 80, //Общее кол-во изображений мячей
         totalBlocksCount = 193, //Общее количество изображений блоков
         acspeed = 5, //На это число ускорится мяч или мячи при нажатии клавиши Q или W
         blw = 32, //Ширина добавляемых блоков
@@ -34,14 +39,10 @@ window.addEventListener('load', function() {
             list: [],
             proto: {
                 draw() {
-                    this.angle += 1;
-                    ctx.beginPath();
-                    ctx.save();
-                    ctx.translate(this.position.x, this.position.y);
-                    ctx.rotate(this.angle * Math.PI / 180);
-                    ctx.drawImage(imagesForBalls[17], -this.radiusOfAction, -this.radiusOfAction, this.radiusOfAction * 2, this.radiusOfAction * 2);
-                    ctx.restore();
-                    ctx.closePath();
+                    if (drawBlackHoles) {
+                        this.angle += 1;
+                        drawImageForBall(this.position.x, this.position.y, this.angle * Math.PI / 180, imagesForBalls[17], this.radiusOfAction);
+                    }
                     return this;
                 },
                 interact() {
@@ -66,6 +67,9 @@ window.addEventListener('load', function() {
                 });
             }
         }, //объёкт черных дыр
+        currentPoint1 = {}, //текущая точка при добавлении ускорителей
+        currentPoint2 = {}, //конечная точка при добавлении ускорителей
+        addMod = false, //Режим добавления точек вектора ускорителя
         fvx = getRandomInt(-5, 10),
         bvx = getRandomInt(-5, 10),
         fvy = getRandomInt(-5, 10),
@@ -298,7 +302,9 @@ window.addEventListener('load', function() {
             lawOfMotion: getElem('lawOfMotion'),
             rnd: getElem('rnd'),
             rBlackHoles: getElem('rblackholes'),
-            strengthBlackHoles: getElem('strengthblackholes')
+            strengthBlackHoles: getElem('strengthblackholes'),
+            rac: getElem('raccelerators'),
+            sac: getElem('strengthaccelerators')
         },
         buttons = document.getElementsByClassName('forAll'),
         properties = [
@@ -392,7 +398,7 @@ window.addEventListener('load', function() {
 
     function addBall() {
         var r = Math.random() * 15 + 10 ^ 0,
-            ball = new Ball(new Vector2(isNumeric(arguments[0]) ? arguments[0] : Math.random() * w, isNumeric(arguments[1]) ? arguments[1] : Math.random() * h), r, generateRndcolor(), new Vector2(getRandomArbitrary(fvx, bvx), getRandomArbitrary(fvy, bvy)), r);
+            ball = new Ball(new Vector2(isNumeric(arguments[0]) ? arguments[0] : Math.random() * w, isNumeric(arguments[1]) ? arguments[1] : Math.random() * h), r, new Vector2(getRandomArbitrary(fvx, bvx), getRandomArbitrary(fvy, bvy)), r);
         if (arguments.length) {
             balls.push(ball);
         } else {
@@ -421,10 +427,9 @@ window.addEventListener('load', function() {
         return b;
     }
 
-    function Ball(position, r, color, velocity, mass) {
+    function Ball(position, r, velocity, mass) {
         this.position = position;
         this.r = r;
-        this.color = color;
         this.velocity = velocity;
         this.mass = mass;
         this.gravity = new Vector2(world.gravity.x, world.gravity.y);
@@ -441,11 +446,15 @@ window.addEventListener('load', function() {
         if (this.canMove) {
             this.angle += this.velocity.x + this.velocity.y;
         }
+        drawImageForBall(this.position.x, this.position.y, this.angle * Math.PI / 180, this.img, this.r);
+    }
+
+    function drawImageForBall(x, y, angle, img, r) {
         ctx.beginPath();
         ctx.save();
-        ctx.translate(this.position.x, this.position.y);
-        ctx.rotate(this.angle * Math.PI / 180);
-        ctx.drawImage(this.img, -this.r, -this.r, this.r * 2, this.r * 2);
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.drawImage(img, -r, -r, r * 2, r * 2);
         ctx.restore();
         ctx.closePath();
     }
@@ -455,6 +464,11 @@ window.addEventListener('load', function() {
         this.y = y;
     }
 
+    Vector2.prototype.normalize = function() {
+        this.x /= this.length();
+        this.y /= this.length();
+        return this;
+    }
     Vector2.prototype.length = function() {
         return (this.x ** 2 + this.y ** 2) ** 0.5;
     }
@@ -628,13 +642,27 @@ window.addEventListener('load', function() {
         ];
     }
 
-    function generateRndcolor() {
-        var a = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"],
-            b = "#";
-        for (var i = 1; i <= 6; i++) {
-            b += a[Math.random() * a.length ^ 0];
+    function Accelerator(vector, r, strength, point, angle) {
+        this.strength = strength;
+        this.vector = vector;
+        this.vector.normalize().mult(this.strength);
+        this.r = r;
+        this.center = point;
+        this.angle = angle;
+    }
+    Accelerator.prototype.interact = function() {
+        for (var i = 0; i < balls.length; i++) {
+            if (getDistance(this.center.x, this.center.y, balls[i].position.x, balls[i].position.y) <= this.r + balls[i].r) {
+                balls[i].velocity.add(this.vector);
+            }
         }
-        return b;
+        return this;
+    }
+    Accelerator.prototype.draw = function() {
+        if (drawAccelerators) {
+            drawImageForBall(this.center.x, this.center.y, this.angle, imagesForBalls[80], this.r);
+        }
+        return this;
     }
 
     function buttonsHandlers(num) {
@@ -738,6 +766,8 @@ window.addEventListener('load', function() {
         elements.bvy.value = bvy;
         elements.strengthBlackHoles.value = Black_hole.strength;
         elements.rBlackHoles.value = Black_hole.radiusOfAction;
+        elements.rac.value = rAccelerators;
+        elements.sac.value = strengthAccelerators;
     }
 
     function setInfo() {
@@ -754,6 +784,8 @@ window.addEventListener('load', function() {
         bvy = typeof parseFloat(+elements.bvy.value) == 'number' ? +elements.bvy.value : bvy;
         Black_hole.radiusOfAction = typeof parseFloat(+elements.rBlackHoles.value) == 'number' ? Math.abs(+elements.rBlackHoles.value) : Black_hole.radiusOfAction;
         Black_hole.strength = typeof parseFloat(+elements.strengthBlackHoles.value) == 'number' ? +elements.strengthBlackHoles.value : Black_hole.strength;
+        rAccelerators = typeof parseFloat(+elements.rac.value) == 'number' ? Math.abs(+elements.rac.value) : rAccelerators;
+        strengthAccelerators = typeof parseFloat(+elements.sac.value) == 'number' ? +elements.sac.value : strengthAccelerators;
         if (ballsCount > balls.length) {
             for (var i = balls.length; i < ballsCount; i++) {
                 addBall();
@@ -953,7 +985,44 @@ window.addEventListener('load', function() {
         } else if (key.match(/^[фa]$/i)) {
             Black_hole.constructor(mouse.x, mouse.y);
         } else if (key.match(/^[sы]$/i)) {
+            for (var i = 0; i < Black_hole.list.length; i++) {
+                if (getDistance(mouse.x, mouse.y, Black_hole.list[i].position.x, Black_hole.list[i].position.y) <= Black_hole.list[i].radiusOfAction) {
+                    Black_hole.list.splice(i, 1);
+                    return;
+                }
+            }
             Black_hole.list.pop();
+        } else if (key.match(/^[zя]$/i)) {
+            addMod = !addMod;
+            if (addMod) {
+                currentPoint1.x = mouse.x;
+                currentPoint1.y = mouse.y;
+            } else {
+                currentPoint2.x = mouse.x;
+                currentPoint2.y = mouse.y;
+                var vec1 = new Vector2(currentPoint2.x - currentPoint1.x, currentPoint2.y - currentPoint1.y),
+                    vec2 = new Vector2(0, h - currentPoint1.y),
+                    angle = Math.acos(vec1.cos(vec2));
+                if (currentPoint2.x < currentPoint1.x) {
+                    angle = 2 * Math.PI - angle;
+                }
+                accelerators.push(new Accelerator(new Vector2(vec1.x, vec1.y), rAccelerators, strengthAccelerators, {
+                    x: currentPoint1.x,
+                    y: currentPoint1.y
+                }, Math.PI - angle));
+            }
+        } else if (key.match(/^[xч]$/i)) {
+            for (var i = 0; i < accelerators.length; i++) {
+                if (getDistance(mouse.x, mouse.y, accelerators[i].center.x, accelerators[i].center.y) <= accelerators[i].r) {
+                    accelerators.splice(i, 1);
+                    return;
+                }
+            }
+            accelerators.pop();
+        } else if (key.match(/^[cс]$/i)) {
+            drawAccelerators = !drawAccelerators;
+        } else if (key.match(/^[dв]$/i)) {
+            drawBlackHoles = !drawBlackHoles;
         }
 
         function goToMouse(obj) {
@@ -1010,6 +1079,9 @@ window.addEventListener('load', function() {
         for (var i = 0; i < Black_hole.list.length; i++) {
             Black_hole.list[i].draw().interact();
         }
+        for (var i = 0; i < accelerators.length; i++) {
+            accelerators[i].draw().interact();
+        }
         for (var i = 0; i < balls.length; i++) {
             balls[i].isCollided = false;
         }
@@ -1035,6 +1107,15 @@ window.addEventListener('load', function() {
             for (j = 0; j < balls.length; j++) {
                 world.resolveCollisionWithBlock(blocks[i], balls[j]);
             }
+        }
+        if (addMod) {
+            ctx.beginPath();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#B70A02'; // меняем цвет рамки
+            ctx.moveTo(currentPoint1.x, currentPoint1.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+            ctx.closePath();
         }
         if (drawInfo && balls.length) {
             ctx.beginPath();
