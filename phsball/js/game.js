@@ -20,8 +20,8 @@ window.addEventListener('load', function() {
         imagesForBalls = [], // Массив изображений мячей
         imagesForBlocks = [], //Массив изображений блоков
         accelerators = [], //Массив ускорителей
-        rAccelerators = 75, // радиус ускорителей
-        strengthAccelerators = 5, //сила ускорителей
+        rAccelerators = 135, // радиус ускорителей
+        strengthAccelerators = 2.5, //сила ускорителей
         drawAccelerators = true, //рисовать или нет ускорители?
         drawBlackHoles = true, //рисовать черные дыры?
         screenX = window.screenX, //Координаты верхнего угла окна браузера
