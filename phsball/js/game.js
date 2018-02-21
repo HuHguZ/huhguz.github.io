@@ -645,7 +645,9 @@ window.addEventListener('load', function() {
     function Accelerator(vector, r, strength, point, angle) {
         this.strength = strength;
         this.vector = vector;
-        this.vector.normalize().mult(this.strength);
+        if (this.vector.x || this.vector.y) {
+            this.vector.normalize().mult(this.strength);
+        }
         this.r = r;
         this.center = point;
         this.angle = angle;
