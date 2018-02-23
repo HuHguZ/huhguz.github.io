@@ -1061,7 +1061,6 @@ window.addEventListener('load', function() {
             ctx.moveTo(currentPoint1.x, currentPoint1.y);
             ctx.lineTo(mouse.x, mouse.y);
             var vec = new Vector2(currentPoint1.x - mouse.x, currentPoint1.y - mouse.y),
-                p = 25 < vec.length() ? 25 / vec.length() : 15 / vec.length(),
                 p = 20 / vec.length(),
                 point = new Vector2((currentPoint1.x + p * mouse.x) / (1 + p), (currentPoint1.y + p * mouse.y) / (1 + p));
             vec.mult(1 - p * 2);
