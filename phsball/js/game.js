@@ -886,6 +886,54 @@ window.addEventListener('load', function() {
             block.update();
             blocks.push(block);
         } else if (key.match(/^[{\[х]$/i) && blocks.length) {
+            deleteBlock();
+        } else if (key.match(/^[pз]$/i)) {
+            for (var i = 0; i < blocks.length; i++) {
+                blocks[i].x = Math.round(blocks[i].x / blocks[i].w) * blocks[i].w;
+                blocks[i].y = Math.round(blocks[i].y / blocks[i].h) * blocks[i].h;
+                blocks[i].update();
+            }
+        } else if (key.match(/^[rк]$/i)) {
+            drawInfo = !drawInfo;
+        } else if (key.match(/^[фa]$/i)) {
+            Black_hole.constructor(mouse.x, mouse.y);
+        } else if (key.match(/^[sы]$/i)) {
+            deleteBlackHole();
+        } else if (key.match(/^[zя]$/i)) {
+            addMod = !addMod;
+            if (addMod) {
+                currentPoint1 = new Vector2(mouse.x, mouse.y);
+            } else {
+                currentPoint2 = new Vector2(mouse.x, mouse.y);
+                var vec1 = new Vector2(currentPoint2.x - currentPoint1.x, currentPoint2.y - currentPoint1.y),
+                    vec2 = new Vector2(0, h - currentPoint1.y),
+                    angle = Math.acos(vec1.cos(vec2));
+                if (currentPoint2.x < currentPoint1.x) {
+                    angle = 2 * Math.PI - angle;
+                }
+                accelerators.push(new Accelerator(new Vector2(vec1.x, vec1.y), rAccelerators, strengthAccelerators, new Vector2(currentPoint1.x, currentPoint1.y), Math.PI - angle));
+            }
+        } else if (key.match(/^[xч]$/i)) {
+            deleteAccelerator();
+        } else if (key.match(/^[cс]$/i)) {
+            drawAccelerators = !drawAccelerators;
+        } else if (key.match(/^[dв]$/i)) {
+            drawBlackHoles = !drawBlackHoles;
+        } else if (key.match(/^[1!]$/i)) {
+            del(blocks.length, deleteBlock);
+        } else if (key.match(/^[2@"]$/i)) {
+            del(Black_hole.list.length, deleteBlackHole);
+        } else if (key.match(/^[3#№]$/i)) {
+            del(accelerators.length, deleteAccelerator);
+        }
+
+        function del(len, func) {
+            for (var i = 0; i < len; i++) {
+                func();
+            }
+        }
+
+        function deleteBlock() {
             var ball = {
                     position: new Vector2(mouse.x, mouse.y),
                     r: 1
@@ -905,17 +953,9 @@ window.addEventListener('load', function() {
                 blocks.pop();
                 clearGravity();
             }
-        } else if (key.match(/^[pз]$/i)) {
-            for (var i = 0; i < blocks.length; i++) {
-                blocks[i].x = Math.round(blocks[i].x / blocks[i].w) * blocks[i].w;
-                blocks[i].y = Math.round(blocks[i].y / blocks[i].h) * blocks[i].h;
-                blocks[i].update();
-            }
-        } else if (key.match(/^[rк]$/i)) {
-            drawInfo = !drawInfo;
-        } else if (key.match(/^[фa]$/i)) {
-            Black_hole.constructor(mouse.x, mouse.y);
-        } else if (key.match(/^[sы]$/i)) {
+        }
+
+        function deleteBlackHole() {
             for (var i = 0; i < Black_hole.list.length; i++) {
                 if (getDistance(mouse.x, mouse.y, Black_hole.list[i].position.x, Black_hole.list[i].position.y) <= Black_hole.list[i].radiusOfAction) {
                     Black_hole.list.splice(i, 1);
@@ -923,21 +963,9 @@ window.addEventListener('load', function() {
                 }
             }
             Black_hole.list.pop();
-        } else if (key.match(/^[zя]$/i)) {
-            addMod = !addMod;
-            if (addMod) {
-                currentPoint1 = new Vector2(mouse.x, mouse.y);
-            } else {
-                currentPoint2 = new Vector2(mouse.x, mouse.y);
-                var vec1 = new Vector2(currentPoint2.x - currentPoint1.x, currentPoint2.y - currentPoint1.y),
-                    vec2 = new Vector2(0, h - currentPoint1.y),
-                    angle = Math.acos(vec1.cos(vec2));
-                if (currentPoint2.x < currentPoint1.x) {
-                    angle = 2 * Math.PI - angle;
-                }
-                accelerators.push(new Accelerator(new Vector2(vec1.x, vec1.y), rAccelerators, strengthAccelerators, new Vector2(currentPoint1.x, currentPoint1.y), Math.PI - angle));
-            }
-        } else if (key.match(/^[xч]$/i)) {
+        }
+
+        function deleteAccelerator() {
             for (var i = 0; i < accelerators.length; i++) {
                 if (getDistance(mouse.x, mouse.y, accelerators[i].center.x, accelerators[i].center.y) <= accelerators[i].r) {
                     accelerators.splice(i, 1);
@@ -945,10 +973,6 @@ window.addEventListener('load', function() {
                 }
             }
             accelerators.pop();
-        } else if (key.match(/^[cс]$/i)) {
-            drawAccelerators = !drawAccelerators;
-        } else if (key.match(/^[dв]$/i)) {
-            drawBlackHoles = !drawBlackHoles;
         }
 
         function goToMouse(obj) {
@@ -1036,8 +1060,33 @@ window.addEventListener('load', function() {
             ctx.strokeStyle = '#B70A02'; // меняем цвет рамки
             ctx.moveTo(currentPoint1.x, currentPoint1.y);
             ctx.lineTo(mouse.x, mouse.y);
+            var vec = new Vector2(currentPoint1.x - mouse.x, currentPoint1.y - mouse.y),
+                p = 25 < vec.length() ? 25 / vec.length() : 15 / vec.length(),
+                p = 20 / vec.length(),
+                point = new Vector2((currentPoint1.x + p * mouse.x) / (1 + p), (currentPoint1.y + p * mouse.y) / (1 + p));
+            vec.mult(1 - p * 2);
+            point.add(new Vector2(-vec.x, -vec.y));
+            var rtp1 = rotatePointAroundPoint(point, {
+                    x: mouse.x,
+                    y: mouse.y
+                }, 0.5235987755982988),
+                rtp2 = rotatePointAroundPoint(point, {
+                    x: mouse.x,
+                    y: mouse.y
+                }, -0.5235987755982988);
+            ctx.moveTo(rtp1.x, rtp1.y)
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.moveTo(rtp2.x, rtp2.y)
+            ctx.lineTo(mouse.x, mouse.y);
             ctx.stroke();
             ctx.closePath();
+        }
+
+        function rotatePointAroundPoint(p1, p2, angle) {
+            return {
+                x: p2.x + (p1.x - p2.x) * Math.cos(angle) - (p1.y - p2.y) * Math.sin(angle),
+                y: p2.y + (p1.x - p2.x) * Math.sin(angle) + (p1.y - p2.y) * Math.cos(angle)
+            }
         }
         if (drawInfo && balls.length) {
             ctx.beginPath();
