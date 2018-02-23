@@ -849,7 +849,7 @@ window.addEventListener('load', function() {
 
     document.addEventListener('keypress', function(event) {
         var key = event.key;
-        if (key.match(/^[eУ]$/i)) {
+        if (key.match(/^[eУ]$/i) && !setgs) {
             balls = [];
             for (var i = 1; i <= ballsCount; i++) {
                 addBall();
@@ -874,32 +874,32 @@ window.addEventListener('load', function() {
                     setInfo();
                 }
             }
-        } else if (key.match(/^[йq]$/i)) {
+        } else if (key.match(/^[йq]$/i) && !setgs) {
             for (var i = 0; i < balls.length; i++) {
                 goToMouse(balls[i]);
                 balls[i].onGround = false;
             }
-        } else if (key.match(/^[цw]$/i)) {
+        } else if (key.match(/^[цw]$/i) && !setgs) {
             goToMouse(balls[you]);
-        } else if (key.match(/^[}\]ъ]$/i)) {
+        } else if (key.match(/^[}\]ъ]$/i) && !setgs) {
             var block = new Block(mouse.x - blw / 2, mouse.y - blh / 2, blw, blh, imagesForBlocks[blockTexture - 1]);
             block.update();
             blocks.push(block);
-        } else if (key.match(/^[{\[х]$/i) && blocks.length) {
+        } else if (key.match(/^[{\[х]$/i) && blocks.length && !setgs) {
             deleteBlock();
-        } else if (key.match(/^[pз]$/i)) {
+        } else if (key.match(/^[pз]$/i) && !setgs) {
             for (var i = 0; i < blocks.length; i++) {
                 blocks[i].x = Math.round(blocks[i].x / blocks[i].w) * blocks[i].w;
                 blocks[i].y = Math.round(blocks[i].y / blocks[i].h) * blocks[i].h;
                 blocks[i].update();
             }
-        } else if (key.match(/^[rк]$/i)) {
+        } else if (key.match(/^[rк]$/i) && !setgs) {
             drawInfo = !drawInfo;
-        } else if (key.match(/^[фa]$/i)) {
+        } else if (key.match(/^[фa]$/i) && !setgs) {
             Black_hole.constructor(mouse.x, mouse.y);
-        } else if (key.match(/^[sы]$/i)) {
+        } else if (key.match(/^[sы]$/i) && !setgs) {
             deleteBlackHole();
-        } else if (key.match(/^[zя]$/i)) {
+        } else if (key.match(/^[zя]$/i) && !setgs) {
             addMod = !addMod;
             if (addMod) {
                 currentPoint1 = new Vector2(mouse.x, mouse.y);
@@ -913,17 +913,17 @@ window.addEventListener('load', function() {
                 }
                 accelerators.push(new Accelerator(new Vector2(vec1.x, vec1.y), rAccelerators, strengthAccelerators, new Vector2(currentPoint1.x, currentPoint1.y), Math.PI - angle));
             }
-        } else if (key.match(/^[xч]$/i)) {
+        } else if (key.match(/^[xч]$/i) && !setgs) {
             deleteAccelerator();
-        } else if (key.match(/^[cс]$/i)) {
+        } else if (key.match(/^[cс]$/i) && !setgs) {
             drawAccelerators = !drawAccelerators;
-        } else if (key.match(/^[dв]$/i)) {
+        } else if (key.match(/^[dв]$/i) && !setgs) {
             drawBlackHoles = !drawBlackHoles;
-        } else if (key.match(/^[1!]$/i)) {
+        } else if (key.match(/^[1!]$/i) && !setgs) {
             del(blocks.length, deleteBlock);
-        } else if (key.match(/^[2@"]$/i)) {
+        } else if (key.match(/^[2@"]$/i) && !setgs) {
             del(Black_hole.list.length, deleteBlackHole);
-        } else if (key.match(/^[3#№]$/i)) {
+        } else if (key.match(/^[3#№]$/i) && !setgs) {
             del(accelerators.length, deleteAccelerator);
         }
 
