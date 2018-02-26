@@ -24,6 +24,8 @@ window.addEventListener('load', function() {
         strengthAccelerators = 2.5, //сила ускорителей
         drawAccelerators = true, //рисовать или нет ускорители?
         drawBlackHoles = true, //рисовать черные дыры?
+        showFps = false, //Показывать фпс?
+        currentFps, //текущий фпс
         screenX = window.screenX, //Координаты верхнего угла окна браузера
         screenY = window.screenY, //Координаты верхнего угла окна браузера
         uploaded = false, //Загружены или нет все изображения мячей
@@ -925,6 +927,8 @@ window.addEventListener('load', function() {
             del(Black_hole.list.length, deleteBlackHole);
         } else if (key.match(/^[3#№]$/i) && !setgs) {
             del(accelerators.length, deleteAccelerator);
+        } else if (key.match(/^[tе]$/i) && !setgs) {
+            showFps = !showFps;
         }
 
         function del(len, func) {
@@ -981,6 +985,25 @@ window.addEventListener('load', function() {
             obj.velocity.add(vec);
         }
     });
+
+    function getFPS() {
+        let frameCount = function _fc(timeStart) {
+            let now = performance.now();
+            let duration = now - timeStart;
+            if (duration < 1000) {
+                _fc.counter++;
+            } else {
+                currentFps = _fc.counter;
+                _fc.counter = 0;
+                timeStart = now;
+            }
+            requestAnimationFrame(() => frameCount(timeStart));
+        }
+        frameCount.counter = 0;
+        frameCount.fps = 0;
+        frameCount(performance.now())
+    }
+    getFPS();
 
     function game() {
         var hb = h - window.innerHeight > 0,
@@ -1086,6 +1109,19 @@ window.addEventListener('load', function() {
                 x: p2.x + (p1.x - p2.x) * Math.cos(angle) - (p1.y - p2.y) * Math.sin(angle),
                 y: p2.y + (p1.x - p2.x) * Math.sin(angle) + (p1.y - p2.y) * Math.cos(angle)
             }
+        }
+        if (showFps) {
+            ctx.beginPath();
+            ctx.fillStyle = `rgb(${Math.round((1 - currentFps / 60) * 255)}, ${Math.round((currentFps / 60) * 255)}, 0)`;
+            ctx.fillRect(4, 8, 54, 16);
+            ctx.fillStyle = `rgb(0, 0, 0)`;
+            ctx.strokeStyle = `rgb(0, 0, 0)`;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(3, 7, 55, 17);
+            ctx.textAlign = "center";
+            ctx.font = "Bold 12px Verdana";
+            ctx.fillText(`FPS: ${currentFps}`, 30, 20);
+            ctx.closePath();
         }
         if (drawInfo && balls.length) {
             ctx.beginPath();
