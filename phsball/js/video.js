@@ -1,4 +1,4 @@
-﻿window.addEventListener('load', function() {
+window.addEventListener('load', function() {
     var canvas = getElem('canvas'), // Канвас
         ctx = canvas.getContext('2d'), // Контекст
         cns = getElem('skin'),
@@ -76,7 +76,7 @@
         bvx = getRandomInt(-5, 10),
         fvy = getRandomInt(-5, 10),
         bvy = getRandomInt(-5, 10),
-        handlers = [function(obj) { // Массив обработчиков для проверки состояния мяча (на земле или в воздухе). Важно, т.к. без этого мяч будет бесконечно биться о землю
+        handlers = [function(obj) { // Массив обработчиков для проверки состояния мяча (на земле или в воздухе). Важно, тюк. без этого мяч будет бесконечно биться о землю
             return obj.position.y >= h - obj.r - 1;
         }, function(obj) {
             return obj.position.y <= obj.r + 1;
@@ -1126,7 +1126,7 @@
             mozRequestAnimationFrame ||
             webkitRequestAnimationFrame ||
             oRequestAnimationFrame ||
-            msRequestAnimationFrame;﻿
+            msRequestAnimationFrame;
     })();
     var upl = function() {
         if (uploaded) {
