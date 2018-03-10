@@ -658,6 +658,17 @@
     getElem('ok').onclick = function() {
         hideElem(getElem('guide'));
     }
+    getElem('uncrg').onchange = function (evt) {
+        var tgt = evt.target || window.event.srcElement,
+            files = tgt.files;
+        if (FileReader && files && files.length) {
+            var fr = new FileReader();
+            fr.onload = function () {
+                document.body.style.backgroundImage = `url(${fr.result})`;
+            }
+            fr.readAsDataURL(files[0]);
+        }
+    }
 
     function updateInfo() {
         elements.you.value = you;
@@ -772,57 +783,59 @@
         return false;
     }
     document.onmousedown = function(e) {
-        if (e.which === 1) {
-            var m = false;
-            mouse.oldX = e.clientX;
-            mouse.oldY = e.clientY;
-            for (var i = 0; i < balls.length; i++) {
-                if (getDistance(balls[i].position.x, balls[i].position.y, mouse.x, mouse.y) <= balls[i].r) {
-                    var c = balls[you];
-                    balls[you] = balls[i];
-                    balls[i] = c;
-                    m = true;
-                    balls[you].onGround = true;
-                    balls[you].canCallHand = false;
-                    balls[you].canMove = false;
-                    var shiftX = e.clientX - balls[you].position.x,
-                        shiftY = e.clientY - balls[you].position.y;
-                    updateInfo();
-                    break;
-                }
-            }
-            if (m) {
-                this.onmousemove = function(e) {
-                    var ball = balls[you],
-                        x = e.clientX,
-                        y = e.clientY;
-                    mouse.velocity = new Vector2(x - mouse.oldX, y - mouse.oldY);
-                    ball.position = new Vector2(x - shiftX, y - shiftY);
-                    ball.velocity = mouse.velocity;
-                    mouse.oldX = x;
-                    mouse.oldY = y;
-                }
-                this.onmouseup = function() {
-                    this.onmousemove = null;
-                    this.onmouseup = null;
-                    balls[you].onGround = false;
-                    balls[you].canCallHand = true;
-                    balls[you].canMove = true;
-                }
-            }
-        } else {
-            for (var i = 0; i < balls.length; i++) {
-                if (getDistance(balls[i].position.x, balls[i].position.y, mouse.x, mouse.y) <= balls[i].r) {
-                    var c = balls[you];
-                    balls[you] = balls[i];
-                    balls[i] = c;
-                    if (e.which === 3) {
-                        balls[you].gravity = new Vector2(0, 0);
-                    } else {
-                        balls[you].deceleration = new Vector2(0, 0);
+        if (!setgs) {
+            if (e.which === 1) {
+                var m = false;
+                mouse.oldX = e.clientX;
+                mouse.oldY = e.clientY;
+                for (var i = 0; i < balls.length; i++) {
+                    if (getDistance(balls[i].position.x, balls[i].position.y, mouse.x, mouse.y) <= balls[i].r) {
+                        var c = balls[you];
+                        balls[you] = balls[i];
+                        balls[i] = c;
+                        m = true;
+                        balls[you].onGround = true;
+                        balls[you].canCallHand = false;
+                        balls[you].canMove = false;
+                        var shiftX = e.clientX - balls[you].position.x,
+                            shiftY = e.clientY - balls[you].position.y;
+                        updateInfo();
+                        break;
                     }
-                    updateInfo();
-                    break;
+                }
+                if (m) {
+                    this.onmousemove = function(e) {
+                        var ball = balls[you],
+                            x = e.clientX,
+                            y = e.clientY;
+                        mouse.velocity = new Vector2(x - mouse.oldX, y - mouse.oldY);
+                        ball.position = new Vector2(x - shiftX, y - shiftY);
+                        ball.velocity = mouse.velocity;
+                        mouse.oldX = x;
+                        mouse.oldY = y;
+                    }
+                    this.onmouseup = function() {
+                        this.onmousemove = null;
+                        this.onmouseup = null;
+                        balls[you].onGround = false;
+                        balls[you].canCallHand = true;
+                        balls[you].canMove = true;
+                    }
+                }
+            } else {
+                for (var i = 0; i < balls.length; i++) {
+                    if (getDistance(balls[i].position.x, balls[i].position.y, mouse.x, mouse.y) <= balls[i].r) {
+                        var c = balls[you];
+                        balls[you] = balls[i];
+                        balls[i] = c;
+                        if (e.which === 3) {
+                            balls[you].gravity = new Vector2(0, 0);
+                        } else {
+                            balls[you].deceleration = new Vector2(0, 0);
+                        }
+                        updateInfo();
+                        break;
+                    }
                 }
             }
         }
@@ -1033,6 +1046,20 @@
         h = canvas.height = window.innerHeight;
         screenX = window.screenX;
         screenY = window.screenY;
+        // var tmpr = getDistance(balls[0].position.x, balls[0].position.y,balls[1].position.x,balls[1].position.y),
+        //     tmpq = getDistance(balls[1].position.x, balls[1].position.y,balls[2].position.x,balls[2].position.y),
+        //     tmpqw = getDistance(balls[0].position.x, balls[0].position.y,balls[2].position.x,balls[2].position.y);
+        // if (tmpr >= 150 || tmpqw >= 150 || tmpr >= 150) {
+        //     var v1 = new Vector2((balls[1].position.x - balls[0].position.x) / tmpr, (balls[1].position.y - balls[0].position.y) / tmpr),
+        //         v2 = new Vector2((balls[1].position.x - balls[2].position.x) / tmpr, (balls[1].position.y - balls[2].position.y) / tmpq),
+        //         v3 = new Vector2((balls[2].position.x - balls[1].position.x) / tmpq, (balls[2].position.y - balls[1].position.y) / tmpq);
+        //         v1.mult(10);
+        //         v2.mult(10);
+        //         v3.mult(10);
+        //     balls[0].velocity.add(v1);
+        //     balls[1].velocity.add(v3);
+        //     balls[2].velocity.add(v2);
+        // }
         for (var i = 0; i < Black_hole.list.length; i++) {
             Black_hole.list[i].draw().interact();
         }

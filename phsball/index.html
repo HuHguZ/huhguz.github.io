@@ -6,7 +6,7 @@
     <title>phsball</title>
     <link href="css/style.css" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/video.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
 </head>
 
 <body>
@@ -52,7 +52,8 @@
                      x <input type="number" id="x"><button class="forAll">Применить для всех</button><br> y <input type="number" id="y"><button class="forAll">Применить для всех</button><br>                    xspeed <input type="number" id="xspeed"><button class="forAll">Применить для всех</button><br> yspeed <input type="number" id="yspeed"><button class="forAll">Применить для всех</button><br> gravity <input type="text" id="gravity">
                     <button
                         class="forAll">Применить для всех</button><br> <span title="Сила трения и сопротивления воздуха. До точки с запятой по оси X, после - Y.">deceleration</span> <input type="text" id="deceleration"><button class="forAll">Применить для всех</button><br> <span title="После удара о стену модули скоростей по обеим осям сохранятся на столько, сколько написано в поле рядом. Например, если 0.95, то 95%.">loss</span> <input type="number" id="loss"><button class="forAll">Применить для всех</button><br>
-                        <span title="Позволяет изменять характер движения мячей путём установки функции, которая будет вызываться каждую итерацию игрового цикла, например: ">Задать закон движения</span> - <input type="text" id="lawOfMotion"> <button id="rnd">Случайное движение</button><button class="forAll">Применить для всех</button>
+                        <span title="Позволяет изменять характер движения мячей путём установки функции, которая будет вызываться каждую итерацию игрового цикла, например: ">Задать закон движения</span> - <input type="text" id="lawOfMotion"> <button id="rnd">Случайное движение</button><button class="forAll">Применить для всех</button><br>
+                        Изменить фон - <input type="file" id="uncrg">
                 </td>
                 <td>
                     balls <input type="number" id="balls"><br>
