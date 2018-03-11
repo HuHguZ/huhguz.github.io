@@ -29,9 +29,13 @@
         <span class="important">Z(Я)</span> - создать ускоритель в позиции курсора мыши. После установки первой точки вам следует выбрать вторую точку, в которую будет направлен ускоритель и нажать данную клавишу повторно. Ускоритель создан.<br>
         <span class="important">X(Ч)</span> - удалить ускоритель.<br>
         <span class="important">C(C)</span> - рисовать или нет ускорители.<br>
+        <span class="important">F(А)</span> - создать связь между 2-мя мячами.<br>
+        <span class="important">G(П)</span> - удалить последнюю добавленную связь.<br>
+        <span class="important">H(Р)</span> - рисовать или нет связи.<br>
         <span class="important">1</span> - удалить все блоки.<br>
         <span class="important">2</span> - удалить все черные дыры.<br>
         <span class="important">3</span> - удалить все ускорители.<br>
+        <span class="important">4</span> - удалить все связи.<br>
         <span class="important">T(Е)</span> - показать/спрятать FPS.<br>
         <span class="important" title="Правая кнопка мыши">Клик на ПКМ</span> - если совершён в пределах мяча, отключает ему гравитацию.<br>
         <span class="important">Клик на колесо</span> - если совершён в пределах мяча, отключает ему сопротивление воздуха.<br>
@@ -78,6 +82,17 @@
                 </td>
             </tr>
         </table>
+    </div>
+    <div id="connections">
+        <h1>Создание связей</h1>
+        Создать связь между <input type="number" id="fb"> и <input type="number" id="sb"> мячами <br>
+        Двигать 1 мяч - <input type="checkbox" id="bc1" checked><br>
+        Двигать 2 мяч - <input type="checkbox" id="bc2" checked><br>
+        Цвет связи - <input type="color" id="concolor"><br>
+        Ширина связи - <input type="number" id="conwidth"><br>
+        Сила связи - <input type="number" id="constrength"><br>
+        Максимальное расстояние между связанными мячами - <input type="number" id="condistance"><br>
+        Чтобы добавить связь, нажмите клавишу <span class="important">F(А)</span> повторно.
     </div>
 </body>
 

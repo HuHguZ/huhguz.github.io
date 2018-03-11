@@ -11,13 +11,13 @@ body {
 
 }
 
-input, button, .text, #settings, #guide {
+input, button, .text, #settings, #guide, #connections {
     color: #0266c3;
     font-weight: bold;
     font-size: 15px;
     text-align: center;
 }
-#settings, #guide {
+#settings, #guide, #connections {
     position: absolute;
     top: 5vh;
     left: 5vw;
@@ -27,7 +27,7 @@ input, button, .text, #settings, #guide {
     border: solid 1px rgba(138, 0, 166, 0.45);
     font-family: Verdana;
 }
-#settings, #guide {
+#settings, #guide, #connections {
     opacity: 0;
     transform: scale(0,0);
 }

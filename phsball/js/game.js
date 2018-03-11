@@ -12,17 +12,20 @@
         you = 0, // Номер текущего мяча
         blockTexture = 4, //Номер текстуры блока, используемой в данный момент
         skinAngle = 0, //угол поворота скина в меню настроек
-        setgs = false, // Для настроек
+        setgs = false, // Переключатель для настроек
+        connct = false, // Переключатель для связей
         drawInfo = false, //Рисовать или нет на экране инфу о мяче
         ballsCount = 15, // Количество мячей в начале игры
         mouse = {}, // Объект координат, скорости мыши
         imagesForBalls = [], // Массив изображений мячей
         imagesForBlocks = [], //Массив изображений блоков
         accelerators = [], //Массив ускорителей
+        connections = [], //Массив связей
         rAccelerators = 135, // радиус ускорителей
         strengthAccelerators = 2.5, //сила ускорителей
         drawAccelerators = true, //рисовать или нет ускорители?
         drawBlackHoles = true, //рисовать черные дыры?
+        drawConnections = true, //рисовать связи?
         showFps = false, //Показывать фпс?
         currentFps, //текущий фпс
         screenX = window.screenX, //Координаты верхнего угла окна браузера
@@ -285,6 +288,7 @@
             you: getElem('you'),
             balls: getElem('balls'),
             settings: getElem('settings'),
+            connections: getElem('connections'),
             chgimg: getElem('chgimg'),
             acspeed: getElem('acspeed'),
             blw: getElem('blw'),
@@ -300,7 +304,15 @@
             rBlackHoles: getElem('rblackholes'),
             strengthBlackHoles: getElem('strengthblackholes'),
             rac: getElem('raccelerators'),
-            sac: getElem('strengthaccelerators')
+            sac: getElem('strengthaccelerators'),
+            fb: getElem('fb'),
+            sb: getElem('sb'),
+            bc1: getElem('bc1'),
+            bc2: getElem('bc2'),
+            concolor: getElem('concolor'),
+            conwidth: getElem('conwidth'),
+            constrength: getElem('constrength'),
+            condistance: getElem('condistance')
         },
         buttons = document.getElementsByClassName('forAll'),
         properties = [
@@ -330,6 +342,12 @@
             'loss',
             'lawOfMotion'
         ];
+    elements.fb.value = 0;
+    elements.sb.value = 1;
+    elements.constrength.value = 10;
+    elements.condistance.value = 150;
+    elements.concolor.value = getRndColor();
+    elements.conwidth.value = 2;
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].onclick = buttonsHandlers(i);
     }
@@ -339,6 +357,9 @@
     elements.you.oninput = function() {
         you = +this.value < 0 ? (this.value = 0, 0) : +this.value > balls.length - 1 ? (this.value = balls.length - 1, balls.length - 1) : +this.value;
         updateInfo();
+    }
+    elements.fb.oninput = elements.sb.oninput = function() {
+        you = +this.value < 0 ? (this.value = 0, 0) : +this.value > balls.length - 1 ? (this.value = balls.length - 1, balls.length - 1) : +this.value;
     }
     elements.chgimg.oninput = function() {
         if (balls[you] && isNumeric(parseFloat(this.value))) {
@@ -586,6 +607,57 @@
         return this;
     }
 
+    function Connectivity(b1, b2, bc1, bc2, strength, distance, color, width) {
+        this.b1 = b1;
+        this.b2 = b2;
+        this.bc1 = bc1;
+        this.bc2 = bc2;
+        this.strength = strength;
+        this.distance = distance;
+        this.color = color;
+        this.width = width;
+    }
+    Connectivity.prototype.draw = function() {
+        if (drawConnections) {
+            ctx.beginPath();
+            ctx.lineWidth = this.width;
+            ctx.strokeStyle = this.color;
+            ctx.moveTo(this.b1.position.x, this.b1.position.y);
+            ctx.lineTo(this.b2.position.x, this.b2.position.y);
+            ctx.stroke();
+            ctx.closePath();
+        }
+        return this;
+    }
+    Connectivity.prototype.interact = function() {
+        if (this.bc1 || this.bc2) {
+            var tmpr = getDistance(this.b1.position.x, this.b1.position.y, this.b2.position.x, this.b2.position.y);
+        }
+        if (tmpr >= this.distance) {
+            if (this.bc1) {
+                var v1 = new Vector2((this.b2.position.x - this.b1.position.x) / tmpr, (this.b2.position.y - this.b1.position.y) / tmpr);
+                v1.mult(this.strength * tmpr / this.distance);
+                this.b1.velocity.add(v1);
+            }
+            if (this.bc2) {
+                var v2 = new Vector2((this.b1.position.x - this.b2.position.x) / tmpr, (this.b1.position.y - this.b2.position.y) / tmpr);
+                v2.mult(this.strength * tmpr / this.distance);
+                this.b2.velocity.add(v2);
+            }
+        }
+        return this;
+    }
+
+    function getRndColor() {
+        var a, b = "#",
+            color = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+        for (var i = 1; i <= 6; i++) {
+            a = Math.random() * color.length ^ 0;
+            b += color[a];
+        }
+        return b;
+    }
+
     function buttonsHandlers(num) {
         return function() {
             var temp = [parseFloat(elements.chgimg.value), parseFloat(elements.r.value), parseFloat(elements.mass.value), parseFloat(elements.x.value), parseFloat(elements.y.value), parseFloat(elements.xspeed.value), parseFloat(elements.yspeed.value), parseFloat(elements.gravity.value.match(/[\d.-]+/)[0]), parseFloat(elements.gravity.value.match(/[\d.-]+/g)[1]), parseFloat(elements.deceleration.value.match(/[\d.-]+/)[0]), parseFloat(elements.deceleration.value.match(/[\d.-]+/g)[1]), parseFloat(elements.loss.value)],
@@ -658,12 +730,12 @@
     getElem('ok').onclick = function() {
         hideElem(getElem('guide'));
     }
-    getElem('uncrg').onchange = function (evt) {
+    getElem('uncrg').onchange = function(evt) {
         var tgt = evt.target || window.event.srcElement,
             files = tgt.files;
         if (FileReader && files && files.length) {
             var fr = new FileReader();
-            fr.onload = function () {
+            fr.onload = function() {
                 document.body.style.backgroundImage = `url(${fr.result})`;
             }
             fr.readAsDataURL(files[0]);
@@ -863,6 +935,11 @@
         } else if (key.match(/^[-_]$/i) && !setgs) {
             if (balls.length) {
                 ballsCount--;
+                for (var i = 0; i < connections.length; i++) {
+                    if (balls[balls.length - 1] == connections[i].b1 || balls[balls.length - 1] == connections[i].b2) {
+                        connections.splice(i, 1);
+                    }
+                }
                 balls.pop();
             }
         } else if (key.match(/^[ё`~]$/i)) {
@@ -877,6 +954,32 @@
                     setInfo();
                 }
             }
+        } else if (key.match(/^[fа]$/i) && balls.length > 1) {
+            connct = !connct;
+            if (connct) {
+                showElem(elements.connections);
+            } else {
+                hideElem(elements.connections);
+                var tempwr = true;
+                for (var i = 0; i < connections.length; i++) {
+                    if (+elements.fb.value == balls.indexOf(connections[i].b1) && +elements.sb.value == balls.indexOf(connections[i].b2)) {
+                        tempwr = false;
+                        break;
+                    }
+                }
+                if (tempwr) {
+                    if (elements.fb.value == elements.sb.value) {
+                        tempwr = false;
+                    }
+                }
+                if (tempwr && balls[+elements.fb.value] && balls[+elements.sb.value]) {
+                    connections.push(new Connectivity(balls[+elements.fb.value], balls[+elements.sb.value], elements.bc1.checked, elements.bc2.checked, +elements.constrength.value, +elements.condistance.value, elements.concolor.value, +elements.conwidth.value));
+                }
+            }
+        } else if (key.match(/^[gп]$/i) && !setgs) {
+          connections.pop();  
+        } else if (key.match(/^[hр]$/i) && !setgs) {
+            drawConnections = !drawConnections;
         } else if (key.match(/^[йq]$/i) && !setgs) {
             for (var i = 0; i < balls.length; i++) {
                 goToMouse(balls[i]);
@@ -923,19 +1026,15 @@
         } else if (key.match(/^[dв]$/i) && !setgs) {
             drawBlackHoles = !drawBlackHoles;
         } else if (key.match(/^[1!]$/i) && !setgs) {
-            del(blocks.length, deleteBlock);
+            blocks = [];
         } else if (key.match(/^[2@"]$/i) && !setgs) {
-            del(Black_hole.list.length, deleteBlackHole);
+            Black_hole.list = [];
         } else if (key.match(/^[3#№]$/i) && !setgs) {
-            del(accelerators.length, deleteAccelerator);
+            accelerators = [];
+        } else if (key.match(/^[4\$;]$/i) && !setgs) {
+            connections = [];
         } else if (key.match(/^[tе]$/i) && !setgs) {
             showFps = !showFps;
-        }
-
-        function del(len, func) {
-            for (var i = 0; i < len; i++) {
-                func();
-            }
         }
 
         function deleteBlock() {
@@ -1046,20 +1145,6 @@
         h = canvas.height = window.innerHeight;
         screenX = window.screenX;
         screenY = window.screenY;
-        // var tmpr = getDistance(balls[0].position.x, balls[0].position.y,balls[1].position.x,balls[1].position.y),
-        //     tmpq = getDistance(balls[1].position.x, balls[1].position.y,balls[2].position.x,balls[2].position.y),
-        //     tmpqw = getDistance(balls[0].position.x, balls[0].position.y,balls[2].position.x,balls[2].position.y);
-        // if (tmpr >= 150 || tmpqw >= 150 || tmpr >= 150) {
-        //     var v1 = new Vector2((balls[1].position.x - balls[0].position.x) / tmpr, (balls[1].position.y - balls[0].position.y) / tmpr),
-        //         v2 = new Vector2((balls[1].position.x - balls[2].position.x) / tmpr, (balls[1].position.y - balls[2].position.y) / tmpq),
-        //         v3 = new Vector2((balls[2].position.x - balls[1].position.x) / tmpq, (balls[2].position.y - balls[1].position.y) / tmpq);
-        //         v1.mult(10);
-        //         v2.mult(10);
-        //         v3.mult(10);
-        //     balls[0].velocity.add(v1);
-        //     balls[1].velocity.add(v3);
-        //     balls[2].velocity.add(v2);
-        // }
         for (var i = 0; i < Black_hole.list.length; i++) {
             Black_hole.list[i].draw().interact();
         }
@@ -1091,6 +1176,9 @@
             for (j = 0; j < balls.length; j++) {
                 world.resolveCollisionWithBlock(blocks[i], balls[j]);
             }
+        }
+        for (var i = 0; i < connections.length; i++) {
+            connections[i].draw().interact();
         }
         if (addMod) {
             ctx.beginPath();
