@@ -344,7 +344,7 @@
         ];
     elements.fb.value = 0;
     elements.sb.value = 1;
-    elements.constrength.value = 10;
+    elements.constrength.value = 1;
     elements.condistance.value = 150;
     elements.concolor.value = getRndColor();
     elements.conwidth.value = 2;
