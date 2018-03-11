@@ -862,9 +862,7 @@
                 mouse.oldY = e.clientY;
                 for (var i = 0; i < balls.length; i++) {
                     if (getDistance(balls[i].position.x, balls[i].position.y, mouse.x, mouse.y) <= balls[i].r) {
-                        var c = balls[you];
-                        balls[you] = balls[i];
-                        balls[i] = c;
+                        you = i;
                         m = true;
                         balls[you].onGround = true;
                         balls[you].canCallHand = false;
@@ -897,9 +895,7 @@
             } else {
                 for (var i = 0; i < balls.length; i++) {
                     if (getDistance(balls[i].position.x, balls[i].position.y, mouse.x, mouse.y) <= balls[i].r) {
-                        var c = balls[you];
-                        balls[you] = balls[i];
-                        balls[i] = c;
+                        you = i;
                         if (e.which === 3) {
                             balls[you].gravity = new Vector2(0, 0);
                         } else {
