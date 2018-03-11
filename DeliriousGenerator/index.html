@@ -1,0 +1,65 @@
+<!DOCTYPE hmtl>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    <title>Генератор случайной последовательности русских слов</title>
+    <script type="text/javascript" src="sc.js"></script>
+    <style type="text/css">
+        * {
+            transition-duration: .8s;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            background-image: url(фон.jpg);
+            background-attachment: fixed;
+            background-size: 100% 100%;
+        }
+        #main {
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            width: 90%;
+            padding: 10px;
+            text-align: center;
+            background-color: white;
+            border-radius: 20px;
+            opacity: 0.9;
+        }
+        input, textarea, button {
+            font-family: Verdana;
+            font-size: 12px;
+            font-weight: bold;
+            color: red;
+            border-radius: 10px;
+        }
+        h1 {
+            font-family: Verdana;
+            font-weight: bold;
+            color: red;
+        }
+        button {
+            margin: 10px;
+            /*border: none;*/
+            border: 1px solid red;
+        }
+        button:hover {
+            transform: scale(1.1, 1.1);
+            cursor: pointer;
+        }
+        textarea {
+            background-color: #ffdede;
+        }
+    </style>
+</head>
+<body>
+</body>
+    <div id="main">
+        <h1>Генерация</h1>
+        <input id="how" type="text" title="Сколько слов"><br>
+        <button id="clk">Сгенерировать</button><br>
+        <textarea id="res" title="Отправляйте это сообщение своим друзьям!">Здесь будет результат</textarea>
+    </div>
+</html>
