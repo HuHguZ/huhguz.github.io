@@ -1,0 +1,68 @@
+<!DOCTYPE hmtl>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    <title>Генератор ников</title>
+    <script type="text/javascript" src="script.js"></script>
+    <style type="text/css">
+        * {
+            transition-duration: .7s;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            background-image: url(фон.jpg);
+            background-attachment: fixed;
+            background-size: 100% 100%;
+        }
+        #main {
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            width: 90%;
+            padding: 10px;
+            /*height: 90%;*/
+            text-align: center;
+            background-color: white;
+            border-radius: 20px;
+            opacity: 0.9;
+            border: 2px solid green;
+        }
+        input, textarea, button, #res {
+            font-family: Verdana;
+            font-size: 12px;
+            font-weight: bold;
+            color: green;
+        }
+        #res {
+            font-size: 50px;
+            /*background-color: #e0ffe0;
+            border-radius: 20px;
+            border: 2px solid green;
+            padding: 5px;*/
+        }
+        h1 {
+            font-family: Verdana;
+            font-weight: bold;
+            color: green;
+        }
+        button {
+            margin: 10px;
+        }
+        button:hover {
+            transform: scale(1.15, 1.15);
+            /*background: linear-gradient(to top left, powderblue, pink)*/
+        }
+    </style>
+</head>
+<body>
+</body>
+    <div id="main">
+        <h1>Генерация</h1>
+        <input id="how" type="text" title="Сколько букв"><br>
+        <button id="clk">Сгенерировать</button><br>
+        <span id="res"></span>
+    </div>
+</html>
