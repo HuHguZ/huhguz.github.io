@@ -36,7 +36,8 @@ window.addEventListener('load', function() {
 
     function nickName() {
         var name = '',
-            str1, str2, f, y, fl, ff, q, member = ["a", "e", "i", "o", "u", "y", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z"], counter = +how.value;
+            str1, str2, f, y, fl, ff, q, member = ["a", "e", "i", "o", "u", "y", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z"],
+            counter = +how.value;
         ff = Math.round(Math.random() * 1);
         if (ff == 1) {
             fl = true;
