@@ -343,9 +343,7 @@ $('document').ready(function() {
             }
             for (var i = 0; i < foodCount * 2; i += 2) {
                 if (player[0] === food[i] && player[1] === food[i + 1]) {
-                    // addsegment();
                     points.push(player[0], player[1]);
-                    console.log(points);
                     size[size.length] = scale;
                     food[i] = Math.floor(Math.random() * gamew) * scale;
                     food[i + 1] = Math.floor(Math.random() * gameh) * scale;
