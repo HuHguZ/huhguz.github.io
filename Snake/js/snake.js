@@ -45,7 +45,7 @@ $('document').ready(function() {
     function randomKey() {
         var a = ['w', 'a', 's', 'd'];
         return a[Math.random() * a.length ^ 0];
-    }
+    }//
 
     function color() {
         var a, b = "#",
