@@ -29,6 +29,7 @@ $('document').ready(function() {
         settings = false,
         spmod = false,
         death = false,
+        points = [],
         food = [],
         foodColor = [],
         player = [Math.floor(Math.random() * gamew) * scale, Math.floor(Math.random() * gameh) * scale],
@@ -342,7 +343,9 @@ $('document').ready(function() {
             }
             for (var i = 0; i < foodCount * 2; i += 2) {
                 if (player[0] === food[i] && player[1] === food[i + 1]) {
-                    addsegment();
+                    // addsegment();
+                    points.push(player[0], player[1]);
+                    console.log(points);
                     size[size.length] = scale;
                     food[i] = Math.floor(Math.random() * gamew) * scale;
                     food[i + 1] = Math.floor(Math.random() * gameh) * scale;
@@ -365,6 +368,7 @@ $('document').ready(function() {
                     death = true;
                     olDifficulty = difficulty;
                     difficulty = 1;
+                    points = [];
                 }
             }
         }
@@ -441,6 +445,12 @@ $('document').ready(function() {
             gamew = Math.floor(w / scale);
             gameh = Math.floor(h / scale);
             move();
+            for (var i = 0; i < points.length; i += 2) {
+                if (points[i] === player[player.length - 2] && points[i + 1] === player[player.length - 1]) {
+                    addsegment();
+                    points.splice(i, 2);
+                }
+            }
             for (var i = 0; i < foodCount * 2; i += 2) {
                 drawRect(food[i], food[i + 1], scale, scale, foodColor[i / 2]);
             }
