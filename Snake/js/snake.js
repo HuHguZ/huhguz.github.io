@@ -45,7 +45,7 @@ $('document').ready(function() {
     function randomKey() {
         var a = ['w', 'a', 's', 'd'];
         return a[Math.random() * a.length ^ 0];
-    }//
+    }
 
     function color() {
         var a, b = "#",
@@ -227,45 +227,38 @@ $('document').ready(function() {
                 }
             }
         }
+        segmentMove();
         if (player[0] > food[ind[0] * 2]) {
             if (checkPosition(-scale, 0)) {
                 player[1] += scale;
                 direction = 2;
-                segmentMove();
             } else {
                 player[0] -= scale;
                 direction = 3;
-                segmentMove();
             }
         } else if (player[0] < food[ind[0] * 2]) {
             if (checkPosition(+scale, 0)) {
                 player[1] += scale;
                 direction = 2;
-                segmentMove();
             } else {
                 player[0] += scale;
                 direction = 1;
-                segmentMove();
             }
         } else if (player[1] > food[ind[0] * 2 + 1]) {
             if (checkPosition(0, -scale)) {
                 player[0] += scale;
                 direction = 1;
-                segmentMove();
             } else {
                 player[1] -= scale;
                 direction = 0;
-                segmentMove();
             }
         } else if (player[1] < food[ind[0] * 2 + 1]) {
             if (checkPosition(0, +scale)) {
                 player[0] += scale;
                 direction = 1;
-                segmentMove();
             } else {
                 player[1] += scale;
                 direction = 2;
-                segmentMove();
             }
         }
     }
@@ -312,7 +305,9 @@ $('document').ready(function() {
                 key = 0;
                 aiPlayer();
             }
-            segmentMove();
+            if (!aion) {
+                segmentMove();
+            }
             if (key === 'w' || key === 'W' || key === 'ц' || key === 'Ц') {
                 oldKey = key;
                 player[1] -= scale;
