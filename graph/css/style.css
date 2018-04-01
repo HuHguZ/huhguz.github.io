@@ -1,0 +1,41 @@
+* {
+    transition-duration: 0.7s;
+}
+body {
+    padding: 0;
+    margin: 0;
+    background-image: url(../fon.png);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+}
+#main {
+    position: absolute;
+    top: 5vh;
+    left: 5vw;
+    width: 90vw;
+    background: white;
+    border-radius: 20px;
+    border: solid 1px black;
+    font-family: Verdana;
+    color: black;
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0,0);
+}
+input, button {
+    font-weight: bold;
+    outline: 0;
+    margin: 1px;
+    width: 80px;
+}
+input[type='checkbox'] {
+    width: auto;
+}   
+
+button {
+    width: auto;
+}

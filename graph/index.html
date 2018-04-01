@@ -1,0 +1,32 @@
+<!DOCTYPE hmtl>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Графопостроитель</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    <script type="text/javascript" src="js/game.js"></script>
+</head>
+
+<body>
+    <div id="main">
+        <h1>Рисование</h1>
+        Функция <input type="text" id="graph"><br>
+        Вторая переменная <input type="text" id="graph2"> <input type="checkbox" id="on" title="Вкл./Выкл."><br>
+        Расстояние между точками на осях <input type="number" id="dist1"><br>
+        Размер черточек на осях <input type="number" id="dist2"><br>
+        Размер шрифта <input type="number" id="fntsize"><br>
+        Максимальный X <input type="number" id="maxX"><br>
+        Знаков после запятой <input type="number" id="accuracy"><br>
+        Толщина линии графика <input type="number" id="GraphLineThickness"><br>
+        Толщина линий осей <input type="number" id="ThicknessOfAxesLines"><br>
+        Ставить точку каждые <input type="number" id="interval"><br>
+        Цвет графика <input type="color" id="graphColor"> <input type="checkbox" id="rndclr" title="Выбирать цвет случайным образом"><br>
+        Обновлять плоскость при нажатии на кнопку <input type="checkbox" id="upd" checked><br>
+        <button id="ok">Нарисовать</button>
+    </div>
+    <canvas id="canvas" onselectstart="return false" onmousedown="return false"></canvas>
+</body>
+
+</html>
