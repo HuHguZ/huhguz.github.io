@@ -80,6 +80,41 @@
         return b;
     }
 
+    function transform(str) {
+        str = str.toString();
+        var regs = [
+                /arcsin/gi,
+                /arccos/gi,
+                /arctg/gi,
+                /\ssin/gi,
+                /\scos/gi,
+                /\sln/gi,
+                /\stg/gi,
+                /\sctg/gi,
+                /\se/gi,
+                /\spi/gi,
+                /\^/gi
+            ],
+            replacements = [
+                'Math.asin',
+                'Math.acos',
+                'Math.atan',
+                'Math.sin',
+                'Math.cos',
+                'Math.log',
+                'Math.tan',
+                '1/Math.tan',
+                'Math.E',
+                'Math.PI',
+                '**'
+            ];
+        for (var i = 0; i < regs.length; i++) {
+            str = str.replace(regs[i], replacements[i]);
+        }
+        console.log(str);
+        return str;
+    }
+
     function clear() {
         ctx.clearRect(0, 0, w, h);
         drawAxis();
@@ -138,12 +173,12 @@
             ctx.fillStyle = elements.graphColor.value;
         }
         graphics.push({
-            func: new Function('x', 'return ' + elements.graph.value + ';'),
+            func: new Function('x', 'return ' + transform(elements.graph.value) + ';'),
             x: -w / 2,
             fillStyle: ctx.fillStyle,
             complexFunction: elements.on.checked
         });
-        graphics[graphics.length - 1].func2 = graphics[graphics.length - 1].complexFunction ? new Function('y', 'return ' + elements.graph2.value + ';') : false;
+        graphics[graphics.length - 1].func2 = graphics[graphics.length - 1].complexFunction ? new Function('y', 'return ' + transform(elements.graph2.value) + ';') : false;
         if (graphics[graphics.length - 1].complexFunction == true) {
             graphics[graphics.length - 1].x = 0;
         }
