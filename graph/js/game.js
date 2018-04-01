@@ -86,13 +86,13 @@
                 /arcsin/gi,
                 /arccos/gi,
                 /arctg/gi,
-                /\ssin/gi,
-                /\scos/gi,
-                /\sln/gi,
-                /\stg/gi,
-                /\sctg/gi,
-                /\se/gi,
-                /\spi/gi,
+                /(^|\s)sin/gi,
+                /(^|\s)cos/gi,
+                /(^|\s)ln/gi,
+                /(^|\s)tg/gi,
+                /(^|\s)ctg/gi,
+                /(^|\s)e/gi,
+                /(^|\s)pi/gi,
                 /\^/gi
             ],
             replacements = [
@@ -111,7 +111,6 @@
         for (var i = 0; i < regs.length; i++) {
             str = str.replace(regs[i], replacements[i]);
         }
-        console.log(str);
         return str;
     }
 
