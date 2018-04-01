@@ -144,6 +144,9 @@
             complexFunction: elements.on.checked
         });
         graphics[graphics.length - 1].func2 = graphics[graphics.length - 1].complexFunction ? new Function('y', 'return ' + elements.graph2.value + ';') : false;
+        if (graphics[graphics.length - 1].complexFunction == true) {
+            graphics[graphics.length - 1].x = 0;
+        }
     });
 
     function drawAxis() {
@@ -209,7 +212,7 @@
                         ctx.fillStyle = graphics[j].fillStyle;
                         for (var i = 0; i < 1e3; i++) {
                             t = k * graphics[j].x;
-                            y = -(graphics[j].func(t));
+                            y = -graphics[j].func(t);
                             ctx.beginPath();
                             ctx.arc(graphics[j].x + w / 2, h / 2 + (1 / k * y), thickness1, 0, Math.PI * 2);
                             ctx.fill();
@@ -219,14 +222,14 @@
                         graphics[j].ready = true;
                     }
                 } else {
-                    if (graphics[j].x < w / 2) {
+                    if (k * graphics[j].x < w) {
                         ctx.fillStyle = graphics[j].fillStyle;
                         for (var i = 0; i < 1e3; i++) {
                             t = k * graphics[j].x;
-                            y = -(graphics[j].func(t));
-                            var st = graphics[j].func2(t);
+                            y = -graphics[j].func2(t);
+                            var st = graphics[j].func(t);
                             ctx.beginPath();
-                            ctx.arc(1 / k * st + w / 2, h / 2 + (1 / k * y), thickness1, 0, Math.PI * 2);
+                            ctx.arc((1 / k * st) + w / 2, h / 2 + (1 / k * y), thickness1, 0, Math.PI * 2);
                             ctx.fill();
                             graphics[j].x += interval;
                         }
