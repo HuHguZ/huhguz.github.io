@@ -16,7 +16,8 @@
             rndclr: getElem('rndclr'),
             accuracy: getElem('accuracy'),
             graph2: getElem('graph2'),
-            on: getElem('on')
+            on: getElem('on'),
+            save: getElem('save')
         },
         graphics = [],
         fl = false,
@@ -36,7 +37,9 @@
         d2 = (h / 2 - Math.floor(yc / 2) * dist) - ((Math.floor(yc / 2) + 1) * dist - h / 2),
         maxX = +(k * (xc * dist - w / 2 + d1)).toFixed(accuracy),
         interval = 0.002,
-        thickness1 = 1;
+        thickness1 = 1,
+        keys = ['GraphLineThickness', 'ThicknessOfAxesLines', 'accuracy', 'dist1', 'dist2', 'fntsize', 'graph', 'graph2', 'graphColor', 'interval', 'maxX', 'on', 'rndclr', 'upd'],
+        transformations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1];
     ctx.lineWidth = 2;
     ctx.fillStyle = 'red';
     elements.graph.value = 'Math.sin(x)';
@@ -52,8 +55,14 @@
     elements.graphColor.value = ctx.fillStyle;
     elements.accuracy.value = accuracy;
 
-    function log(a, b, c = 3) {
-        return a === 0 && b === 0 || a === 1 || a < 0 || b < 0 ? 0 : +(Math.log(b) / Math.log(a)).toFixed(accuracy);
+    for (var i = 0; i < keys.length; i++) {
+        if (localStorage.getItem(keys[i])) {
+            if (transformations[i]) {
+                elements[keys[i]].checked = !!+localStorage.getItem(keys[i]);
+            } else {
+                    elements[keys[i]].value = localStorage.getItem(keys[i]);
+            }
+        }
     }
 
     function getElem(el) {
@@ -119,6 +128,22 @@
         drawAxis();
         graphics = [];
     }
+    save.addEventListener('click', function() {
+        localStorage.setItem('graph', elements.graph.value);
+        localStorage.setItem('graph2', elements.graph2.value);
+        localStorage.setItem('on', elements.on.checked);
+        localStorage.setItem('dist1', elements.dist1.value);
+        localStorage.setItem('dist2', elements.dist2.value);
+        localStorage.setItem('fntsize', elements.fntsize.value);
+        localStorage.setItem('maxX', elements.maxX.value);
+        localStorage.setItem('accuracy', elements.accuracy.value);
+        localStorage.setItem('GraphLineThickness', elements.GraphLineThickness.value);
+        localStorage.setItem('ThicknessOfAxesLines', elements.ThicknessOfAxesLines.value);
+        localStorage.setItem('interval', elements.interval.value);
+        localStorage.setItem('graphColor', elements.graphColor.value);
+        localStorage.setItem('rndclr', elements.rndclr.checked);
+        localStorage.setItem('upd', elements.upd.checked);
+    });
     document.addEventListener('keypress', function(e) {
         if (e.key.match(/[rк]/i)) {
             clear();
