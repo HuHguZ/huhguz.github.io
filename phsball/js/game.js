@@ -687,7 +687,9 @@
                     setProperty(balls[i], properties[num], values[num]);
                 }
             } else {
-                setProperty(balls[you], properties[num], values[num]);
+                if (balls[you]) {
+                    setProperty(balls[you], properties[num], values[num]);
+                }
             }
         }
     }
@@ -875,21 +877,25 @@
                 }
                 if (m) {
                     this.onmousemove = function(e) {
-                        var ball = balls[you],
-                            x = e.clientX,
-                            y = e.clientY;
-                        mouse.velocity = new Vector2(x - mouse.oldX, y - mouse.oldY);
-                        ball.position = new Vector2(x - shiftX, y - shiftY);
-                        ball.velocity = mouse.velocity;
-                        mouse.oldX = x;
-                        mouse.oldY = y;
+                        if (balls[you]) {
+                            var ball = balls[you],
+                                x = e.clientX,
+                                y = e.clientY;
+                            mouse.velocity = new Vector2(x - mouse.oldX, y - mouse.oldY);
+                            ball.position = new Vector2(x - shiftX, y - shiftY);
+                            ball.velocity = mouse.velocity;
+                            mouse.oldX = x;
+                            mouse.oldY = y;
+                        }
                     }
                     this.onmouseup = function() {
-                        this.onmousemove = null;
-                        this.onmouseup = null;
-                        balls[you].onGround = false;
-                        balls[you].canCallHand = true;
-                        balls[you].canMove = true;
+                        if (balls[you]) {
+                            this.onmousemove = null;
+                            this.onmouseup = null;
+                            balls[you].onGround = false;
+                            balls[you].canCallHand = true;
+                            balls[you].canMove = true;
+                        }
                     }
                 }
             } else {
@@ -944,10 +950,14 @@
                 if (setgs) {
                     showTexture();
                     showElem(elements.settings);
-                    updateInfo();
+                    if (balls[you]) {
+                        updateInfo();
+                    }
                 } else {
                     hideElem(elements.settings);
-                    setInfo();
+                    if (balls[you]) {
+                        setInfo();
+                    }
                 }
             }
         } else if (key.match(/^[fа]$/i) && balls.length > 1) {
@@ -1222,7 +1232,7 @@
             ctx.fillText(`FPS: ${currentFps}`, 30, 20);
             ctx.closePath();
         }
-        if (drawInfo && balls.length) {
+        if (drawInfo && balls[you]) {
             ctx.beginPath();
             ctx.fillStyle = "#000";
             ctx.textAlign = "center";
