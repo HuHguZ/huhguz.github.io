@@ -17,7 +17,8 @@
             accuracy: getElem('accuracy'),
             graph2: getElem('graph2'),
             on: getElem('on'),
-            save: getElem('save')
+            save: getElem('save'),
+            drwaxs: getElem('drwaxs')
         },
         graphics = [],
         fl = false,
@@ -31,6 +32,7 @@
         fntsize = 12,
         k = 1,
         xc = Math.floor(w / dist),
+        drawAxiss = true,
         func,
         yc = Math.floor(h / dist),
         d1 = (w / 2 - Math.floor(xc / 2) * dist) - ((Math.floor(xc / 2) + 1) * dist - w / 2),
@@ -38,8 +40,8 @@
         maxX = +(k * (xc * dist - w / 2 + d1)).toFixed(accuracy),
         interval = 0.002,
         thickness1 = 1,
-        keys = ['GraphLineThickness', 'ThicknessOfAxesLines', 'accuracy', 'dist1', 'dist2', 'fntsize', 'graph', 'graph2', 'graphColor', 'interval', 'maxX', 'on', 'rndclr', 'upd'],
-        transformations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1];
+        keys = ['GraphLineThickness', 'ThicknessOfAxesLines', 'accuracy', 'dist1', 'dist2', 'fntsize', 'graph', 'graph2', 'graphColor', 'interval', 'maxX', 'on', 'rndclr', 'upd', 'drwaxs'],
+        transformations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1];
     ctx.lineWidth = 2;
     ctx.fillStyle = 'red';
     elements.graph.value = 'Math.sin(x)';
@@ -58,9 +60,9 @@
     for (var i = 0; i < keys.length; i++) {
         if (localStorage.getItem(keys[i])) {
             if (transformations[i]) {
-                elements[keys[i]].checked = !!+localStorage.getItem(keys[i]);
+                elements[keys[i]].checked = localStorage.getItem(keys[i]) == 'true' ? true : false;
             } else {
-                    elements[keys[i]].value = localStorage.getItem(keys[i]);
+                elements[keys[i]].value = localStorage.getItem(keys[i]);
             }
         }
     }
@@ -125,7 +127,9 @@
 
     function clear() {
         ctx.clearRect(0, 0, w, h);
-        drawAxis();
+        if (drawAxiss) {
+            drawAxis();
+        }
         graphics = [];
     }
     save.addEventListener('click', function() {
@@ -143,6 +147,7 @@
         localStorage.setItem('graphColor', elements.graphColor.value);
         localStorage.setItem('rndclr', elements.rndclr.checked);
         localStorage.setItem('upd', elements.upd.checked);
+        localStorage.setItem('drwaxs', elements.drwaxs.checked)
     });
     document.addEventListener('keypress', function(e) {
         if (e.key.match(/[rк]/i)) {
@@ -154,6 +159,7 @@
     });
     document.addEventListener('mousedown', function(e) {
         try {
+            ctx.font = 'bold ' + fntsize + 'px Verdana';
             if (fl) {
                 for (var i = 0; i < graphics.length; i++) {
                     if (graphics[i].complexFunction) {
@@ -177,6 +183,8 @@
         fl = !fl;
         hideElem(elements.mn);
         if (elements.upd.checked) {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
             dist = +elements.dist1.value;
             xc = Math.floor(w / dist);
             yc = Math.floor(h / dist);
@@ -187,6 +195,7 @@
             ctx.lineWidth = +elements.ThicknessOfAxesLines.value;
             interval = +elements.interval.value;
             accuracy = +elements.accuracy.value;
+            drawAxiss = elements.drwaxs.checked;
             clear();
             graphics = [];
         }
