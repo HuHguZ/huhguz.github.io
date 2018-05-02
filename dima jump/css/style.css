@@ -1,0 +1,27 @@
+* {
+    transition-duration: 0.7s;
+    font-family: American Captain
+}
+body {
+    padding: 0;
+    margin: 0;
+    background-image: url(../fon.png);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+}
+#play {
+    position: absolute;
+    top: 90vh;
+    right: 2vw;
+    border: 2px solid green;
+    outline: 0;
+    width: 10vw;
+    height: 5vh;
+    border-radius: 20px;
+}
+#play:hover {
+    cursor: pointer;
+    transform: scale(1.1, 1.1);
+}

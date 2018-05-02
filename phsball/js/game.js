@@ -662,7 +662,7 @@
         return function() {
             var temp = [parseFloat(elements.chgimg.value), parseFloat(elements.r.value), parseFloat(elements.mass.value), parseFloat(elements.x.value), parseFloat(elements.y.value), parseFloat(elements.xspeed.value), parseFloat(elements.yspeed.value), parseFloat(elements.gravity.value.match(/[\d.-]+/)[0]), parseFloat(elements.gravity.value.match(/[\d.-]+/g)[1]), parseFloat(elements.deceleration.value.match(/[\d.-]+/)[0]), parseFloat(elements.deceleration.value.match(/[\d.-]+/g)[1]), parseFloat(elements.loss.value)],
                 values = [
-                    checkValue(temp[0], imagesForBalls[temp[0]], balls[you].img ? balls[you].img : imagesForBalls[Math.random() * imagesForBalls.length ^ 0]),
+                    checkValue(temp[0], imagesForBalls[temp[0]], balls[you] ? (balls[you].img ? balls[you].img : imagesForBalls[Math.random() * imagesForBalls.length ^ 0]) : imagesForBalls[Math.random() * imagesForBalls.length ^ 0]),
                     checkValue(temp[1], temp[1], Math.random() * 100 ^ 0),
                     checkValue(temp[2], temp[2], Math.random() * 100 ^ 0), {
                         sp: checkValue(temp[3], temp[3], Math.random() * w ^ 0)
