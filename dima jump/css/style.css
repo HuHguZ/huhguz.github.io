@@ -1,6 +1,5 @@
 * {
-    transition-duration: 0.7s;
-    font-family: American Captain
+    transition-duration: .4s;
 }
 body {
     padding: 0;
@@ -13,15 +12,24 @@ body {
 }
 #play {
     position: absolute;
-    top: 90vh;
-    right: 2vw;
-    border: 2px solid green;
+    top: 50vh;
+    right: 50vw;
+    border: 2px solid #FFDB00FF;
     outline: 0;
-    width: 10vw;
-    height: 5vh;
+    width: 13vw;
+    height: 8vh;
     border-radius: 20px;
 }
 #play:hover {
     cursor: pointer;
     transform: scale(1.1, 1.1);
+}
+
+@font-face {
+    // название шрифта(чтобы не запутаться лучше указать название папки со шрифтом) 
+    font-family: "American"; 
+    // адрес шрифта и тип 
+    src: url("../resources/font.ttf") format("truetype"); 
+    font-style: normal; 
+    font-weight: normal; 
 }
