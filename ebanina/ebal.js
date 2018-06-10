@@ -1,13 +1,14 @@
 window.addEventListener('load', function() {
     var tx = document.getElementById('result');
     document.getElementById('number').addEventListener('input', function() {
-        if (+this.value >= 0)  {
+        if (+this.value >= 0) {
             tx.value = createEbanina(+this.value);
         } else {
             this.value = 0;
             tx.value = `Вы не можете использовать отрицательные числа.`;
         }
     });
+
     function createEbanina(num) {
         var bin = toBin(num),
             digits = [],
@@ -21,7 +22,7 @@ window.addEventListener('load', function() {
             return `0`;
         }
         for (var i = 0; i < digits.length; i++) {
-            res += isMagic(digits[i]) ? `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
+            res += isMagic(digits[i]) ? digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
 
         }
         return res.slice(0, res.length - 1);
@@ -40,8 +41,8 @@ window.addEventListener('load', function() {
             0: '0',
             1: '-~0<<0',
             2: '-~0<<-~0<<0',
-            4: '-~0<<(-~0<<-~0<<0)',
-            16: '-~0<<(-~0<<(-~0<<-~0<<0))',
+            4: '-~0<<-~0<<-~0<<0',
+            16: '-~0<<(-~0<<-~0<<-~0<<0)',
         };
         return mgn[num];
     }
