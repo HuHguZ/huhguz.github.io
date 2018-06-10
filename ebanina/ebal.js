@@ -1,15 +1,13 @@
 window.addEventListener('load', function() {
     var tx = document.getElementById('result');
     document.getElementById('number').addEventListener('input', function() {
-        if (+this.value >= 0) {
-            tx.value = createEbanina(+this.value);
-        } else {
-            this.value = 0;
-            tx.value = `Вы не можете использовать отрицательные числа.`;
-        }
+        tx.value = createEbanina(+this.value);
     });
 
     function createEbanina(num) {
+        if (num < 0) {
+            return `-(${createEbanina(-num)})`;
+        }
         var bin = toBin(num),
             digits = [],
             res = ``;
@@ -48,6 +46,9 @@ window.addEventListener('load', function() {
     }
 
     function toBin(num) {
+        if (num < 0) {
+            return `-${toBin(-num)}`;
+        }
         if (!num) {
             return 0;
         }
