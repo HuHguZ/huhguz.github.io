@@ -20,7 +20,7 @@ window.addEventListener('load', function() {
             return `0`;
         }
         for (var i = 0; i < digits.length; i++) {
-            res += isMagic(digits[i]) ? digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
+            res += isMagic(digits[i]) ? !digits[i] ? `-~0 ` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
 
         }
         return res.slice(0, res.length - 1);
@@ -36,11 +36,11 @@ window.addEventListener('load', function() {
 
     function getMagic(num) {
         var mgn = {
-            0: '0',
-            1: '-~0',
-            2: '-~0<<-~0<<0',
-            4: '-~0<<-~0<<-~0<<0',
-            16: '-~0<<(-~0<<-~0<<-~0<<0)',
+            0: `0`,
+            1: `-~0`,
+            2: `-~0<<-~0`,
+            4: `-~0<<-~0<<-~0`,
+            16: `-~0<<(-~0<<-~0<<-~0)`,
         };
         return mgn[num];
     }
