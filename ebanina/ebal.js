@@ -1,12 +1,13 @@
 window.addEventListener('load', function() {
     var tx = document.getElementById('result');
     document.getElementById('number').addEventListener('input', function() {
-        tx.value = createEbanina(+this.value);
+        tx.value = createEbanina(new Big(this.value));
     });
 
     function createEbanina(num) {
-        if (num < 0) {
-            return `-(${createEbanina(-num)})`;
+        if (num.s == -1) {
+            num.s *= -1;
+            return `-(${createEbanina(num)})`;
         }
         var bin = toBin(num),
             digits = [],
@@ -20,17 +21,26 @@ window.addEventListener('load', function() {
             return `0`;
         }
         for (var i = 0; i < digits.length; i++) {
-            res += isMagic(digits[i]) ? !digits[i] ? `-~0 ` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
-
+            res += isMagic(digits[i]) ? !digits[i] ? `-~0 ` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(new Big(digits[i]))})|`;
         }
         return res.slice(0, res.length - 1);
     }
 
-    function isMagic(num) {
-        var mgn = [0];
-        for (var i = 1; i < 5; i++) {
-            mgn.push(2 ** mgn[i - 1]);
+
+
+    function getDigits(str) {
+        var digits = [];
+        for (var i = 0; i < str.length; i++) {
+            if (+str[i]) {
+                digits.push(str.length - i - 1);
+            }
         }
+        return digits;
+    }
+
+
+    function isMagic(num) {
+        var mgn = [0, 1, 2, 4, 16];
         return ~mgn.indexOf(num);
     }
 
@@ -46,17 +56,18 @@ window.addEventListener('load', function() {
     }
 
     function toBin(num) {
-        if (num < 0) {
-            return `-${toBin(-num)}`;
+        if (num.s == -1) {
+            num.s *= -1;
+            return `-${toBin(num)}`;
         }
-        if (!num) {
-            return 0;
+        if (num.c.length == 1 && !num.c[0]) {
+            return `0`;
         }
-        var bn = '';
-        while (num) {
-            bn += num % 2;
-            num = Math.floor(num / 2);
+        var bn = ``;
+        while (num.c.length != 1 || num.c[0]) {
+            bn += num.mod(2);
+            num = num.div(2).round();
         }
-        return bn.split('').reverse().join('');
+        return bn.split(``).reverse().join(``);
     }
 });
