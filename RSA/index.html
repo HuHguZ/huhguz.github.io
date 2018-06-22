@@ -1,0 +1,56 @@
+<!DOCTYPE hmtl>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>RSA</title>
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <script src="big.js"></script>
+    <script src="math.js"></script>
+    <script src="rsa.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <h1>RSA</h1>
+        <h2>Зашифровка</h2>
+        <table style="margin: 0 auto; font-size: 18px;">
+            <tr>
+                <td>Первое простое число</td>
+                <td><input type="number" id="p1"></td>
+                <td rowspan="5"><button id="rndp">Сгенерировать</button></td>
+            </tr>
+            <tr>
+                <td>Второе простое число</td>
+                <td><input type="number" id="p2"></td>
+            </tr>
+            <tr>
+                <td>Открытая экспонента</td>
+                <td><input type="number" id="pubExp"></td>
+            </tr>
+            <tr>
+                <td>Произведение двух простых</td>
+                <td><input type="number" id="mul"></td>
+            </tr>
+            <tr>
+                <td>Функция Эйлера</td>
+                <td><input type="number" id="Fn"></td>
+            </tr>
+        </table>
+        Ваше сообщение<br>
+        <textarea id="msg"></textarea><br>
+        Шифротекст<br>
+        <textarea id="ciphertext" style="margin-bottom: 10px;"></textarea><br>
+        <button id="encrypt">Зашифровать</button>
+        <h2>Расшифровка</h2>
+        Закрытая экспонента <input type="number" id="privExp"><br>
+        Шифротекст<br>
+        <textarea id="ciphertext2"></textarea><br>
+        Расшифрованное сообщение<br>
+        <textarea id="msg2" style="margin-bottom: 10px;"></textarea><br>
+        <button id="decrypt">Расшифровать</button>
+    </div>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 window.addEventListener('load', function() {
     var tx = document.getElementById('result');
     document.getElementById('number').addEventListener('input', function() {
-        if (this.value) {
+        if (this.value) { 
             tx.value = createEbanina(new Big(this.value));
         }
     });

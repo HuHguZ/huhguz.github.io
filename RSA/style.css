@@ -1,0 +1,33 @@
+* {
+    transition-duration: .8s;
+    font-family: Verdana;
+}
+
+body, html {
+    margin: 0;
+    padding: 0
+}
+
+body {
+ /*   background-image: url(fon_out.jpg);
+    background-size: 100%, 100%;
+    background-attachment: fixed;*/
+    color: white;
+}
+
+.main {
+    position: absolute;
+    top: 1%;
+    left: 5%;
+    width: 90%;
+    padding: 5px;
+    background-color: black;
+    opacity: .9;
+    border: solid 2px black;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+button:hover {
+    cursor: pointer;
+}
