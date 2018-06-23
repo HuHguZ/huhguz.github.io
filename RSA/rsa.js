@@ -1,12 +1,14 @@
 window.addEventListener(`load`, () => {
     let alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}\\/<>«»„“~`@#№$%^&*+=!?.,-_:;" ',
         positions = {},
-        props = [`msg`, `ciphertext`, `msg2`, `ciphertext2`, `p1`, `p2`, `rndp`, `pubExp`, `mul`, `Fn`, `decrypt`, `privExp`, `encrypt`, `calc`],
+        props = [`msg`, `ciphertext`, `msg2`, `ciphertext2`, `p1`, `p2`, `rndp`, `pubExp`, `mul`, `Fn`, `decrypt`, `privExp`, `encrypt`, `calc`, `range`],
         elements = {},
         t = ``,
         euler = (p1, p2) => p1.minus(1).mul(p2.minus(1)),
+        getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min,
         getPubExp = (Fn) => {
-            let ers = math.ers(200), pos = 1;
+            let ers = math.ers(200),
+                pos = 1;
             while (!Fn.mod(ers[pos]).c[0]) {
                 pos++;
             }
@@ -36,7 +38,10 @@ window.addEventListener(`load`, () => {
             let counter = 0,
                 p1, p2;
             if (!bool) {
-                for (let i = 1000 + Math.random() * 700 ^ 0; i < 3000; i++) {
+                let s = elements.range.value.match(/\s*(\d+)\s*;\s*(\d+)\s*/),
+                    min = +s[1],
+                    max = +s[2];
+                for (let i = getRandomInt(min, max); i < max; i++) {
                     if (math.isPrime(i)) {
                         if (!counter) {
                             p1 = i;
@@ -82,6 +87,7 @@ window.addEventListener(`load`, () => {
         }
         elements.msg2.value = t;
     });
+    // .match(/\s*(\d+)\s*;\s*(\d+)\s*/)
     // console.log(euler(new Big(3557), new Big(2579)).valueOf());
     // console.log(getPubExp(new Big(9167368)));
     // console.log(getPrivExp(new Big(3), new Big(9167368)).valueOf());
