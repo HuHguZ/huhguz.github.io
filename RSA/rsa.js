@@ -1,7 +1,7 @@
 window.addEventListener(`load`, () => {
     let alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}\\/<>«»„“~`@#№$%^&*+=!?.,-_:;" ',
         positions = {},
-        props = [`msg`, `ciphertext`, `msg2`, `ciphertext2`, `p1`, `p2`, `rndp`, `pubExp`, `mul`, `Fn`, `decrypt`, `privExp`, `encrypt`],
+        props = [`msg`, `ciphertext`, `msg2`, `ciphertext2`, `p1`, `p2`, `rndp`, `pubExp`, `mul`, `Fn`, `decrypt`, `privExp`, `encrypt`, `calc`],
         elements = {},
         t = ``,
         euler = (p1, p2) => p1.minus(1).mul(p2.minus(1)),
@@ -32,26 +32,28 @@ window.addEventListener(`load`, () => {
             }
             return c;
         },
-        generate = () => {
+        generate = (bool) => {
             let counter = 0,
                 p1, p2;
-            for (let i = 1000 + Math.random() * 1000 ^ 0; i < 3000; i++) {
-                if (math.isPrime(i)) {
-                    if (!counter) {
-                        p1 = i;
-                        counter++;
-                    } else if (counter == 1) {
-                        p2 = i;
-                        counter++;
-                    } else {
-                        break;
+            if (!bool) {
+                for (let i = 1000 + Math.random() * 700 ^ 0; i < 3000; i++) {
+                    if (math.isPrime(i)) {
+                        if (!counter) {
+                            p1 = i;
+                            counter++;
+                        } else if (counter == 1) {
+                            p2 = i;
+                            counter++;
+                        } else {
+                            break;
+                        }
                     }
                 }
+                elements.p1.value = p1;
+                elements.p2.value = p2;
             }
-            elements.p1.value = p1;
-            elements.p2.value = p2;
             elements.Fn.value = euler(new Big(elements.p1.value), new Big(elements.p2.value));
-            elements.mul.value = new Big(p1).mul(new Big(p2)).valueOf();
+            elements.mul.value = new Big(elements.p1.value).mul(new Big(elements.p2.value)).valueOf();
             elements.pubExp.value = getPubExp(new Big(elements.Fn.value));
             elements.privExp.value = getPrivExp(elements.pubExp.value, elements.Fn.value);
         };
@@ -61,12 +63,13 @@ window.addEventListener(`load`, () => {
     for (let i = 0; i < props.length; i++) {
         elements[props[i]] = document.getElementById(props[i]);
     }
-    elements.rndp.addEventListener(`click`, generate);
+    elements.rndp.addEventListener(`click`, () => generate());
     generate();
+    elements.calc.addEventListener(`click`, () => generate(1));
     elements.encrypt.addEventListener(`click`, () => {
         t = ``;
         for (let i = 0; i < elements.msg.value.length; i++) {
-            t += `${modularPow(positions[elements.msg.value[i]], +elements.pubExp.value, +elements.mul.value)} `;
+            t += `${modularPow(positions[elements.msg.value[i]] + 5, +elements.pubExp.value, +elements.mul.value)} `;
         }
         t = t.slice(0, t.length - 1);
         elements.ciphertext.value = t;
@@ -75,7 +78,7 @@ window.addEventListener(`load`, () => {
         let nums = elements.ciphertext2.value.split(/\s+/);
         t = ``;
         for (let i = 0; i < nums.length; i++) {
-            t += alphabet[modularPow(+nums[i], +elements.privExp.value, +elements.mul.value)];
+            t += alphabet[modularPow(+nums[i], +elements.privExp.value, +elements.mul.value) - 5];
         }
         elements.msg2.value = t;
     });
