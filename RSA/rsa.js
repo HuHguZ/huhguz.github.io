@@ -41,7 +41,7 @@ window.addEventListener(`load`, () => {
                 let s = elements.range.value.match(/\s*(\d+)\s*;\s*(\d+)\s*/),
                     min = +s[1],
                     max = +s[2];
-                for (let i = getRandomInt(min, max); i < max; i++) {
+                for (let i = getRandomInt(min, max - 100); i < max; i++) {
                     if (math.isPrime(i)) {
                         if (!counter) {
                             p1 = i;
