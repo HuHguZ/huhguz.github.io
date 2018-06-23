@@ -6,11 +6,11 @@ window.addEventListener(`load`, () => {
         t = ``,
         euler = (p1, p2) => p1.minus(1).mul(p2.minus(1)),
         getPubExp = (Fn) => {
-            let e = 3;
-            while (!Fn.mod(e).c[0]) {
-                e += 2;
+            let ers = math.ers(200), pos = 1;
+            while (!Fn.mod(ers[pos]).c[0]) {
+                pos++;
             }
-            return e;
+            return ers[pos];
         },
         getPrivExp = (e, Fn) => {
             let k = 1,
