@@ -1,34 +1,28 @@
 window.addEventListener('load', function() {
     var tx = document.getElementById('result');
     document.getElementById('number').addEventListener('input', function() {
-        if (this.value) { 
+        if (this.value) {
             tx.value = createEbanina(new Big(this.value));
         }
     });
 
     function createEbanina(num) {
-        if (num.s == -1) {
-            num.s *= -1;
-            return `-(${createEbanina(num)})`;
-        }
-        var bin = toBin(num),
-            digits = [],
-            res = ``;
-        for (var i = 0; i < bin.length; i++) {
-            if (+bin[i]) {
-                digits.push(bin.length - i - 1);
+        if (typeof num == 'object') {
+            if (num.s == -1) {
+                num.s *= -1;
+                return `-(${createEbanina(num)})`;
             }
         }
+        var digits = typeof num == 'object' ? toBin(num) : toBinFast(num),
+            res = ``;
         if (!digits.length) {
             return `0`;
         }
         for (var i = 0; i < digits.length; i++) {
-            res += isMagic(digits[i]) ? !digits[i] ? `-~0 ` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(new Big(digits[i]))})|`;
+            res += isMagic(digits[i]) ? !digits[i] ? `-~0|` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
         }
         return res.slice(0, res.length - 1);
     }
-
-
 
     function getDigits(str) {
         var digits = [];
@@ -39,7 +33,6 @@ window.addEventListener('load', function() {
         }
         return digits;
     }
-
 
     function isMagic(num) {
         var mgn = [0, 1, 2, 4, 16];
@@ -58,18 +51,26 @@ window.addEventListener('load', function() {
     }
 
     function toBin(num) {
-        if (num.s == -1) {
-            num.s *= -1;
-            return `-${toBin(num)}`;
-        }
-        if (num.c.length == 1 && !num.c[0]) {
-            return `0`;
-        }
-        var bn = ``;
+        var digits = [],
+            pow = 0;
         while (num.c.length != 1 || num.c[0]) {
-            bn += num.mod(2);
+            if (num.mod(2).c[0]) {
+                digits.push(pow);
+            }
             num = num.div(2).round();
+            pow++;
         }
-        return bn.split(``).reverse().join(``);
+        return digits;
+    }
+
+    function toBinFast(n) {
+        var bits = [],
+            maxIter = Math.log(n) / Math.log(2);
+        for (var i = 0; i <= maxIter; i++) {
+            if (n & (1 << i)) {
+                bits.push(i);
+            }
+        }
+        return bits;
     }
 });
