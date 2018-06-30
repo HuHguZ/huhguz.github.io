@@ -19,19 +19,13 @@ window.addEventListener('load', function() {
             return `0`;
         }
         for (var i = 0; i < digits.length; i++) {
-            res += isMagic(digits[i]) ? !digits[i] ? `-~0|` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
-        }
-        return res.slice(0, res.length - 1);
-    }
-
-    function getDigits(str) {
-        var digits = [];
-        for (var i = 0; i < str.length; i++) {
-            if (+str[i]) {
-                digits.push(str.length - i - 1);
+            if (i == digits.length - 1) {
+                res += isMagic(digits[i]) ? !digits[i] ? `-~0` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}` : `-~0<<(${getMagic(digits[i])})` : `-~0<<(${createEbanina(digits[i])})`;
+            } else {
+                res += isMagic(digits[i]) ? !digits[i] ? `-~0|` : digits[i] <= 2 ? `-~0<<${getMagic(digits[i])}|` : `-~0<<(${getMagic(digits[i])})|` : `-~0<<(${createEbanina(digits[i])})|`;
             }
         }
-        return digits;
+        return res;
     }
 
     function isMagic(num) {
