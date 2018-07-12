@@ -175,6 +175,7 @@
                             path.push(current);
                             current = current.whence;
                         }
+                        alert(path.length);
                         f2 = !f2;
                     }
                     if (counter < path.length) {
