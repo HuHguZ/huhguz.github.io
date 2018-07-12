@@ -257,6 +257,7 @@
     generateMaze();
     drawMaze();
     // ctx.fillStyle = `blue`;
+    document.addEventListener(`dblclick`, Astar);
     document.addEventListener(`click`, e => {
         maze[Math.floor(e.offsetX / scale)][Math.floor(e.offsetY / scale)] = +!maze[Math.floor(e.offsetX / scale)][Math.floor(e.offsetY / scale)];
         drawMaze();
