@@ -23,20 +23,44 @@ window.addEventListener(`load`, () => {
             }
             return d;
         },
+        toBin = num => {
+            var str = ``;
+            while (num.c.length != 1 || num.c[0]) {
+                str += num.mod(2).c[0];
+                num = num.div(2).round();
+            }
+            return str.split(``).reverse().join(``);
+        },
         modularPow = (base, exponenta, module) => {
-            let bin = exponenta.toString(2),
+            // let bin = exponenta.toString(2),
+            //     results = [base],
+            //     res;
+            // for (let i = 1; i < bin.length; i++) {
+            //     results[i] = results[i - 1] ** 2 % module;
+            // }
+            // res = results[results.length - 1];
+            // for (let i = 1; i < bin.length; i++) {
+            //     if (+bin[i]) {
+            //         res = res * results[bin.length - i - 1] % module;
+            //     }
+            // }
+            // return res;
+            base = new Big(base);
+            exponenta = new Big(exponenta);
+            module = new Big(module);
+            let bin = toBin(exponenta),
                 results = [base],
                 res;
             for (let i = 1; i < bin.length; i++) {
-                results[i] = results[i - 1] ** 2 % module;
+                results[i] = results[i - 1].pow(2).mod(module);
             }
             res = results[results.length - 1];
             for (let i = 1; i < bin.length; i++) {
                 if (+bin[i]) {
-                    res = res * results[bin.length - i - 1] % module;
+                    res = res.mul(results[bin.length - i - 1]).mod(module);
                 }
             }
-            return res;
+            return res.valueOf();
         },
         generate = (f) => {
             let counter = 0,
@@ -87,7 +111,7 @@ window.addEventListener(`load`, () => {
     elements.encrypt.addEventListener(`click`, () => {
         t = ``;
         for (let i = 0; i < elements.msg.value.length; i++) {
-            t += `${modularPow(positions[elements.msg.value[i]] + 5, +elements.pubExp.value, +elements.mul.value) || elements.msg.value[i]} `;
+            t += `${modularPow(positions[elements.msg.value[i]] + 5, elements.pubExp.value, elements.mul.value) || elements.msg.value[i]} `;
         }
         t = t.slice(0, t.length - 1);
         elements.ciphertext.value = t;
@@ -96,7 +120,7 @@ window.addEventListener(`load`, () => {
         let nums = elements.ciphertext2.value.split(/\s+/);
         t = ``;
         for (let i = 0; i < nums.length; i++) {
-            t += alphabet[modularPow(+nums[i], +elements.privExp.value, +elements.mul.value) - 5] || nums[i];
+            t += alphabet[modularPow(nums[i], elements.privExp.value, elements.mul.value) - 5] || nums[i];
         }
         elements.msg2.value = t;
     });
