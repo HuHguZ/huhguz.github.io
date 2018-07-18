@@ -32,19 +32,6 @@ window.addEventListener(`load`, () => {
             return str.split(``).reverse().join(``);
         },
         modularPow = (base, exponenta, module) => {
-            // let bin = exponenta.toString(2),
-            //     results = [base],
-            //     res;
-            // for (let i = 1; i < bin.length; i++) {
-            //     results[i] = results[i - 1] ** 2 % module;
-            // }
-            // res = results[results.length - 1];
-            // for (let i = 1; i < bin.length; i++) {
-            //     if (+bin[i]) {
-            //         res = res * results[bin.length - i - 1] % module;
-            //     }
-            // }
-            // return res;
             base = new Big(base);
             exponenta = new Big(exponenta);
             module = new Big(module);
