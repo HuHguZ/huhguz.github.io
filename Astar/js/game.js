@@ -5,14 +5,16 @@
         ctx = canvas.getContext('2d'),
         w = canvas.width = window.innerWidth,
         h = canvas.height = window.innerHeight,
+        oldX, oldY,
         maze = [],
         end = {},
+        start = {},
         sw = Math.floor(w / scale),
         sh = Math.floor(h / scale),
         offset = w - (scale * sw),
-        person = {
-            x: 1,
-            y: 1,
+        mouse = {
+            x: 0,
+            y: 0
         },
         initialize = () => {
             sw = !(sw % 2) ? sw - 1 : sw;
@@ -20,81 +22,16 @@
             for (let i = 0; i < sw; i++) {
                 maze[i] = [];
                 for (let j = 0; j < sh; j++) {
-                    if (!i || i == sw - 1 || !j || j == sh - 1 || !(i % 2) || !(j % 2)) {
-                        maze[i][j] = 1;
-                    } else {
-                        maze[i][j] = 0;
-                    }
+                    maze[i][j] = 0;
                 }
             }
-            end.x = sw - 2;
+            start.x = start.y = 0;
+            end.x = sw - 1;
             end.y = sh - 1;
-            maze[end.x][end.y] = 0;
-        },
-        generateMaze = () => {
-            //https://habr.com/post/262345/ объяснение алгоритма
-            let unvisited = {},
-                unvCount = -1,
-                stack = [],
-                getUnvisitedNeighbors = (x, y) => {
-                    let neighbors = [];
-                    if (unvisited[`${x - 2},${y}`]) {
-                        neighbors.push(unvisited[`${x - 2},${y}`]);
-                    }
-                    if (unvisited[`${x + 2},${y}`]) {
-                        neighbors.push(unvisited[`${x + 2},${y}`]);
-                    }
-                    if (unvisited[`${x},${y - 2}`]) {
-                        neighbors.push(unvisited[`${x},${y - 2}`]);
-                    }
-                    if (unvisited[`${x},${y + 2}`]) {
-                        neighbors.push(unvisited[`${x},${y + 2}`]);
-                    }
-                    return neighbors;
-                };
-            for (let i = 0; i < sw; i++) {
-                for (let j = 0; j < sh; j++) {
-                    if ((i % 2) && (j % 2)) {
-                        unvisited[`${i},${j}`] = {
-                            x: i,
-                            y: j
-                        };
-                        unvCount++;
-                    }
-                }
-            }
-            let current = unvisited[`${1},${1}`];
-            delete unvisited[`${1},${1}`];
-            let interval = setInterval(() => {
-                drawMaze();
-                if (!unvCount) {
-                    let neigs = getUnvisitedNeighbors(current.x, current.y);
-                    if (neigs.length) {
-                        let pos = Math.random() * neigs.length ^ 0;
-                        stack.push(current);
-                        maze[neigs[pos].x == current.x ? current.x : neigs[pos].x > current.x ? neigs[pos].x - 1 : neigs[pos].x + 1][neigs[pos].y == current.y ? current.y : neigs[pos].y > current.y ? neigs[pos].y - 1 : neigs[pos].y + 1] = 0;
-                        current = neigs[pos];
-                        delete unvisited[`${current.x},${current.y}`];
-                        unvCount--;
-                    } else if (stack.length) {
-                        current = stack.pop();
-                    }
-                } else {
-                    for (let i = 1; i < sw - 1; i++) {
-                        for (let j = 1; j < sh - 1; j++) {
-                            maze[i][j] = 0;
-                        }
-                    }
-                    drawMaze();
-                    clearInterval(interval);
-                    // Astar();
-                }
-            }, 1);
         },
         Astar = () => {
             let cells = {},
                 open = {},
-                stack = [],
                 current,
                 path = [],
                 heuristic = (x1, y1, x2, y2) => (((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5),
@@ -114,8 +51,8 @@
                     }
                     return neighbors;
                 };
-            for (let i = 1; i < sw - 1; i++) {
-                for (let j = 1; j < sh - 1; j++) {
+            for (let i = 0; i < sw; i++) {
+                for (let j = 0; j < sh; j++) {
                     if (!maze[i][j]) {
                         cells[`${i},${j}`] = {
                             x: i,
@@ -125,16 +62,23 @@
                     }
                 }
             }
-            open[`${1},${1}`] = cells[`${1},${1}`];
-            open[`${1},${1}`].g = open[`${1},${1}`].h = open[`${1},${1}`].f = 0;
+            let prp = `${start.x},${start.y}`;
+            open[prp] = cells[prp];
+            open[prp].g = open[prp].h = open[prp].f = 0;
             let counter = 0,
                 f1 = true,
                 f2 = true;
-            setInterval(() => {
+            let interval = setInterval(() => {
                 if (f1) {
                     let minprop = Object.keys(open)[0],
-                        min = open[minprop].f;
-                    for (var prop in open) {
+                        min;
+                        if (open[minprop] == undefined) {
+                            f1 = f2 = false;
+                            return;
+                        } else {
+                            min = open[minprop].f;
+                        }
+                    for (let prop in open) {
                         if (min > open[prop].f) {
                             min = open[prop].f;
                             minprop = prop;
@@ -143,17 +87,19 @@
                     current = open[minprop];
                     delete open[minprop];
                     current.visited = 1;
-                    ctx.fillStyle = `red`;
-                    ctx.fillRect(current.x * scale, current.y * scale, scale, scale);
-                    ctx.fillStyle = `black`;
-                    if (current.x == end.x && current.y == end.y - 1) {
-                        f1 = !f1;
+                    if ((current.x != start.x || current.y != start.y) && (current.x != end.x || current.y != end.y)) {
+                        ctx.fillStyle = `red`;
+                        ctx.fillRect(current.x * scale, current.y * scale, scale, scale);
+                    }
+                    if (current.x == end.x && current.y == end.y) {
+                        f1 = false;
                     }
                     let neigs = getUnvisitedNeighbors(current.x, current.y);
                     for (let i = 0; i < neigs.length; i++) {
-                        ctx.fillStyle = `orange`;
-                        ctx.fillRect(neigs[i].x * scale, neigs[i].y * scale, scale, scale);
-                        ctx.fillStyle = `black`;
+                        if ((neigs[i].x != start.x || neigs[i].y != start.y) && (neigs[i].x != end.x || neigs[i].y != end.y)) {
+                            ctx.fillStyle = `orange`;
+                            ctx.fillRect(neigs[i].x * scale, neigs[i].y * scale, scale, scale);
+                        }
                         let g = current.g + 10,
                             h = heuristic(neigs[i].x, neigs[i].y, end.x, end.y),
                             f = g + h;
@@ -169,13 +115,11 @@
                     }
                 } else {
                     if (f2) {
-                        path.push(end);
-                        current = cells[`${end.x},${sh - 2}`];
-                        while (current) {
+                        current = cells[`${end.x},${end.y}`].whence;
+                        while (current.x != start.x || current.y != start.y) {
                             path.push(current);
                             current = current.whence;
                         }
-                        alert(path.length);
                         f2 = !f2;
                     }
                     if (counter < path.length) {
@@ -183,47 +127,69 @@
                         ctx.fillRect(path[counter].x * scale, path[counter].y * scale, scale, scale);
                         ctx.fillStyle = `black`;
                         counter++;
+                    } else {
+                        clearInterval(interval);
                     }
                 }
 
-            }, 10);
+            }, 1);
         },
         drawMaze = () => {
-            ctx.clearRect(0, 0, w, h); //ПОТОМ УБРАТЬ
-            ctx.fillStyle = `black`;
+            ctx.clearRect(0, 0, w, h);
             for (let i = 0; i < sw; i++) {
                 for (let j = 0; j < sh; j++) {
-                    if (maze[i][j]) {
-                        ctx.fillRect(i * scale, j * scale, scale, scale);
+                    if (i == start.x && j == start.y) {
+                        ctx.fillStyle = `#00f`;
+                    } else if (i == end.x && j == end.y) {
+                        ctx.fillStyle = `#e25300`;
+                    } else if (maze[i][j]) {
+                        ctx.fillStyle = `black`;
+                    } else {
+                        ctx.fillStyle = `white`;
                     }
+                    ctx.fillRect(i * scale, j * scale, scale, scale);
                 }
             }
+        },
+        cb = e => {
+            let x = Math.floor(e.offsetX / scale),
+                y = Math.floor(e.offsetY / scale);
+            if (x == oldX && y == oldY || (x == start.x && y == start.y) || (x == end.x && y == end.y) || maze[x] == undefined) {
+                return;
+            }
+            maze[x][y] = +!maze[x][y];
+            drawMaze();
+            oldX = x;
+            oldY = y;
         };
     initialize();
-    generateMaze();
     drawMaze();
-    document.addEventListener(`click`, e => {
-        maze[Math.floor(e.offsetX / scale)][Math.floor(e.offsetY / scale)] = +!maze[Math.floor(e.offsetX / scale)][Math.floor(e.offsetY / scale)];
-        drawMaze();
+    document.addEventListener(`mousedown`, () => {
+        document.addEventListener(`mousemove`, cb);
+        document.addEventListener(`mouseup`, () => {
+            document.removeEventListener(`mousemove`, cb);
+        });
     });
+    document.addEventListener(`mousemove`, e => {
+        mouse.x = Math.floor(e.offsetX / scale);
+        mouse.y = Math.floor(e.offsetY / scale);
+    });
+    document.addEventListener(`click`, cb);
     getElem(`res`).addEventListener(`click`, Astar);
     document.addEventListener(`keypress`, e => {
-        ctx.clearRect(person.x * scale, person.y * scale, scale, scale);
         if (e.key.match(/^[qй]$/i)) {
             Astar();
+        } else if (e.key.match(/^[sы]$/i)) {
+            start.x = mouse.x;
+            start.y = mouse.y;
+            maze[mouse.x][mouse.y] = 0;
+            drawMaze();
+        } else if (e.key.match(/^[eу]$/i)) {
+            end.x = mouse.x;
+            end.y = mouse.y;
+            maze[mouse.x][mouse.y] = 0;
+            drawMaze();
         }
-
-
-        if (e.key.match(/^[wц]$/i) && !maze[person.x][person.y - 1]) {
-            person.y--;
-        } else if (e.key.match(/^[фa]$/i) && !maze[person.x - 1][person.y]) {
-            person.x--;
-        } else if (e.key.match(/^[ыs]$/i) && !maze[person.x][person.y + 1]) {
-            person.y++;
-        } else if (e.key.match(/^[вd]$/i) && !maze[person.x + 1][person.y]) {
-            person.x++;
-        }
-        ctx.fillRect(person.x * scale, person.y * scale, scale, scale);
     });
 });
 
