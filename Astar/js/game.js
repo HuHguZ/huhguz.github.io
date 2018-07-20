@@ -16,22 +16,36 @@
             x: 0,
             y: 0
         },
-        initialize = () => {
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
-            sw = Math.floor(w / scale);
-            sh = Math.floor(h / scale);
-            sw = !(sw % 2) ? sw - 1 : sw;
-            sh = !(sh % 2) ? sh - 1 : sh;
-            for (let i = 0; i < sw; i++) {
-                maze[i] = [];
-                for (let j = 0; j < sh; j++) {
-                    maze[i][j] = 0;
+        initialize = obj => {
+            if (obj) {
+                let vals = obj.pop();
+                w = canvas.width = vals[0];
+                h = canvas.height = vals[1];
+                scale = vals[2];
+                sw = Math.floor(w / scale);
+                sh = Math.floor(h / scale);
+                sw = !(sw % 2) ? sw - 1 : sw;
+                sh = !(sh % 2) ? sh - 1 : sh;
+                maze = obj;
+                start = vals[3];
+                end = vals[4];
+            } else {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+                sw = Math.floor(w / scale);
+                sh = Math.floor(h / scale);
+                sw = !(sw % 2) ? sw - 1 : sw;
+                sh = !(sh % 2) ? sh - 1 : sh;
+                for (let i = 0; i < sw; i++) {
+                    maze[i] = [];
+                    for (let j = 0; j < sh; j++) {
+                        maze[i][j] = 0;
+                    }
                 }
+                start.x = start.y = 0;
+                end.x = sw - 1;
+                end.y = sh - 1;
             }
-            start.x = start.y = 0;
-            end.x = sw - 1;
-            end.y = sh - 1;
         },
         Astar = () => {
             let cells = {},
@@ -166,20 +180,31 @@
             drawMaze();
             oldX = x;
             oldY = y;
+        },
+        showElem = e => {
+            e.style.opacity = 1;
+            e.style.transform = 'scale(1, 1)';
+        },
+        hideElem = e => {
+            e.style.opacity = 0;
+            e.style.transform = 'scale(0, 0)';
         };
+        getElem(`close`).addEventListener(`click`, () => {
+            hideElem(getElem(`sv`));
+        });
     initialize();
     drawMaze();
-    document.addEventListener(`mousedown`, () => {
-        document.addEventListener(`mousemove`, cb);
-        document.addEventListener(`mouseup`, () => {
-            document.removeEventListener(`mousemove`, cb);
+    canvas.addEventListener(`mousedown`, () => {
+        this.addEventListener(`mousemove`, cb);
+        this.addEventListener(`mouseup`, () => {
+            this.removeEventListener(`mousemove`, cb);
         });
     });
-    document.addEventListener(`mousemove`, e => {
+    canvas.addEventListener(`mousemove`, e => {
         mouse.x = Math.floor(e.offsetX / scale);
         mouse.y = Math.floor(e.offsetY / scale);
     });
-    document.addEventListener(`click`, cb);
+    canvas.addEventListener(`click`, cb);
     getElem(`res`).addEventListener(`click`, Astar);
     document.addEventListener(`keypress`, e => {
         if (e.key.match(/^[qй]$/i)) {
@@ -213,6 +238,15 @@
         } else if (e.key.match(/^[uг]$/i)) {
             scale = +prompt(`Введите новый масштаб`, scale) || scale;
             initialize();
+            drawMaze();
+        } else if (e.key.match(/^[zя]$/i)) {
+            let mz = maze.slice();
+            mz.push([w, h, scale, start, end]);
+            showElem(getElem(`sv`));
+            getElem(`save`).value = JSON.stringify(mz);
+        } else if (e.key.match(/^[xч]$/i)) {
+            let save = JSON.parse(prompt(`Вставьте сохранение сюда: `));
+            initialize(save);
             drawMaze();
         }
     });

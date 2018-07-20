@@ -10,3 +10,18 @@ body {
     bottom: 0;
     left: 50%;
 }
+#sv {
+    position: absolute;
+    top: 0;
+    left: 25%;
+    width: 50%;
+    top: 2%;
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 20px;
+    padding: 10px;
+    font-family: Comic Sans MS;
+    text-align: center;
+    font-size: 18px;
+    transform: scale(0, 0);
+}
