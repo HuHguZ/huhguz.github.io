@@ -1,22 +1,26 @@
 ﻿window.addEventListener('load', function() {
     let getElem = id => document.getElementById(id),
-        scale = 40,
+        scale = 30,
         canvas = getElem('canvas'),
         ctx = canvas.getContext('2d'),
-        w = canvas.width = window.innerWidth,
-        h = canvas.height = window.innerHeight,
+        w,
+        h,
         oldX, oldY,
         maze = [],
         end = {},
         start = {},
-        sw = Math.floor(w / scale),
-        sh = Math.floor(h / scale),
+        sw,
+        sh,
         offset = w - (scale * sw),
         mouse = {
             x: 0,
             y: 0
         },
         initialize = () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            sw = Math.floor(w / scale);
+            sh = Math.floor(h / scale);
             sw = !(sw % 2) ? sw - 1 : sw;
             sh = !(sh % 2) ? sh - 1 : sh;
             for (let i = 0; i < sw; i++) {
@@ -72,12 +76,12 @@
                 if (f1) {
                     let minprop = Object.keys(open)[0],
                         min;
-                        if (open[minprop] == undefined) {
-                            f1 = f2 = false;
-                            return;
-                        } else {
-                            min = open[minprop].f;
-                        }
+                    if (open[minprop] == undefined) {
+                        f1 = f2 = false;
+                        return;
+                    } else {
+                        min = open[minprop].f;
+                    }
                     for (let prop in open) {
                         if (min > open[prop].f) {
                             min = open[prop].f;
@@ -88,7 +92,8 @@
                     delete open[minprop];
                     current.visited = 1;
                     if ((current.x != start.x || current.y != start.y) && (current.x != end.x || current.y != end.y)) {
-                        ctx.fillStyle = `red`;
+                        let p = heuristic(current.x, current.y, end.x, end.y) / heuristic(start.x, start.y, end.x, end.y);
+                        ctx.fillStyle = `rgb(${Math.floor(p * 255)}, ${Math.floor((1 - p) * 255)}, 0)`;
                         ctx.fillRect(current.x * scale, current.y * scale, scale, scale);
                     }
                     if (current.x == end.x && current.y == end.y) {
@@ -96,10 +101,6 @@
                     }
                     let neigs = getUnvisitedNeighbors(current.x, current.y);
                     for (let i = 0; i < neigs.length; i++) {
-                        if ((neigs[i].x != start.x || neigs[i].y != start.y) && (neigs[i].x != end.x || neigs[i].y != end.y)) {
-                            ctx.fillStyle = `orange`;
-                            ctx.fillRect(neigs[i].x * scale, neigs[i].y * scale, scale, scale);
-                        }
                         let g = current.g + 10,
                             h = heuristic(neigs[i].x, neigs[i].y, end.x, end.y),
                             f = g + h;
@@ -111,6 +112,11 @@
                             if (!open[`${neigs[i].x},${neigs[i].y}`]) {
                                 open[`${neigs[i].x},${neigs[i].y}`] = neigs[i];
                             }
+                        }
+                        if ((neigs[i].x != start.x || neigs[i].y != start.y) && (neigs[i].x != end.x || neigs[i].y != end.y)) {
+                            let p = neigs[i].h / heuristic(start.x, start.y, end.x, end.y);
+                            ctx.fillStyle = `rgb(${Math.floor((1 - p) * 255)}, ${Math.floor(p * 255)}, 0)`;
+                            ctx.fillRect(neigs[i].x * scale, neigs[i].y * scale, scale, scale);
                         }
                     }
                 } else {
@@ -125,7 +131,6 @@
                     if (counter < path.length) {
                         ctx.fillStyle = `green`;
                         ctx.fillRect(path[counter].x * scale, path[counter].y * scale, scale, scale);
-                        ctx.fillStyle = `black`;
                         counter++;
                     } else {
                         clearInterval(interval);
@@ -141,7 +146,7 @@
                     if (i == start.x && j == start.y) {
                         ctx.fillStyle = `#00f`;
                     } else if (i == end.x && j == end.y) {
-                        ctx.fillStyle = `#e25300`;
+                        ctx.fillStyle = `#ff00e1`;
                     } else if (maze[i][j]) {
                         ctx.fillStyle = `black`;
                     } else {
@@ -179,30 +184,36 @@
     document.addEventListener(`keypress`, e => {
         if (e.key.match(/^[qй]$/i)) {
             Astar();
-        } else if (e.key.match(/^[sы]$/i)) {
+        } else if (e.key.match(/^[sы]$/i) && (mouse.x != end.x || mouse.y != end.y)) {
             start.x = mouse.x;
             start.y = mouse.y;
             maze[mouse.x][mouse.y] = 0;
             drawMaze();
-        } else if (e.key.match(/^[eу]$/i)) {
+        } else if (e.key.match(/^[eу]$/i) && (mouse.x != start.x || mouse.y != start.y)) {
             end.x = mouse.x;
             end.y = mouse.y;
             maze[mouse.x][mouse.y] = 0;
             drawMaze();
+        } else if (e.key.match(/^[cс]$/i)) {
+            for (let i = 0; i < sw; i++) {
+                for (let j = 0; j < sh; j++) {
+                    maze[i][j] = 0;
+                }
+            }
+            drawMaze();
+        } else if (e.key.match(/^[fа]$/i)) {
+            for (let i = 0; i < sw; i++) {
+                for (let j = 0; j < sh; j++) {
+                    maze[i][j] = (i != start.x || j != start.y) && (i != end.x || j != end.y) ? 1 : 0;
+                }
+            }
+            drawMaze();
+        } else if (e.key.match(/^[dв]$/i)) {
+            drawMaze();
+        } else if (e.key.match(/^[uг]$/i)) {
+            scale = +prompt(`Введите новый масштаб`, scale) || scale;
+            initialize();
+            drawMaze();
         }
     });
 });
-
-
-
-
-
-
-
-
-
-// ctx.beginPath();
-// ctx.lineWidth = scale;
-// ctx.moveTo(0, scale/2);
-// ctx.lineTo(scale * sw, scale/2);
-// ctx.stroke();
