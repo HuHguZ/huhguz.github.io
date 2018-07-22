@@ -1,6 +1,6 @@
 ﻿window.addEventListener('load', function() {
     let getElem = id => document.getElementById(id),
-        scale = 10,
+        scale = 20,
         canvas = getElem('canvas'),
         ctx = canvas.getContext('2d'),
         w = canvas.width = window.innerWidth,
@@ -10,6 +10,8 @@
         sw = Math.floor(w / scale),
         sh = Math.floor(h / scale),
         offset = w - (scale * sw),
+        images = [],
+        imagesCount = 225,
         person = {
             x: 1,
             y: 1,
@@ -115,8 +117,8 @@
             open[`${1},${1}`] = cells[`${1},${1}`];
             open[`${1},${1}`].g = open[`${1},${1}`].h = open[`${1},${1}`].f = 0;
             while (1) {
-            let minprop = Object.keys(open)[0],
-                min = open[minprop].f;
+                let minprop = Object.keys(open)[0],
+                    min = open[minprop].f;
                 for (var prop in open) {
                     if (min >= open[prop].f) {
                         min = open[prop].f;
@@ -151,8 +153,7 @@
                 path.push(current);
                 current = current.whence;
             }
-                            ctx.fillStyle = `green`;
-
+            ctx.fillStyle = `green`;
             for (let i = 0; i < path.length; i++) {
                 ctx.fillRect(path[i].x * scale, path[i].y * scale, scale, scale);
             }
@@ -163,15 +164,25 @@
             for (let i = 0; i < sw; i++) {
                 for (let j = 0; j < sh; j++) {
                     if (maze[i][j]) {
-                        ctx.fillRect(i * scale, j * scale, scale, scale);
+                        ctx.drawImage(images[p1], i * scale, j * scale, scale, scale);
+                    } else {
+                        ctx.drawImage(images[p2], i * scale, j * scale, scale, scale);
                     }
-                }
+                } 
             }
         };
+    for (let i = 1; i <= 225; i++) {
+        let img = new Image();
+        img.src = `pictures/block (${i}).png`;
+        // img.onload = load;
+        images.push(img);
+    }
+    let p1 = Math.random() * images.length ^ 0, p2 = Math.random() * images.length ^ 0;
+    console.log(images);
     initialize();
     generateMaze();
-    drawMaze();
-    Astar();
+    setTimeout(drawMaze, 200);
+    // Astar();
     ctx.fillStyle = `blue`;
     ctx.fillRect(person.x * scale, person.y * scale, scale, scale);
     document.addEventListener(`keypress`, e => {

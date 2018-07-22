@@ -170,6 +170,66 @@
                 }
             }
         },
+        generateMaze = () => {
+            let unvisited = {},
+                unvCount = -1,
+                stack = [],
+                getUnvisitedNeighbors = (x, y) => {
+                    let neighbors = [];
+                    if (unvisited[`${x - 2},${y}`]) {
+                        neighbors.push(unvisited[`${x - 2},${y}`]);
+                    }
+                    if (unvisited[`${x + 2},${y}`]) {
+                        neighbors.push(unvisited[`${x + 2},${y}`]);
+                    }
+                    if (unvisited[`${x},${y - 2}`]) {
+                        neighbors.push(unvisited[`${x},${y - 2}`]);
+                    }
+                    if (unvisited[`${x},${y + 2}`]) {
+                        neighbors.push(unvisited[`${x},${y + 2}`]);
+                    }
+                    return neighbors;
+                };
+            for (let i = 0; i < sw; i++) {
+                for (let j = 0; j < sh; j++) {
+                    if (!i || i == sw - 1 || !j || j == sh - 1 || !(i % 2) || !(j % 2)) {
+                        maze[i][j] = 1;
+                    } else {
+                        maze[i][j] = 0;
+                    }
+                }
+            }
+            start.x = start.y = 1;
+            end.x = sw - 2;
+            end.y = sh - 1;
+            maze[end.x][end.y] = 0;
+            for (let i = 0; i < sw; i++) {
+                for (let j = 0; j < sh; j++) {
+                    if ((i % 2) && (j % 2)) {
+                        unvisited[`${i},${j}`] = {
+                            x: i,
+                            y: j
+                        };
+                        unvCount++;
+                    }
+                }
+            }
+            let current = unvisited[`${1},${1}`];
+            delete unvisited[`${1},${1}`];
+            while (unvCount) {
+                let neigs = getUnvisitedNeighbors(current.x, current.y);
+                if (neigs.length) {
+                    let pos = Math.random() * neigs.length ^ 0;
+                    stack.push(current);
+                    maze[neigs[pos].x == current.x ? current.x : neigs[pos].x > current.x ? neigs[pos].x - 1 : neigs[pos].x + 1][neigs[pos].y == current.y ? current.y : neigs[pos].y > current.y ? neigs[pos].y - 1 : neigs[pos].y + 1] = 0;
+                    current = neigs[pos];
+                    delete unvisited[`${current.x},${current.y}`];
+                    unvCount--;
+                } else if (stack.length) {
+                    current = stack.pop();
+                }
+            }
+        },
         cb = e => {
             let x = Math.floor(e.offsetX / scale),
                 y = Math.floor(e.offsetY / scale);
@@ -189,9 +249,9 @@
             e.style.opacity = 0;
             e.style.transform = 'scale(0, 0)';
         };
-        getElem(`close`).addEventListener(`click`, () => {
-            hideElem(getElem(`sv`));
-        });
+    getElem(`close`).addEventListener(`click`, () => {
+        hideElem(getElem(`sv`));
+    });
     initialize();
     drawMaze();
     canvas.addEventListener(`mousedown`, () => {
@@ -247,6 +307,9 @@
         } else if (e.key.match(/^[xч]$/i)) {
             let save = JSON.parse(prompt(`Вставьте сохранение сюда: `));
             initialize(save);
+            drawMaze();
+        } else if (e.key.match(/^[mь]$/i)) {
+            generateMaze();
             drawMaze();
         }
     });
