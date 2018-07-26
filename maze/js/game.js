@@ -6,14 +6,19 @@
         ctx = canvas.getContext('2d'),
         w = canvas.width = window.innerWidth,
         h = canvas.height = window.innerHeight,
+        t1, t2,
+        st1 = 0,
+        st2,
         maze = [],
         end = {},
         sw,
         sh,
         ff = false,
+        canMove = true,
         images = [],
         persons = [],
         imagesCount = 196,
+        level = 0,
         personCount = 55,
         loadCount = 0,
         person = {
@@ -25,6 +30,14 @@
             w: 500,
             h: 50,
             color: '#000000'
+        },
+        showElem = e => {
+            e.style.opacity = 1;
+            e.style.transform = 'scale(0.9, 0.9)';
+        },
+        hideElem = e => {
+            e.style.opacity = 0;
+            e.style.transform = 'scale(0, 0)';
         },
         load = () => {
             loadCount++;
@@ -112,7 +125,8 @@
             }
         },
         Astar = () => {
-            let cells = {},
+            let b = performance.now(),
+                cells = {},
                 open = {},
                 stack = [],
                 current,
@@ -178,19 +192,19 @@
                     }
                 }
             }
-            path.push(end);
+            t2 = ((performance.now() - b) / 1000).toFixed(4);
             current = cells[`${end.x},${sh - 2}`];
             while (current) {
                 path.push(current);
                 current = current.whence;
             }
-            ctx.fillStyle = `green`;
+            st2 = path.length;
             for (let i = 0; i < path.length; i++) {
-                ctx.fillRect(path[i].x * scale, path[i].y * scale, scale, scale);
+                ctx.drawImage(images[12], path[i].x * scale, path[i].y * scale, scale, scale);
             }
         },
         drawMaze = () => {
-            ctx.clearRect(0, 0, w, h); //ПОТОМ УБРАТЬ
+            ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = `black`;
             for (let i = 0; i < sw; i++) {
                 for (let j = 0; j < sh; j++) {
@@ -210,44 +224,69 @@
             drawMaze();
             ctx.drawImage(persons[person.num], person.x * scale, person.y * scale, scale, scale);
             document.onkeypress = e => {
-                let b = false;
-                ctx.clearRect(person.x * scale, person.y * scale, scale, scale);
-                ctx.drawImage(images[p2], person.x * scale, person.y * scale, scale, scale);
-                ctx.save();
-                if (e.key.match(/^[wц]$/i) && !maze[person.x][person.y - 1]) {
-                    person.y--;
-                } else if (e.key.match(/^[фa]$/i)) {
-                    if (!maze[person.x - 1][person.y]) {
-                        person.x--;
+                if (canMove) {
+                    let b = false;
+                    ctx.clearRect(person.x * scale, person.y * scale, scale, scale);
+                    ctx.drawImage(images[p2], person.x * scale, person.y * scale, scale, scale);
+                    ctx.save();
+                    if (e.key.match(/^[wц]$/i) && !maze[person.x][person.y - 1]) {
+                        person.y--;
+                        st1++;
+                    } else if (e.key.match(/^[фa]$/i)) {
+                        if (!maze[person.x - 1][person.y]) {
+                            st1++;
+                            person.x--;
+                        }
+                        ff = false;
+                    } else if (e.key.match(/^[ыs]$/i) && !maze[person.x][person.y + 1]) {
+                        person.y++;
+                        st1++;
+                    } else if (e.key.match(/^[вd]$/i)) {
+                        if (!maze[person.x + 1][person.y]) {
+                            st1++;
+                            ctx.translate(person.x * scale + scale, 0);
+                            person.x++;
+                            ctx.scale(-1, 1);
+                            ctx.translate(-(person.x * scale + scale), 0);
+                            ff = b = true;
+                        }
+                        ff = true;
                     }
-                    ff = false;
-                } else if (e.key.match(/^[ыs]$/i) && !maze[person.x][person.y + 1]) {
-                    person.y++;
-                } else if (e.key.match(/^[вd]$/i)) {
-                    if (!maze[person.x + 1][person.y]) {
-                        ctx.translate(person.x * scale + scale, 0);
-                        person.x++;
+                    if (ff && !b) {
+                        ctx.translate((person.x - 1) * scale + scale, 0);
                         ctx.scale(-1, 1);
                         ctx.translate(-(person.x * scale + scale), 0);
-                        ff = b = true;
                     }
-                    ff = true;
-                }
-                if (ff && !b) {
-                    ctx.translate((person.x - 1) * scale + scale, 0);
-                    ctx.scale(-1, 1);
-                    ctx.translate(-(person.x * scale + scale), 0);
-                }
-                ctx.drawImage(persons[person.num], person.x * scale, person.y * scale, scale, scale);
-                ctx.restore();
-                if (person.x == end.x && person.y == end.y) {
-                    if (scale - 5 >= 1) {
-                        scale -= 5;
+                    ctx.drawImage(persons[person.num], person.x * scale, person.y * scale, scale, scale);
+                    ctx.restore();
+                    if (e.key.match(/^[jо]$/i)) {
+                        let old = level;
+                        level = +prompt(`Введите уровень, на который хотите переместиться`) || level;
+                        level = level < 0 ? 0 : level;
+                        scale = level > old ? scale - (5 * (level - old)) : scale + (5 * (old - level));
+                        scale = scale < 0 ? 1 : scale;
+                        st1 = 0;
+                        start();
                     }
-                    start();
+                    if (person.x == end.x && person.y == end.y && canMove) {
+                        canMove = false;
+                        Astar();
+                        if (scale - 5 >= 1) {
+                            scale -= 5;
+                        }
+                        getElem(`info`).innerHTML = `<h1>Уровень ${level++} пройден!</h1>Вами потрачено времени: ${((performance.now() - t1)/1000).toFixed(4)} sec<br>Компьютером: ${t2} sec<br>Шагов вами сделано: ${st1}<br>Компьютером: ${st2}`;
+                        st1 = 0;
+                        showElem(getElem(`finish`));
+                    }
                 }
             };
+            t1 = performance.now();
         };
+    getElem(`next`).addEventListener(`click`, () => {
+        canMove = true;
+        hideElem(getElem(`finish`));
+        start();
+    });
     for (let i = 1; i <= imagesCount; i++) {
         let img = new Image();
         img.src = `pictures/blocks/block (${i}).png`;
@@ -260,10 +299,10 @@
         img.onload = load;
         persons.push(img);
     }
-    let int = setInterval(() => {
+    let interval = setInterval(() => {
         if (loadCount === imagesCount + personCount) {
             start();
-            clearInterval(int);
+            clearInterval(interval);
         }
     }, 20);
 });

@@ -1,12 +1,32 @@
+@font-face {
+    font-family: Minecraft; /* Имя шрифта */
+    src: url(mine.ttf); /* Путь к файлу со шрифтом */
+}
 * {
     transition-duration: 0.7s;
 }
 body {
     padding: 0;
     margin: 0;
-    /*background: linear-gradient(to top left, powderblue, pink);*/
-    /*background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;*/
-
+}
+#finish {
+    position: absolute;
+    top: 0;
+    left: 25%;
+    width: 50%;
+    top: 2%;
+    background-color: white;
+    border-radius: 20px;
+    padding: 10px;
+    font-family: Minecraft;
+    text-align: center;
+    font-size: 18px;
+    transform: scale(0, 0);
+    background-image: url(back.jpg);
+    background-size: (100%,100%);
+}
+#next {
+    margin-top: 5px;
+    font-family: Minecraft;
+    font-size: 18px;
 }
