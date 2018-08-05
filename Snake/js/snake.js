@@ -29,6 +29,7 @@ $('document').ready(function() {
         settings = false,
         spmod = false,
         death = false,
+        cells = {},
         points = [],
         food = [],
         foodColor = [],
@@ -44,7 +45,7 @@ $('document').ready(function() {
     }
 
     function randomKey() {
-        var a = ['w', 'a', 's', 'd'];
+        var a = `wasd`;
         return a[Math.random() * a.length ^ 0];
     }
 
@@ -196,72 +197,143 @@ $('document').ready(function() {
         return n;
     }
 
-    function checkPosition(moveX, moveY) {
-        for (var i = 2; i <= segmentCount; i += 2) {
-            if (player[0] + moveX === player[i] && player[1] + moveY === player[i + 1]) {
-                return true;
+    function JSsort(func, a, ...args) {
+        let i = -1,
+            c = [],
+            res;
+        let upgrade = (f) => ((...args) => (res = f.apply(this, args), c.push(res), res));
+        func = upgrade(func);
+        a.sort(func);
+        for (let j = 0; j < args.length; j++) {
+            args[j].sort(() => (i++, c[i]));
+            i = -1;
+        }
+    }
+
+    function Astar(map, start, end) {
+        let open = {},
+            current,
+            path = [],
+            heuristic = (x1, y1, x2, y2) => (((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5),
+            getUnvisitedNeighbors = (x, y) => {
+                let neighbors = [];
+                if (cells[`${x - 1},${y}`] && !cells[`${x - 1},${y}`].visited) {
+                    neighbors.push(cells[`${x - 1},${y}`]);
+                }
+                if (cells[`${x + 1},${y}`] && !cells[`${x + 1},${y}`].visited) {
+                    neighbors.push(cells[`${x + 1},${y}`]);
+                }
+                if (cells[`${x},${y - 1}`] && !cells[`${x},${y - 1}`].visited) {
+                    neighbors.push(cells[`${x},${y - 1}`]);
+                }
+                if (cells[`${x},${y + 1}`] && !cells[`${x},${y + 1}`].visited) {
+                    neighbors.push(cells[`${x},${y + 1}`]);
+                }
+                return neighbors;
+            };
+        // i = y j = x
+        cells = {};
+        for (let i = 0; i < gameh; i++) {
+            for (let j = 0; j < gamew; j++) {
+                if (!map[i][j]) {
+                    cells[`${j},${i}`] = {
+                        x: j,
+                        y: i,
+                        visited: 0
+                    };
+                }
             }
         }
-        return false;
+        let str = `${start.x},${start.y}`;
+        open[str] = cells[str];
+        open[str].g = open[str].h = open[str].f = 0;
+        while (1) {
+            if (!Object.keys(open).length) {
+                return;
+            }
+            let minprop = Object.keys(open)[0],
+                min = open[minprop].f;
+            for (var prop in open) {
+                if (min >= open[prop].f) {
+                    min = open[prop].f;
+                    minprop = prop;
+                }
+            }
+            current = open[minprop];
+            delete open[minprop];
+            current.visited = 1;
+            if (current.x == end.x && current.y == end.y) {
+                break;
+            }
+            let neigs = getUnvisitedNeighbors(current.x, current.y);
+            for (let i = 0; i < neigs.length; i++) {
+                let g = current.g + 10,
+                    h = heuristic(neigs[i].x, neigs[i].y, end.x, end.y),
+                    f = g + h;
+                if (!neigs[i].f || f < neigs[i].f || !open[`${neigs[i].x},${neigs[i].y}`]) {
+                    neigs[i].g = g;
+                    neigs[i].h = h;
+                    neigs[i].f = f;
+                    neigs[i].whence = current;
+                    if (!open[`${neigs[i].x},${neigs[i].y}`]) {
+                        open[`${neigs[i].x},${neigs[i].y}`] = neigs[i];
+                    }
+                }
+            }
+        }
+        current = cells[`${end.x},${end.y}`];
+        while (current) {
+            path.push(current);
+            current = current.whence;
+        }
+        return path;
     }
 
     function aiPlayer() {
         var distances = [],
             ind = [],
-            distance,
+            distance, map = [],
             k;
         for (var i = 0; i < foodCount * 2; i += 2) {
+            ind.push(distances.length);
             distances[distances.length] = Math.sqrt(Math.pow(player[0] - food[i], 2) + Math.pow(player[1] - food[i + 1], 2));
         }
-        for (var i = 0; i < distances.length; i++) {
-            ind[i] = i;
-        }
-        for (var i = 0; i < distances.length - 1; i++) {
-            for (var j = 0; j < distances.length - i - 1; j++) {
-                if (distances[j] > distances[j + 1]) {
-                    k = distances[j];
-                    distances[j] = distances[j + 1];
-                    distances[j + 1] = k;
-                    k = ind[j];
-                    ind[j] = ind[j + 1];
-                    ind[j + 1] = k;
-                }
+        JSsort((a, b) => a - b, distances, ind);
+        for (var i = 0; i < gameh; i++) {
+            map[i] = [];
+            for (var j = 0; j < gamew; j++) {
+                map[i][j] = 0;
             }
         }
+        for (var i = 2; i < player.length - 1; i += 2) {
+            if (map[Math.floor(player[i + 1] / scale)]) {
+                map[Math.floor(player[i + 1] / scale)][Math.floor(player[i] / scale)] = 1;
+            }
+        }
+        var x = player[0],
+            y = player[1];
         segmentMove();
-        if (player[0] > food[ind[0] * 2]) {
-            if (checkPosition(-scale, 0)) {
-                player[1] += scale;
-                direction = 2;
-            } else {
-                player[0] -= scale;
-                direction = 3;
-            }
-        } else if (player[0] < food[ind[0] * 2]) {
-            if (checkPosition(+scale, 0)) {
-                player[1] += scale;
-                direction = 2;
-            } else {
-                player[0] += scale;
-                direction = 1;
-            }
-        } else if (player[1] > food[ind[0] * 2 + 1]) {
-            if (checkPosition(0, -scale)) {
-                player[0] += scale;
-                direction = 1;
-            } else {
-                player[1] -= scale;
-                direction = 0;
-            }
-        } else if (player[1] < food[ind[0] * 2 + 1]) {
-            if (checkPosition(0, +scale)) {
-                player[0] += scale;
-                direction = 1;
-            } else {
-                player[1] += scale;
-                direction = 2;
-            }
+        var a = Astar(map, {
+                x: Math.floor(x / scale),
+                y: Math.floor(y / scale)
+            }, {
+                x: Math.floor(food[ind[0] * 2] / scale),
+                y: Math.floor(food[ind[0] * 2 + 1] / scale)
+            }),
+            pos = 1;
+        while (!a && ind[pos]) {
+            a = Astar(map, {
+                x: Math.floor(x / scale),
+                y: Math.floor(y / scale)
+            }, {
+                x: Math.floor(food[ind[pos] * 2] / scale),
+                y: Math.floor(food[ind[pos] * 2 + 1] / scale)
+            });
+            pos++;
         }
+        // console.log(player, x / scale, Math.floor(y / scale), Math.floor(food[ind[0] * 2] / scale), Math.floor(food[ind[0] * 2 + 1] / scale), a);
+        player[0] = a[a.length - 2].x * scale;
+        player[1] = a[a.length - 2].y * scale;
     }
 
     function move() {
@@ -345,8 +417,16 @@ $('document').ready(function() {
                 if (player[0] === food[i] && player[1] === food[i + 1]) {
                     points.push(player[0], player[1]);
                     size[size.length] = scale;
-                    food[i] = Math.floor(Math.random() * gamew) * scale;
-                    food[i + 1] = Math.floor(Math.random() * gameh) * scale;
+                    delete cells[`${player[0] / scale},${player[1] / scale}`];
+                    var props = Object.keys(cells);
+                    if (props.length) {
+                        var rndplc = cells[props[Math.random() * props.length ^ 0]];
+                        food[i] = rndplc.x * scale;
+                        food[i + 1] = rndplc.y * scale;
+                    } else {
+                        food[i] = Math.floor(Math.random() * gamew) * scale;
+                        food[i + 1] = Math.floor(Math.random() * gameh) * scale;
+                    }
                     if (spmod) {
                         playerColor[playerColor.length] = foodColor[i / 2];
                     } else {
@@ -388,7 +468,7 @@ $('document').ready(function() {
     }
 
     function segmentMove() {
-            for (var i = segmentCount; i > 1; i -= 2) {
+        for (var i = segmentCount; i > 1; i -= 2) {
             player[i] = player[i - 2];
             player[i + 1] = player[i - 1];
             if (player[i] > (gamew - 1) * scale) {
