@@ -311,6 +311,14 @@
         } else if (e.key.match(/^[mь]$/i)) {
             generateMaze();
             drawMaze();
+        } else if (e.key.match(/^[iш]$/i)) {
+            for (let i = 0; i < sw; i++) {
+                for (let j = 0; j < sh; j++) {
+                    maze[i][j] = !maze[i][j];
+                }
+            }
+            maze[start.x][start.y] = maze[end.x][end.y] = 0;
+            drawMaze();
         }
     });
 });
