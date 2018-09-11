@@ -11,13 +11,31 @@
         checkValue = num => function() {
             this.value = +this.value <= num ? num : this.value;
         },
+        findMin = arr => {
+            let min = arr[0];
+            for (let i = 1; i < arr.length; i++) {
+                if (arr[i] < min) {
+                    min = arr[i];
+                }
+            }
+            return min;
+        },
+        findMax = arr => {
+            let max = arr[0];
+            for (let i = 1; i < arr.length; i++) {
+                if (arr[i] > max) {
+                    max = arr[i];
+                }
+            }
+            return max;
+        },
         calc = () => {
             let dt = new Function(``, data.value)(),
                 grpscount = +groups.value,
                 acc = +accuracy.value,
                 minbs = +minobs.value,
-                min = Math.min(...dt),
-                max = Math.max(...dt),
+                min = findMin(dt),
+                max = findMax(dt),
                 frequencies = [],
                 tableOfFrequencies = [`<table class="t"><tr><td>X<sub>i</sub></td>`, ``, `</tr><tr><td>Частота</td>`, ``, `</tr></table><br>`],
                 tableOfFullFrequencies = [`<table class="t"><tr><td>X<sub>i</sub></td>`, ``, `</tr><tr><td>Частота</td>`, ``, `</tr><tr><td>Относительная частота</td>`, ``, `</tr><tr><td>Плотность относительной частоты</td>`, ``, `</tr></table><br>`], //1 3 5 7
@@ -75,7 +93,6 @@
                 vsd = vd ** 0.5,
                 ivd = l / (l - 1) * vd,
                 ivso = ivd ** 0.5;
-                console.log(dt.reduce((sum, e) => sum + e ** 2, 0));
             res += `<table class="t"><tr><td>Выборочная средняя X<sub>в</sub></td><td>Выборочная дисперсия</td><td>Выборочное среднеквадратическое отклонение</td><td>Исправленная выборочная дисперсия</td><td>Исправленное выборочное среднеквадратическое отклонение</td></tr><tr><td>${xv.toFixed(acc)}</td><td>${vd.toFixed(acc)}</td><td>${vsd.toFixed(acc)}</td><td>${ivd.toFixed(acc)}</td><td>${ivso.toFixed(acc)}</td></tr></table>`;
             out.innerHTML = res.replace(/\./g, `,`);
             let s = `Исходные данные с индексами<br>`;
