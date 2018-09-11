@@ -20,7 +20,7 @@
                 max = Math.max(...dt),
                 frequencies = [],
                 tableOfFrequencies = [`<table class="t"><tr><td>X<sub>i</sub></td>`, ``, `</tr><tr><td>Частота</td>`, ``, `</tr></table><br>`],
-                tableOfFullFrequencies = [`<table class="t"><tr><td>X<sub>i</sub></td>`, ``, `</tr><tr><td>Частота</td>`, ``, `</tr><tr><td>Относительная частота</td>`, ``, `</tr><tr><td>Плотность относительной частоты</td>`, ``, `</tr></table>`], //1 3 5 7
+                tableOfFullFrequencies = [`<table class="t"><tr><td>X<sub>i</sub></td>`, ``, `</tr><tr><td>Частота</td>`, ``, `</tr><tr><td>Относительная частота</td>`, ``, `</tr><tr><td>Плотность относительной частоты</td>`, ``, `</tr></table><br>`], //1 3 5 7
                 grps = [min],
                 integrate = (p1, p2, f) => {
                     frequencies[p1] = (frequencies[p1 - +!!f] || 0) + (frequencies[p2] || 0);
@@ -70,8 +70,14 @@
                 tableOfFullFrequencies[7] += `<td>${relativeFrequencyDensity.toFixed(acc)}</td>`;
             }
             res += tableOfFullFrequencies.join(``);
-            res += out.innerHTML = res.replace(/\./g, `,`);
-            // grps[i] = grps[i].map(e => e.toFixed(acc));
+            let xv = dt.reduce((sum, e) => sum + e) / l,
+                vd = dt.reduce((sum, e) => sum + e ** 2, 0) / l - xv ** 2,
+                vsd = vd ** 0.5,
+                ivd = l / (l - 1) * vd,
+                ivso = ivd ** 0.5;
+                console.log(dt.reduce((sum, e) => sum + e ** 2, 0));
+            res += `<table class="t"><tr><td>Выборочная средняя X<sub>в</sub></td><td>Выборочная дисперсия</td><td>Выборочное среднеквадратическое отклонение</td><td>Исправленная выборочная дисперсия</td><td>Исправленное выборочное среднеквадратическое отклонение</td></tr><tr><td>${xv.toFixed(acc)}</td><td>${vd.toFixed(acc)}</td><td>${vsd.toFixed(acc)}</td><td>${ivd.toFixed(acc)}</td><td>${ivso.toFixed(acc)}</td></tr></table>`;
+            out.innerHTML = res.replace(/\./g, `,`);
             let s = `Исходные данные с индексами<br>`;
             for (let i = 0; i < dt.length; i++) {
                 s += `${i + 1}: ${dt[i]}<br>`
