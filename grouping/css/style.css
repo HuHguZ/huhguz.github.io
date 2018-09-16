@@ -17,7 +17,11 @@ body {
     margin: 0 auto;
     border-collapse: collapse;
     text-align: center;
-    max-width: 70%;
+    max-width: 90%;
+}
+.h {
+    font-size: 20px;
+    font-weight: bold;
 }
 td {
     border: 1px solid black;
