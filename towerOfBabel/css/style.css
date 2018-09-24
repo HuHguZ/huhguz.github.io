@@ -1,0 +1,15 @@
+* {
+    transition-duration: 0.35s;
+    font-family: Calibri;
+    font-size: 16px;
+}
+body {
+    padding: 0;
+    margin: 0;
+}
+#main {
+    text-align: center;
+}
+#start {
+    margin-top: 10px;
+}

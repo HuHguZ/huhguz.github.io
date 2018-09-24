@@ -108,7 +108,6 @@
                 t3[1] += `<tr><td>${grps[i].toFixed(acc)}-${grps[i + 1].toFixed(acc)}</td><td>${frequencies[i]}</td><td>${!i ? `-${s}` : zi.toFixed(acc)}</td><td>${i == frequencies.length - 1 ? `+${s}` : zi1.toFixed(acc)}</td><td>${fzi.toFixed(acc)}</td><td>${fzi1.toFixed(acc)}</td><td>${pi.toFixed(acc)}</td><td>${npi.toFixed(acc)}</td><td>?</td></tr>`;
             }
             res += t3.join(``);
-            console.log(res);
             return res.replace(/(\d)\./g, `$1,`);
         },
         f = () => {
