@@ -170,9 +170,9 @@
                 }
                 correlationField[5] += `<td>${d1.length}</td></tr>`;
             } else {
-                correlationField = [`<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить поле корелляции. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`];
+                correlationField = [`<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить поле корреляции. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`];
             }
-            s = `${r1.txtData}<br><br>${r2.txtData}<p class="h">Поле корелляции</p>${correlationField.join(``)}`;
+            s = `${r1.txtData}<br><br>${r2.txtData}<p class="h">Поле корреляции</p>${correlationField.join(``)}`;
             out.innerHTML = s;
             if (showInitialData.checked) {
                 if (d1.length == d2.length) {
