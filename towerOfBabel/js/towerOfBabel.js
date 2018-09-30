@@ -21,11 +21,11 @@
                 if (a <= 0) {
                     return 0;
                 }
-                let b = [d].concat(createTowerOfBabel(n - d, d + 1, h - 1));
+                let b = [d].concat(createTowerOfBabel(a, d + 1, h - 1));
                 if (!~b.indexOf(0)) {
                     return b;
                 }
-                let c = [d].concat(createTowerOfBabel(n - d, d - 1, h - 1));
+                let c = [d].concat(createTowerOfBabel(a, d - 1, h - 1));
                 if (~c.indexOf(0)) {
                     return 0;
                 }
