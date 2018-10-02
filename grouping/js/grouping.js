@@ -209,15 +209,26 @@
                 correlationField = [`<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить поле корреляции и выполнить остальные вычисления. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`];
             }
             s = `${r1.txtData}<br><br>${r2.txtData}<p class="h">Поле корреляции</p>${correlationField.join(``)}${res}`;
-            out.innerHTML = s;
+            out.innerHTML = s.replace(/(\d)\./g, `$1,`);
             if (showInitialData.checked) {
                 if (d1.length == d2.length) {
+                    let totals = [0, 0, 0, 0, 0];
                     d1.sort((a, b) => a - b);
                     d2.sort((a, b) => a - b);
                     let table = [`<table class="t"><tr><td><b>№</b></td><td><b>x</b></td><td><b>y</b></td><td><b>x^2</b></td><td><b>y^2</b></td><td><b>x∙y</b></td></tr>`, ``, `</table>`];
                     for (let i = 0; i < d1.length; i++) {
-                        table[1] += `<tr><td>${i + 1}</td><td>${d1[i].toFixed(acc)}</td><td>${d2[i].toFixed(acc)}</td><td>${(d1[i] ** 2).toFixed(acc)}</td><td>${(d2[i] ** 2).toFixed(acc)}</td><td>${(d1[i] * d2[i]).toFixed(acc)}</td></tr>`;
+                        let a = d1[i] ** 2,
+                            b = d2[i] ** 2,
+                            c = d1[i] * d2[i];
+                        totals[0] += d1[i];
+                        totals[1] += d2[i];
+                        totals[2] += a;
+                        totals[3] += b;
+                        totals[4] += c;
+                        table[1] += `<tr><td>${i + 1}</td><td>${d1[i].toFixed(acc)}</td><td>${d2[i].toFixed(acc)}</td><td>${a.toFixed(acc)}</td><td>${b.toFixed(acc)}</td><td>${c.toFixed(acc)}</td></tr>`;
                     }
+                    totals = totals.map(e => e.toFixed(acc));
+                    table[1] += `<tr><td><b>Итог:</b></td><td>${totals.join(`</td><td>`)}</td></tr>`;
                     input.innerHTML = table.join(``).replace(/(\d)\./g, `$1,`);
                 } else {
                     input.innerHTML = `<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить таблицу входных данных. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`;
