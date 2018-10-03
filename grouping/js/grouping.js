@@ -205,7 +205,7 @@
             } else {
                 correlationField = [`<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить поле корреляции и выполнить остальные вычисления. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`];
             }
-            s = `${r1.txtData}<br><br>${r2.txtData}<p class="h">Поле корреляции</p>${correlationField.join(``)}${res}`;
+            s = `<p class="h">Первая совокупность</p>${r1.txtData}<p class="h">Вторая совокупность</p>${r2.txtData}<p class="h">Поле корреляции</p>${correlationField.join(``)}${res}`;
             out.innerHTML = s.replace(/(\d)\./g, `$1,`);
             if (showInitialData.checked) {
                 if (d1.length == d2.length) {
