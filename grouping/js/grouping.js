@@ -183,7 +183,7 @@
                      yi_2 = 0,
                      correlationCoefficient;
                 for (let i = 0; i < r1.data.grps.length - 1; i++) {
-                    let a = xgs[i] * xi[i]
+                    let a = xgs[i] * xi[i];
                     xii += a;
                     xi2 += a * xi[i];
                     for (let j = 0; j < r2.data.grps.length - 1; j++) {
@@ -197,14 +197,11 @@
                         }
                     }
                 }
-                xi_2 = (xii ** 2) / l;
-                yi_2 = (yii ** 2) / l;
-                xii /= l;
-                yii /= l;
-                xiyi /= l;
-                correlationCoefficient = (xiyi - xii * yii) / (((xi2 - xi_2) * (yi2 - yi_2) ** .5) ** .5);
+                xi_2 = xii ** 2;
+                yi_2 = yii ** 2;
+                correlationCoefficient = (xiyi - xii * yii / l) / ((xi2 - xi_2 / l) ** .5 * (yi2 - yi_2 / l) ** .5);
                 let ccff = Math.abs(correlationCoefficient);
-                res = `<br>x = ${xii.toFixed(acc)}<br>x<sup>2</sup> = ${xi2.toFixed(acc)}<br>(x)<sup>2</sup> = ${xi_2.toFixed(acc)}<br>y = ${yii.toFixed(acc)}<br>y<sup>2</sup> = ${yi2.toFixed(acc)}<br>(y)<sup>2</sup> = ${yi_2.toFixed(acc)}<br>xy = ${xiyi.toFixed(acc)}<br><p class="h">R<sub>xy</sub> = ${correlationCoefficient.toFixed(acc)}<br>R<sub>xy</sub> ${correlationCoefficient < 0 ? `<` : `>`} 0 - ${ccff <= .3 ? `Слабая` : ccff > .3 && ccff <= .7 ? `Умеренная` : `Сильная`} ${correlationCoefficient < 0 ? `обратная` : `прямая`} зависимость.</p>`;
+                res = `<br>x<sub>i</sub> = ${xii.toFixed(acc)}<br>x<sub>i</sub><sup>2</sup> = ${xi2.toFixed(acc)}<br>(x<sub>i</sub>)<sup>2</sup> = ${xi_2.toFixed(acc)}<br>y<sub>i</sub> = ${yii.toFixed(acc)}<br>y<sub>i</sub><sup>2</sup> = ${yi2.toFixed(acc)}<br>(y<sub>i</sub>)<sup>2</sup> = ${yi_2.toFixed(acc)}<br>x<sub>i</sub>y<sub>i</sub> = ${xiyi.toFixed(acc)}<br><p class="h">R<sub>xy</sub> = ${correlationCoefficient.toFixed(acc)}<br>R<sub>xy</sub> ${correlationCoefficient < 0 ? `<` : `>`} 0 - ${ccff <= .3 ? `Слабая` : ccff > .3 && ccff <= .7 ? `Умеренная` : `Сильная`} ${correlationCoefficient < 0 ? `обратная` : `прямая`} зависимость.</p>`;
             } else {
                 correlationField = [`<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить поле корреляции и выполнить остальные вычисления. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`];
             }
