@@ -27,3 +27,6 @@ td {
     border: 1px solid black;
     padding: 5px;
 }
+.calc {
+    word-wrap: break-word;
+}

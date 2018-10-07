@@ -127,8 +127,6 @@
                 r2 = calc(d2),
                 field = [],
                 correlationField = [`<table class="t"><tr><td rowspan="3"><b>X</b></td><td rowspan="3"><b>X<sub>i</sub></b></td><td colspan="${(r2.data.grps.length - 1) * 2 + 1}"><b>Y</b></td></tr><tr>`, ``, `<td rowspan="2">fix</td></tr><tr>`, ``, `</tr>`, ``, `</table>`];
-            localStorage.setItem(`d1`, data.value);
-            localStorage.setItem(`d2`, data2.value);
             if (d1.length == d2.length) {
                 let xi = [],
                     yi = [],
@@ -174,7 +172,8 @@
                     correlationField[5] += `<td colspan="2">${ygs[i]}</td>`; 
                 }
                 correlationField[5] += `<td>${l}</td></tr>`;
-                let xiyi = 0, 
+                let calculations = [``, ``, ``, ``, ``, ``, ``],
+                    xiyi = 0, 
                      xii = 0, 
                      yii = 0, 
                      xi2 = 0, 
@@ -186,22 +185,30 @@
                     let a = xgs[i] * xi[i];
                     xii += a;
                     xi2 += a * xi[i];
+                    calculations[1] += `${xi[i].toFixed(acc)}∙${xgs[i].toFixed(acc)}+`;
+                    calculations[2] += `${xi[i].toFixed(acc)}<sup>2</sup>∙${xgs[i].toFixed(acc)}+`;
                     for (let j = 0; j < r2.data.grps.length - 1; j++) {
                         if (!i) {
                             let a = ygs[j] * yi[j];
                             yii += a;
                             yi2 += a * yi[j];
+                            calculations[4] += `${yi[j].toFixed(acc)}∙${ygs[j].toFixed(acc)}+`;
+                            calculations[5] += `${yi[j].toFixed(acc)}<sup>2</sup>∙${ygs[j].toFixed(acc)}+`;
                         }
                         if (field[i][j]) {
                             xiyi += xi[i] * yi[j] * field[i][j];
+                            calculations[0] += `${xi[i].toFixed(acc)}∙${field[i][j].toFixed(acc)}∙${yi[j].toFixed(acc)}+`;
                         }
                     }
                 }
+                calculations = calculations.map(e => e.slice(0, ~0)); // ~0 == -1 //true, because it's very nice 
                 xi_2 = xii ** 2;
                 yi_2 = yii ** 2;
+                calculations[3] = `${xii.toFixed(acc)}<sup>2</sup>`;
+                calculations[6] = `${yii.toFixed(acc)}<sup>2</sup>`;
                 correlationCoefficient = (xiyi - xii * yii / l) / ((xi2 - xi_2 / l) ** .5 * (yi2 - yi_2 / l) ** .5);
                 let ccff = Math.abs(correlationCoefficient);
-                res = `<br>x<sub>i</sub> = ${xii.toFixed(acc)}<br>x<sub>i</sub><sup>2</sup> = ${xi2.toFixed(acc)}<br>(x<sub>i</sub>)<sup>2</sup> = ${xi_2.toFixed(acc)}<br>y<sub>i</sub> = ${yii.toFixed(acc)}<br>y<sub>i</sub><sup>2</sup> = ${yi2.toFixed(acc)}<br>(y<sub>i</sub>)<sup>2</sup> = ${yi_2.toFixed(acc)}<br>x<sub>i</sub>y<sub>i</sub> = ${xiyi.toFixed(acc)}<br><p class="h">R<sub>xy</sub> = ${correlationCoefficient.toFixed(acc)}<br>R<sub>xy</sub> ${correlationCoefficient < 0 ? `<` : `>`} 0 - ${ccff <= .3 ? `Слабая` : ccff > .3 && ccff <= .7 ? `Умеренная` : `Сильная`} ${correlationCoefficient < 0 ? `обратная` : `прямая`} зависимость.</p>`;
+                res = `<br>x<sub>i</sub> = <span class="calc">${calculations[1]}</span> = ${xii.toFixed(acc)}<br>x<sub>i</sub><sup>2</sup> = <span class="calc">${calculations[2]}</span> = ${xi2.toFixed(acc)}<br>(x<sub>i</sub>)<sup>2</sup> = <span class="calc">${calculations[3]}</span> = ${xi_2.toFixed(acc)}<br>y<sub>i</sub> = <span class="calc">${calculations[4]}</span> = ${yii.toFixed(acc)}<br>y<sub>i</sub><sup>2</sup> = <span class="calc">${calculations[5]}</span> = ${yi2.toFixed(acc)}<br>(y<sub>i</sub>)<sup>2</sup> = <span class="calc">${calculations[6]}</span> = ${yi_2.toFixed(acc)}<br>x<sub>i</sub>y<sub>i</sub> = <span class="calc">${calculations[0]}</span> = ${xiyi.toFixed(acc)}<br><img src="CjZxAFhmhEM.jpg"><br><p class="h">R<sub>xy</sub> = ${correlationCoefficient.toFixed(acc)}<br>R<sub>xy</sub> ${correlationCoefficient < 0 ? `<` : `>`} 0 - ${ccff <= .3 ? `Слабая` : ccff > .3 && ccff <= .7 ? `Умеренная` : `Сильная`} ${correlationCoefficient < 0 ? `обратная` : `прямая`} зависимость.</p>`;
             } else {
                 correlationField = [`<b>Error</b>: Обе выборочных совокупности должны иметь одинаковое количество чисел, чтобы построить поле корреляции и выполнить остальные вычисления. (У вас в первой совокупности ${d1.length} чисел и ${d2.length} чисел во второй)`];
             }
@@ -233,15 +240,23 @@
             } else {
                 input.innerHTML = ``;
             }
-        };
-    let d1 = localStorage.getItem(`d1`),
+            localStorage.setItem(`d1`, data.value);
+            localStorage.setItem(`d2`, data2.value);
+        }, run = () => {
+            try {
+                f();
+            } catch (e) {
+                out.innerHTML = `Что-то пошло не так, проверьте правильность введённых данных и параметров.`;
+            }
+        },
+        d1 = localStorage.getItem(`d1`),
         d2 = localStorage.getItem(`d2`);
     if (d1 && d2) {
         data.value = d1;
         data2.value = d2;
     }
-    f();
-    start.addEventListener(`click`, f);
+    run();
+    start.addEventListener(`click`, run);
     groups.addEventListener(`input`, checkValue(1));
     accuracy.addEventListener(`input`, checkValue(0));
     minobs.addEventListener(`input`, checkValue(1));
