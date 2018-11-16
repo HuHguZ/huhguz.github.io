@@ -1,4 +1,5 @@
-﻿window.addEventListener('load', function() {
+//test
+window.addEventListener('load', function() {
     let getElem = id => document.getElementById(id),
         scale = 30,
         canvas = getElem('canvas'),
