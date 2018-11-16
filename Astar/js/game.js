@@ -1,4 +1,3 @@
-//test
 window.addEventListener('load', function() {
     let getElem = id => document.getElementById(id),
         scale = 30,
