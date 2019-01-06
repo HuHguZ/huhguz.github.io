@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Тест Ферма</title>
+        <style>
+            body {
+                cursor: default;
+                -webkit-user-select: none;
+                padding: 0;
+                margin: 0;
+                font-family: Verdana;
+                font-size: 14px;
+                color: #def0ff;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                background-color: #17212b;
+            }
+            button {
+                font-family: Verdana;
+                font-size: 14px;
+                border: none;
+                border: 1px solid #def0ff;
+                border-radius: 2px;
+                background: #17212b;
+                outline: none;
+                color: #def0ff;
+                padding-left: 15px;
+                padding-right: 15px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                font-weight: bold;
+                transition-duration: .35s;
+            }
+            button:hover {
+                cursor: pointer;
+                color: #17212b;
+                background: #def0ff;
+                border: 1px solid #17212b;
+            }
+            input {
+                -moz-appearance: none;
+                -webkit-appearance: none;
+                font-family: Verdana;
+                font-size: 14px;
+                border: none;
+                border-bottom: 1px solid #def0ff;
+                background: #17212b;
+                outline: none;
+                color: #def0ff;
+            }
+            .swal-overlay, .swal-overlay--show-modal {
+                outline: none;
+            }
+            .swal-modal, .swal-title, .swal-text {
+                background-color: #17212b;
+                font-family: Verdana;
+                color: #def0ff;
+                -webkit-user-select: none;
+                cursor: default;
+            }
+            .swal-text {
+                font-family: Verdana;
+                font-size: 14px;
+            }
+            .swal-button {
+                opacity: 0;
+            }
+            .r {
+                margin-bottom: 10px;
+                font-weight: bold;
+                font-size: 18px;
+            }
+        </style>
+        <script src="big.js"></script>
+        <script src="sweetalert.min.js"></script>
+        <script src="testFerma.js"></script>
+        <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    </head>
+    <body>
+        Введите число:<br><br>
+        <input type="number" id="number"><br>
+        Раундов:<br>
+        <input type="number" id="rounds" value="20"><br>
+        <button id="test">Тест простоты</button>
+        <div id="num" class="r" style="margin-top: 10px;"></div>
+        <div id="result" class="r"></div>
+    </body>
+</html>
