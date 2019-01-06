@@ -3,6 +3,7 @@ window.addEventListener(`load`, () => {
     const test = document.getElementById(`test`);
     const result = document.getElementById(`result`);
     const rounds = document.getElementById(`rounds`);
+    const time = document.getElementById(`time`);
 
     const isPrime = (n, iterations = n.sqrt().round().plus(1)) => {
         if ((n.mod(2).eq(0) && !n.eq(2)) || n.eq(1)) {
@@ -94,7 +95,10 @@ window.addEventListener(`load`, () => {
                 if (rounds.value <= 0) {
                     rounds.value = 1;
                 }
-                result.textContent = [`Непростое`, `Простое`][testFerma(new Big(number.value || 0), rounds.value)];
+                const point = performance.now();
+                const r = testFerma(new Big(number.value || 0), rounds.value);
+                time.textContent = `Тест завершился за ${(performance.now() - point).toFixed(5)}ms`;
+                result.textContent = [`Непростое`, `Простое`][r];
                 document.getElementById(`num`).textContent = number.value;
                 document.getElementsByClassName(`swal-button`)[0].dispatchEvent(new Event(`click`));
             }, 200);
