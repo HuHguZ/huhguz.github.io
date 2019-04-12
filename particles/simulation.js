@@ -116,11 +116,6 @@ window.addEventListener(`load`, () => {
                 const vec = new Vector(tmp * (this.position.x - particle.position.x) / distance, tmp * (this.position.y - particle.position.y) / distance);
                 particle.velocity.add(vec);
             }
-
-
-            // if (getDistance(this.position.x, this.position.y, particle.position.x, particle.position.y) <= this.radius) {
-            //     particle.velocity.add(new Vector(this.position.x - particle.position.x, this.position.y - particle.position.y).normalize());
-            // }
             return particle;
         }
 
@@ -128,7 +123,7 @@ window.addEventListener(`load`, () => {
 
     const blackHoles = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
         blackHoles.push(new BlackHole({
             position: new Vector(Math.random() * w, Math.random() * h),
             radius: 1500,
@@ -138,7 +133,7 @@ window.addEventListener(`load`, () => {
 
     const particles = [];
 
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < 2500; i++) {
         particles.push(new Particle({
             position: new Vector(Math.random() * w, Math.random() * h),
             velocity: new Vector(0, 0),
@@ -158,7 +153,6 @@ window.addEventListener(`load`, () => {
             particles[i].move().draw();
         }
 
-        // console.log(test);
         nextGameStep(game);
     }
 });
