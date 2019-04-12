@@ -156,7 +156,7 @@ window.addEventListener(`load`, () => {
         blackHoles.push(new BlackHole({
             position: new Vector(Math.random() * w, Math.random() * h),
             radius: 1500,
-            strength: .25
+            strength: 1.25
         }));
     }
 
@@ -180,7 +180,7 @@ window.addEventListener(`load`, () => {
             for (let j = 0; j < blackHoles.length; j++) {
                 blackHoles[j].interact(particles[i]);
             }
-            const color = colors[Math.round(particles[i].velocity.length / maxSpeed * colors.length)] || [];
+            const color = colors[Math.round(particles[i].velocity.length / 25 * colors.length)] || [];
             particles[i].color = `rgb(${color.join(`,`)})`;
             particles[i].move().draw();
             if (particles[i].velocity.length > maxSpeed) {
