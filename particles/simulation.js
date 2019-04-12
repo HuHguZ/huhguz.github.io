@@ -71,6 +71,7 @@ window.addEventListener(`load`, () => {
         move() {
             this.position.add(this.velocity);
             this.velocity.add(this.acceleration);
+            // this.velocity.mult(1.001);
             if (
                 this.position.x + this.radius > w ||
                 this.position.x - this.radius < 0
@@ -109,7 +110,6 @@ window.addEventListener(`load`, () => {
         }
 
         interact(particle) {
-
             const distance = getDistance(this.position.x, this.position.y, particle.position.x, particle.position.y);
             const tmp = this.strength * (Math.abs(1 - distance / this.radius));
             if (distance <= this.radius + particle.radius) {
@@ -123,36 +123,45 @@ window.addEventListener(`load`, () => {
 
     const blackHoles = [];
 
-    for (let i = 0; i < 4; i++) {
+    document.addEventListener(`mousemove`, e => {
+        blackHoles[0].position.x = e.clientX;
+        blackHoles[0].position.y = e.clientY;
+    });
+
+    for (let i = 0; i < 1; i++) {
         blackHoles.push(new BlackHole({
             position: new Vector(Math.random() * w, Math.random() * h),
             radius: 1500,
-            strength: 0.1
+            strength: .5
         }));
     }
 
     const particles = [];
 
-    for (let i = 0; i < 2500; i++) {
+    for (let i = 0; i < 500; i++) {
         particles.push(new Particle({
             position: new Vector(Math.random() * w, Math.random() * h),
             velocity: new Vector(0, 0),
             acceleration: new Vector(0, 0),
             color: `white`,
-            radius: 1
+            radius: 5
         }));
     }
-    game();
-
+    let maxSpeed = -Infinity;
+    game();    
     function game() {
         ctx.clearRect(0, 0, w, h);
         for (let i = 0; i < particles.length; i++) {
             for (let j = 0; j < blackHoles.length; j++) {
                 blackHoles[j].interact(particles[i]);
             }
+            const color = [particles[i].velocity.length / maxSpeed * 255, (1 - particles[i].velocity.length / maxSpeed) * 255, (1 - particles[i].velocity.length / maxSpeed) * 255];
+            particles[i].color = `rgb(${color.join(`,`)})`;
             particles[i].move().draw();
+            if (particles[i].velocity.length > maxSpeed) {
+                maxSpeed = particles[i].velocity.length;
+            }
         }
-
         nextGameStep(game);
     }
 });
