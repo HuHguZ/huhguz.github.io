@@ -121,6 +121,30 @@ window.addEventListener(`load`, () => {
 
     }
 
+    // 0   0     0
+    // red green blue
+
+    const beginColor = [0, 0, 255];
+
+    const colors = [beginColor];
+    const step = 0.1;
+    while (beginColor[1] < 255) {
+        beginColor[1] += step;
+        colors.push([...beginColor]);
+    }
+    while (beginColor[2] > 0) {
+        beginColor[2] -= step;
+        colors.push([...beginColor]);
+    }
+    while (beginColor[0] < 255) {
+        beginColor[0] += step;
+        colors.push([...beginColor]);
+    }
+    while (beginColor[1] > 0) {
+        beginColor[1] -= step;
+        colors.push([...beginColor]);
+    }
+
     const blackHoles = [];
 
     document.addEventListener(`mousemove`, e => {
@@ -132,30 +156,31 @@ window.addEventListener(`load`, () => {
         blackHoles.push(new BlackHole({
             position: new Vector(Math.random() * w, Math.random() * h),
             radius: 1500,
-            strength: .5
+            strength: .25
         }));
     }
 
     const particles = [];
 
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 1500; i++) {
         particles.push(new Particle({
             position: new Vector(Math.random() * w, Math.random() * h),
             velocity: new Vector(0, 0),
             acceleration: new Vector(0, 0),
             color: `white`,
-            radius: 5
+            radius: 1
         }));
     }
     let maxSpeed = -Infinity;
-    game();    
+    game();
+
     function game() {
         ctx.clearRect(0, 0, w, h);
         for (let i = 0; i < particles.length; i++) {
             for (let j = 0; j < blackHoles.length; j++) {
                 blackHoles[j].interact(particles[i]);
             }
-            const color = [particles[i].velocity.length / maxSpeed * 255, (1 - particles[i].velocity.length / maxSpeed) * 255, (1 - particles[i].velocity.length / maxSpeed) * 255];
+            const color = colors[Math.round(particles[i].velocity.length / maxSpeed * colors.length)] || [];
             particles[i].color = `rgb(${color.join(`,`)})`;
             particles[i].move().draw();
             if (particles[i].velocity.length > maxSpeed) {
