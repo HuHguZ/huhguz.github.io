@@ -147,7 +147,6 @@ window.addEventListener(`load`, () => {
         }));
     });
     game();
-
     function game() {
         ctx.clearRect(0, 0, w, h);
         for (let i = 0; i < planets.length; i++) {
@@ -162,7 +161,7 @@ window.addEventListener(`load`, () => {
                 const addVelVec = new Vector(gravitation * coss, gravitation * sinn);
                 const addVelvecc = new Vector(addVelVec.x, addVelVec.y);
                 planets[i].velocity.add(addVelVec.mult((planets[j].mass / planets[i].mass) * -1)); 
-                planets[j].velocity.add(addVelvecc);
+                planets[j].velocity.add(addVelvecc.mult((planets[i].mass / planets[j].mass)));
             }
             planets[i].move().draw();
         }
