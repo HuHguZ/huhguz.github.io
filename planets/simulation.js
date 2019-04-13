@@ -137,7 +137,7 @@ window.addEventListener(`load`, () => {
         const r = (Math.random() * 10 ^ 0) + 2;
         planets.push(new Planet({
             position: new Vector(e.clientX, e.clientY),
-            velocity: new Vector(1, 1),
+            velocity: new Vector(Math.random() - .5, Math.random() - .5),
             acceleration: new Vector(0, 0),
             radius: r,
             mass: r,
