@@ -14,6 +14,31 @@ window.addEventListener(`load`, () => {
 
     const getDistance = (x1, y1, x2, y2) => ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
 
+
+    // 0   0     0
+    // red green blue
+
+    const beginColor = [0, 0, 255];
+
+    const colors = [beginColor];
+    const step = 0.1;
+    while (beginColor[1] < 255) {
+        beginColor[1] += step;
+        colors.push([...beginColor]);
+    }
+    while (beginColor[2] > 0) {
+        beginColor[2] -= step;
+        colors.push([...beginColor]);
+    }
+    while (beginColor[0] < 255) {
+        beginColor[0] += step;
+        colors.push([...beginColor]);
+    }
+    while (beginColor[1] > 0) {
+        beginColor[1] -= step;
+        colors.push([...beginColor]);
+    }
+
     class Vector {
 
         constructor(x, y) {
@@ -71,7 +96,7 @@ window.addEventListener(`load`, () => {
         move() {
             this.position.add(this.velocity);
             this.velocity.add(this.acceleration);
-            // this.velocity.mult(1.001);
+            this.velocity.mult(0.99);
             if (
                 this.position.x + this.radius > w ||
                 this.position.x - this.radius < 0
@@ -114,55 +139,34 @@ window.addEventListener(`load`, () => {
             const tmp = this.strength * (Math.abs(1 - distance / this.radius));
             if (distance <= this.radius + particle.radius) {
                 const vec = new Vector(tmp * (this.position.x - particle.position.x) / distance, tmp * (this.position.y - particle.position.y) / distance);
-                particle.velocity.add(vec);
+                if (this.radius - distance > this.radius - 2) {
+                    particle.velocity.add(vec.normalize().mult(15 * (this.radius / (this.radius - 2))));
+                } else {
+                    particle.velocity.add(vec);
+                }
+
             }
             return particle;
         }
 
     }
 
-    // 0   0     0
-    // red green blue
-
-    const beginColor = [0, 0, 255];
-
-    const colors = [beginColor];
-    const step = 0.1;
-    while (beginColor[1] < 255) {
-        beginColor[1] += step;
-        colors.push([...beginColor]);
-    }
-    while (beginColor[2] > 0) {
-        beginColor[2] -= step;
-        colors.push([...beginColor]);
-    }
-    while (beginColor[0] < 255) {
-        beginColor[0] += step;
-        colors.push([...beginColor]);
-    }
-    while (beginColor[1] > 0) {
-        beginColor[1] -= step;
-        colors.push([...beginColor]);
-    }
-
-    const blackHoles = [];
-
     document.addEventListener(`mousemove`, e => {
         blackHoles[0].position.x = e.clientX;
         blackHoles[0].position.y = e.clientY;
     });
-
+    const blackHoles = [];
     for (let i = 0; i < 1; i++) {
         blackHoles.push(new BlackHole({
             position: new Vector(Math.random() * w, Math.random() * h),
-            radius: 1500,
-            strength: 1.25
+            radius: w,
+            strength: 0.25
         }));
     }
 
     const particles = [];
 
-    for (let i = 0; i < 1500; i++) {
+    for (let i = 0; i < 750; i++) {
         particles.push(new Particle({
             position: new Vector(Math.random() * w, Math.random() * h),
             velocity: new Vector(0, 0),
@@ -180,7 +184,7 @@ window.addEventListener(`load`, () => {
             for (let j = 0; j < blackHoles.length; j++) {
                 blackHoles[j].interact(particles[i]);
             }
-            const color = colors[Math.round(particles[i].velocity.length / 25 * colors.length)] || [];
+            const color = colors[Math.round(particles[i].velocity.length / 30 * colors.length)] || [];
             particles[i].color = `rgb(${color.join(`,`)})`;
             particles[i].move().draw();
             if (particles[i].velocity.length > maxSpeed) {
