@@ -116,13 +116,15 @@ window.addEventListener(`load`, () => {
             ctx.strokeStyle = this.calcColor;
             ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
             ctx.fill();
-            ctx.beginPath();
             if (!this.track.length) {
                 return;
             }
+            ctx.moveTo(this.position.x, this.position.y);
+            ctx.lineTo(this.track[this.track.length - 1].x, this.track[this.track.length - 1].y);
+            ctx.stroke();
             for (let i = 1; i < this.track.length; i++) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(${this.color.join(`,`)},${i/this.track.length})`; //i/this.track.length
+                ctx.strokeStyle = `rgba(${this.color.join(`,`)},${i / this.track.length})`; //i/this.track.length
                 ctx.moveTo(this.track[i - 1].x, this.track[i - 1].y);
                 ctx.lineTo(this.track[i].x, this.track[i].y);
                 ctx.stroke();
@@ -157,14 +159,11 @@ window.addEventListener(`load`, () => {
                 const gravitation = gravity / (distance * distance);
                 const sinn = (planets[i].position.y - planets[j].position.y) / distance;
                 const coss = (planets[i].position.x - planets[j].position.x) / distance;
-                const addVelVec = new Vector(gravitation * coss * ((planets[j].mass / planets[i].mass) * -1), gravitation * sinn * ((planets[j].mass / planets[i].mass) * -1));
-                planets[i].velocity.add(addVelVec);
-                planets[j].velocity.add(new Vector(gravitation * coss, gravitation * sinn));
+                const addVelVec = new Vector(gravitation * coss, gravitation * sinn);
+                const addVelvecc = new Vector(addVelVec.x, addVelVec.y);
+                planets[i].velocity.add(addVelVec.mult((planets[j].mass / planets[i].mass) * -1)); 
+                planets[j].velocity.add(addVelvecc);
             }
-            if (planets[i].velocity.length > 100) {
-                planets[i].velocity.mult(0.99);
-            }
-            // planets[i].velocity.mult(0.99);
             planets[i].move().draw();
         }
         nextGameStep(game);
