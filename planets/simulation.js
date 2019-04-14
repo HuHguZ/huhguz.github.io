@@ -168,7 +168,7 @@ window.addEventListener(`load`, () => {
         position: new Vector(w /2 , h / 2),
         velocity: new Vector(0, 0),
         radius: 20,
-        mass: 100,
+        mass: 70,
         color: [255, 255, 0]
     }));
 
