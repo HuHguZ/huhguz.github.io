@@ -11,7 +11,6 @@ window.addEventListener(`load`, () => {
         ctx = canvas.getContext(`2d`), // Контекст
         w = canvas.width = window.innerWidth, // Ширина канваса
         h = canvas.height = window.innerHeight; // Высота канваса
-    ctx.lineWidth = 1;
     const getDistance = (x1, y1, x2, y2) => ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
 
     getRndColor = () => {
@@ -67,14 +66,12 @@ window.addEventListener(`load`, () => {
         constructor({
             position,
             velocity,
-            acceleration,
             radius,
             color,
             mass
         } = {}) {
             this.position = position;
             this.velocity = velocity;
-            this.acceleration = acceleration;
             this.radius = radius;
             this.color = color;
             this.calcColor = `rgb(${this.color.join(`,`)})`;
@@ -89,29 +86,27 @@ window.addEventListener(`load`, () => {
             if (dist) {
                 this.track.push(oldPos);
             }
-            if (this.track.length > 150) {
+            if (this.track.length > 50) {
                 this.track.shift();
             }
-            this.velocity.add(this.acceleration);
             if (
                 this.position.x + this.radius > w ||
                 this.position.x - this.radius < 0
             ) {
                 this.velocity.x *= -1;
-                this.acceleration.x *= -1;
             }
             if (
                 this.position.y + this.radius > h ||
                 this.position.y - this.radius < 0
             ) {
                 this.velocity.y *= -1;
-                this.acceleration.y *= -1;
             }
             return this;
         }
 
         draw() {
             ctx.beginPath();
+            ctx.lineWidth = 1;
             ctx.fillStyle = this.calcColor;
             ctx.strokeStyle = this.calcColor;
             ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
@@ -134,18 +129,49 @@ window.addEventListener(`load`, () => {
     }
     const gravity = 100;
     const planets = [];
+    const firstPoint = new Vector(0, 0);
+    const secondPoint = new Vector(0, 0);
+    let isClamped = false;
+    let planetClr, calcPlanetClr;
 
-    document.addEventListener(`click`, e => {
-        const r = (Math.random() * 10 ^ 0) + 2;
+    document.addEventListener(`mousedown`, e => {
+        isClamped = true;
+        firstPoint.x = e.clientX;
+        firstPoint.y = e.clientY;
+        secondPoint.x = e.clientX;
+        secondPoint.y = e.clientY;
+        planetClr = [Math.random() * 256 ^ 0, Math.random() * 256 ^ 0, Math.random() * 256 ^ 0];
+        calcPlanetClr = `rgb(${planetClr.join(`,`)})`;
+    });
+
+    document.addEventListener(`mouseup`, e => {
+        isClamped = false;
+        const r = (Math.random() * 1 ^ 0) + 2;
+        const velocity = new Vector(firstPoint.x - secondPoint.x, firstPoint.y - secondPoint.y);
         planets.push(new Planet({
-            position: new Vector(e.clientX, e.clientY),
-            velocity: new Vector(Math.random() - .5, Math.random() - .5),
-            acceleration: new Vector(0, 0),
+            position: new Vector(firstPoint.x, firstPoint.y),
+            velocity: velocity.mult(0.05),
             radius: r,
             mass: r,
-            color: [Math.random() * 256 ^ 0, Math.random() * 256 ^ 0, Math.random() * 256 ^ 0]
+            color: planetClr
         }));
     });
+    
+    document.addEventListener(`mousemove`, e => {
+        if (isClamped) {
+            secondPoint.x = e.clientX;
+            secondPoint.y = e.clientY;
+        }
+    });
+
+    planets.push(new Planet({
+        position: new Vector(w /2 , h / 2),
+        velocity: new Vector(0, 0),
+        radius: 20,
+        mass: 100,
+        color: [255, 255, 0]
+    }));
+
     game();
     function game() {
         ctx.clearRect(0, 0, w, h);
@@ -160,10 +186,19 @@ window.addEventListener(`load`, () => {
                 const coss = (planets[i].position.x - planets[j].position.x) / distance;
                 const addVelVec = new Vector(gravitation * coss, gravitation * sinn);
                 const addVelvecc = new Vector(addVelVec.x, addVelVec.y);
-                planets[i].velocity.add(addVelVec.mult((planets[j].mass / planets[i].mass) * -1)); 
+                planets[i].velocity.add(addVelVec.mult((planets[j].mass / planets[i].mass) * -1));
                 planets[j].velocity.add(addVelvecc.mult((planets[i].mass / planets[j].mass)));
             }
+            planets[i].velocity.mult(1 - planets[i].velocity.length / 3e3);
             planets[i].move().draw();
+        }
+        if (isClamped) {
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = calcPlanetClr;
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            ctx.lineTo(secondPoint.x, secondPoint.y);
+            ctx.stroke();
         }
         nextGameStep(game);
     }
