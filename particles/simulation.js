@@ -135,15 +135,15 @@ window.addEventListener(`load`, () => {
         }
 
         interact(particle) {
-            const distance = getDistance(this.position.x, this.position.y, particle.position.x, particle.position.y);
-            const tmp = this.strength * (Math.abs(1 - distance / this.radius));
+            let distance = getDistance(this.position.x, this.position.y, particle.position.x, particle.position.y);
+            
             if (distance <= this.radius + particle.radius) {
-                const vec = new Vector(tmp * (this.position.x - particle.position.x) / distance, tmp * (this.position.y - particle.position.y) / distance);
-                // else if (this.radius - distance > this.radius - 10) {
-                //     particle.velocity.add(vec.normalize().mult(-.1 * (this.radius / (this.radius - 10))));
-                // } 
+                const tmp = this.strength * (Math.abs(1 - distance / this.radius));
+                const vec = new Vector(tmp * ((this.position.x - particle.position.x) / distance), tmp * ((this.position.y - particle.position.y) / distance));
                 if (this.radius - distance > this.radius - 2) {
-                    particle.velocity.add(vec.normalize().mult(15 * (this.radius / (this.radius - 2))));
+                    particle.velocity.add(vec.mult(30 * (this.radius / (this.radius - 2))));
+                } else if (this.radius - distance > this.radius - 10) {
+                    particle.velocity.add(vec.mult(10 * (this.radius / (this.radius - 10))));
                 } else {
                     particle.velocity.add(vec);
                 }
@@ -178,13 +178,19 @@ window.addEventListener(`load`, () => {
     });
 
     const blackHoles = [];
-    for (let i = 0; i < 1; i++) {
-        blackHoles.push(new BlackHole({
-            position: new Vector(Math.random() * w, Math.random() * h),
-            radius: w,
-            strength: 0.2
-        }));
-    }
+    // for (let i = 0; i < 1; i++) {
+    //     blackHoles.push(new BlackHole({
+    //         position: new Vector(Math.random() * w, Math.random() * h),
+    //         radius: w,
+    //         strength: 0.2
+    //     }));
+    // }
+
+    blackHoles.push(new BlackHole({
+        position: new Vector(w / 2 - 200, h / 2),
+        radius: w,
+        strength: .25
+    }));
 
     let particles = [];
 
@@ -196,7 +202,8 @@ window.addEventListener(`load`, () => {
             radius: 1
         }));
     }
-    let maxSpeed = -Infinity;
+    console.log(particles)
+    // let maxSpeed = -Infinity;
     game();
 
     function game() {
@@ -205,12 +212,19 @@ window.addEventListener(`load`, () => {
             for (let j = 0; j < blackHoles.length; j++) {
                 blackHoles[j].interact(particles[i]);
             }
-            const color = colors[Math.round(particles[i].velocity.length / maxSpeed * colors.length)] || [];
+            let pos = Math.round(particles[i].velocity.length / 10 * colors.length) || 0;
+            if (pos >= colors.length) {
+                pos = colors.length - 1;
+            }
+            if (pos < 0) {
+                pos = 0;
+            }
+            const color = colors[pos];
             particles[i].color = `rgb(${color.join(`,`)})`;
             particles[i].move().draw();
-            if (particles[i].velocity.length > maxSpeed) {
-                maxSpeed = particles[i].velocity.length;
-            }
+            // if (particles[i].velocity.length > maxSpeed) {
+            //     maxSpeed = particles[i].velocity.length;
+            // }
         }
         nextGameStep(game);
     }
