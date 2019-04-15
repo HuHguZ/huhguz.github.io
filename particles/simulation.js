@@ -140,10 +140,10 @@ window.addEventListener(`load`, () => {
             if (distance <= this.radius + particle.radius) {
                 const tmp = this.strength * (Math.abs(1 - distance / this.radius));
                 const vec = new Vector(tmp * ((this.position.x - particle.position.x) / distance), tmp * ((this.position.y - particle.position.y) / distance));
-                if (this.radius - distance > this.radius - 2) {
-                    particle.velocity.add(vec.mult(30 * (this.radius / (this.radius - 2))));
-                } else if (this.radius - distance > this.radius - 10) {
-                    particle.velocity.add(vec.mult(10 * (this.radius / (this.radius - 10))));
+                if (this.radius - distance > this.radius - 4) {
+                    particle.velocity.add(vec.mult(1/this.strength* 6 * (this.radius / (this.radius - 4))));
+                } else if (this.radius - distance > this.radius - 30) {
+                    particle.velocity.add(vec.mult(4 * (this.radius / (this.radius - 30))));
                 } else {
                     particle.velocity.add(vec);
                 }
@@ -187,9 +187,9 @@ window.addEventListener(`load`, () => {
     // }
 
     blackHoles.push(new BlackHole({
-        position: new Vector(w / 2 - 200, h / 2),
+        position: new Vector(w / 2, h / 2),
         radius: w,
-        strength: .25
+        strength: .05
     }));
 
     let particles = [];
