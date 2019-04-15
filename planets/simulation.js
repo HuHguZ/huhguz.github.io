@@ -86,21 +86,21 @@ window.addEventListener(`load`, () => {
             if (dist) {
                 this.track.push(oldPos);
             }
-            if (this.track.length > 50) {
+            if (this.track.length > 20) {
                 this.track.shift();
             }
-            if (
-                this.position.x + this.radius > w ||
-                this.position.x - this.radius < 0
-            ) {
-                this.velocity.x *= -1;
-            }
-            if (
-                this.position.y + this.radius > h ||
-                this.position.y - this.radius < 0
-            ) {
-                this.velocity.y *= -1;
-            }
+            // if (
+            //     this.position.x + this.radius > w ||
+            //     this.position.x - this.radius < 0
+            // ) {
+            //     this.velocity.x *= -1;
+            // }
+            // if (
+            //     this.position.y + this.radius > h ||
+            //     this.position.y - this.radius < 0
+            // ) {
+            //     this.velocity.y *= -1;
+            // }
             return this;
         }
 
@@ -108,12 +108,13 @@ window.addEventListener(`load`, () => {
             ctx.beginPath();
             ctx.lineWidth = 1;
             ctx.fillStyle = this.calcColor;
-            ctx.strokeStyle = this.calcColor;
             ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
             ctx.fill();
             if (!this.track.length) {
                 return;
             }
+            ctx.beginPath();
+            ctx.strokeStyle = this.calcColor;
             ctx.moveTo(this.position.x, this.position.y);
             ctx.lineTo(this.track[this.track.length - 1].x, this.track[this.track.length - 1].y);
             ctx.stroke();
@@ -127,7 +128,7 @@ window.addEventListener(`load`, () => {
         }
 
     }
-    const gravity = 100;
+    const gravity = 50;
     const planets = [];
     const firstPoint = new Vector(0, 0);
     const secondPoint = new Vector(0, 0);
@@ -167,8 +168,8 @@ window.addEventListener(`load`, () => {
     planets.push(new Planet({
         position: new Vector(w /2 , h / 2),
         velocity: new Vector(0, 0),
-        radius: 20,
-        mass: 70,
+        radius: 30,
+        mass: 300,
         color: [255, 255, 0]
     }));
 
@@ -189,7 +190,6 @@ window.addEventListener(`load`, () => {
                 planets[i].velocity.add(addVelVec.mult((planets[j].mass / planets[i].mass) * -1));
                 planets[j].velocity.add(addVelvecc.mult((planets[i].mass / planets[j].mass)));
             }
-            planets[i].velocity.mult(1 - planets[i].velocity.length / 3e3);
             planets[i].move().draw();
         }
         if (isClamped) {
