@@ -136,17 +136,23 @@ window.addEventListener(`load`, () => {
 
         interact(particle) {
             let distance = getDistance(this.position.x, this.position.y, particle.position.x, particle.position.y);
-            
+            //разработка новой версии частиц, пока всё плохо
             if (distance <= this.radius + particle.radius) {
-                const tmp = this.strength * (Math.abs(1 - distance / this.radius));
-                const vec = new Vector(tmp * ((this.position.x - particle.position.x) / distance), tmp * ((this.position.y - particle.position.y) / distance));
-                if (this.radius - distance > this.radius - 4) {
-                    particle.velocity.add(vec.mult(1/this.strength* 6 * (this.radius / (this.radius - 4))));
-                } else if (this.radius - distance > this.radius - 30) {
-                    particle.velocity.add(vec.mult(4 * (this.radius / (this.radius - 30))));
-                } else {
-                    particle.velocity.add(vec);
+                let coef = 1;
+                if (this.radius - distance > this.radius - 10) {
+                    coef = -.001;
+                    // console.log(1);
                 }
+                distance = distance ** coef;
+                const tmp = this.strength * (Math.abs(1 - (distance / this.radius)));
+                
+                const vec = new Vector(tmp * ((this.position.x - particle.position.x) / distance), tmp * ((this.position.y - particle.position.y) / distance));
+                particle.velocity.add(vec);
+                // if (this.radius - distance > this.radius - 4) {
+                //     particle.velocity.add(vec.mult(1/this.strength* 6 * (this.radius / (this.radius - 4))));
+                // } else {
+                //     particle.velocity.add(vec);
+                // }
 
             }
             return particle;
