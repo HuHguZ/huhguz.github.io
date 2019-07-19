@@ -173,11 +173,11 @@ window.addEventListener(`load`, () => {
     console.log(colorObj);
     const lines = [];
     setInterval(() => {
-       for (let i = 0; i < Math.random() * 2500+20; i++) {
+       for (let i = 0; i < Math.random() * 2000+20; i++) {
             const coef = Math.random() + 1;
             const acceleration1 = new Vector(getRandomBool() ? getAddbtr(0.7, 0.01) : getAddbtr(-.01, -.7), getRandomBool() ? getAddbtr(0.7, 0.01) : getAddbtr(-.01, -.7));
-            acceleration1.x *= 0.3;
-            acceleration1.y *= 0.3;
+            acceleration1.x *= 0.45;
+            acceleration1.y *= 0.45;
             const acceleration2 = new Vector(acceleration1.x * coef, acceleration1.y * coef);
             lines.push(new Line({
                 x1: w / 2,
