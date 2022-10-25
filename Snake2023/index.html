@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <title>Snake</title>
+    <style>
+        * {
+            transition-duration: .7s;
+            font-family: "Manrope", sans-serif;
+        }
+
+        body,
+        html {
+            padding: 0;
+            margin: 0;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            flex-basis: 100%;
+            height: 100vh;
+        }
+
+        .score-wrap {
+            user-select: none;
+            position: relative;
+        }
+
+        .score {
+            position: absolute;
+            top: 0.5%;
+            left: 0.5%;
+            padding: 5px;
+            opacity: 0.7;
+            border: solid 2px white;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            font-size: 18px;
+            background-color: black;
+        }
+
+        @media (max-width: 1000px) {
+            .score {
+                font-size: 30px;
+            }
+        }
+
+        .score:hover {
+            transform: scale(1.1, 1.1);
+        }
+
+        .ad-container {
+            display: flex;
+            flex-basis: 100%;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .wide-ad, .ad {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 728px;
+            height: 90px;
+            background-color: gray;
+            color: white;
+        }
+
+        .ad {
+            width: 300px;
+            height: 250px;
+        }
+
+        .game-over-modal-container {
+            transform: scale(0, 0);
+            position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+        }
+
+        .visible {
+            transform: scale(1, 1);
+        }
+
+        .game-over-modal {
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            justify-self: center;
+            align-items: center;
+            width: 90%;
+            height: 90%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #00000042;
+            color: white;
+            font-size: 25px;
+            background-color: #0000002a;
+        }
+
+        .game-over {
+            font-size: 35px;
+        }
+
+        .difficulty-container {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .difficulty-button-container > button {
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 25px;
+            background: none;
+        }
+
+        .difficulty-button-container > button:hover, .play-again:hover {
+            transform: scale(1.05, 1.05);
+        }
+
+        button.easy {
+            color: green;
+            border: 1px solid green;
+        }
+
+        button.easy[selected], button.easy:hover {
+            color: white;
+            background-color: green;
+        }
+
+        button.medium {
+            color: orange;
+            border: 1px solid orange;
+        }
+
+        button.medium[selected], button.medium:hover {
+            color: white;
+            background-color: orange;
+        }
+
+        button.hard {
+            color: red;
+            border: 1px solid red;
+        }
+
+        button.hard[selected], button.hard:hover {
+            color: white;
+            background-color: red;
+        }
+
+        .again-container {
+            margin-top: 10px;
+        }
+
+        .play-again {
+            border-radius: 10px;
+            cursor: pointer;
+            background: transparent;
+            color: #009fff;
+            border: 1px solid #009fff;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .play-again:hover {
+            background-color: #009fff;
+            color: white;
+        }
+
+        .blured {
+            filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-over-modal-container">
+        <div class="game-over-modal">
+            <div class="game-over">
+                GAME OVER!
+            </div>
+            <div>
+                Final score: <span class="final-score"></span>
+            </div>
+            <div>
+                Best score: <span class="best-score"></span>
+            </div>
+            <div class="difficulty-container">
+                Difficulty level
+                <div class="difficulty-button-container">
+                    <button class="easy" data-level="12" selected>Easy</button>
+                    <button class="medium" data-level="8">Medium</button>
+                    <button class="hard" data-level="4">Hard</button>
+                </div>
+            </div>
+            <div class="again-container">
+                <button class="play-again">Play again!</button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="wide-ad">
+            728 x 90
+        </div>
+        <div class="score-wrap">
+            <canvas id="canvas"></canvas>
+            <div class="score"></div>
+        </div>
+        <div class="ad">
+            300 х 250
+        </div>
+    </div>
+    <script type="text/javascript">
+        class Point {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+            }
+        }
+
+        class PlayerSegment extends Point {
+            constructor(x, y, color, size) {
+                super(x, y, color);
+                this.size = size;
+            }
+        }
+
+        const canvas = document.getElementById("canvas");
+        const snakeContainer = document.querySelector('.container');
+        const gameOverModalContainer = document.querySelector('.game-over-modal-container');
+        const finalScoreNode = document.querySelector('.final-score');
+        const bestScoreNode = document.querySelector('.best-score');
+        const ctx = canvas.getContext("2d");
+        const isMobile = window.innerWidth < 1000;
+
+        const getBestScore = () => parseInt(localStorage.getItem('bestScore'));
+
+        const setBestScore = (score) => {
+            if (!localStorage.getItem('bestScore')) {
+                localStorage.bestScore = score;
+                return;
+            }
+
+            const currentBestScore = getBestScore();
+
+            localStorage.bestScore = Math.max(currentBestScore, score);
+        }
+
+        const getCanvasWidth = () => window.innerWidth;
+        const getCanvasHeight = () => window.innerHeight - 360;
+
+        let scale = isMobile ? 70 : 30;
+        let w = (canvas.width = getCanvasWidth()),
+            h = (canvas.height = getCanvasHeight()),
+            gamew = Math.floor(w / scale),
+            gameh = Math.floor(h / scale),
+            segmentCount = 0,
+            direction,
+            key = randomKey(),
+            begininigColor = 100,
+            r = Math.floor(Math.random() * begininigColor),
+            g = Math.floor(Math.random() * begininigColor),
+            b = Math.floor(Math.random() * begininigColor),
+            newColor = 10,
+            max = 255,
+            min = 20,
+            channel = getRandomBeginingChannel(),
+            chanceToChangeChannel = 100,
+            oldKey,
+            tick = 0,
+            difficulty = isMobile ? 16 : 12,
+            olDifficulty,
+            foodCount = 2,
+            counter = 0,
+            deathSpeed = scale / 4,
+            isDead = false,
+            isGameOverModalVisible = false,
+            cells = {},
+            points = [],
+            food = [],
+            snake = [
+                new PlayerSegment(
+                    Math.floor(Math.random() * gamew) * scale,
+                    Math.floor(Math.random() * gameh) * scale,
+                    getSegmentColor(),
+                    scale
+                ),
+            ];
+
+        const showGameOverModal = () => {
+            isGameOverModalVisible = true;
+            setBestScore(segmentCount);
+            snakeContainer.classList.add('blured');
+            gameOverModalContainer.classList.add('visible');
+            finalScoreNode.textContent = segmentCount;
+            bestScoreNode.textContent = getBestScore();
+        };
+
+        let prevNode = document.querySelector('.easy');
+
+        document.querySelector('.difficulty-button-container').addEventListener('click', (event) => {
+            if (!event.target.dataset.level) {
+                return;
+            }
+
+            prevNode.removeAttribute('selected');
+
+            prevNode = event.target;
+
+            event.target.setAttribute('selected', true);
+            
+            const level = parseInt(event.target.dataset.level);
+            const mobileOffset = isMobile ? 4 : 0
+            difficulty = level + mobileOffset;
+        });
+
+        document.querySelector('.play-again').addEventListener('click', () => {
+            snakeContainer.classList.remove('blured');
+            gameOverModalContainer.classList.remove('visible');
+            isGameOverModalVisible = false;
+        });
+
+        for (let i = 0; i < foodCount; i++) {
+            food.push(
+                new Point(
+                    Math.floor(Math.random() * gamew) * scale,
+                    Math.floor(Math.random() * gameh) * scale,
+                    color()
+                )
+            );
+        }
+
+        function randomKey() {
+            const a = `wasd`;
+            return a[(Math.random() * a.length) ^ 0];
+        }
+
+        function color() {
+            let a,
+                b = "#",
+                color = [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e",
+                    "f",
+                ];
+            for (let i = 1; i <= 6; i++) {
+                a = Math.round(Math.random() * (color.length - 1));
+                b += color[a];
+            }
+            return b;
+        }
+
+        function getSegmentColor() {
+            return "rgb(" + r + ", " + g + ", " + b + ")";
+        }
+
+        function getRandomBeginingChannel() {
+            if (r > g && r > b) {
+                return 0;
+            } else if (g > r && g > b) {
+                return 1;
+            } else if (b > r && b > g) {
+                return 2;
+            } else {
+                return Math.floor(Math.random() * 3);
+            }
+        }
+
+        function addChannelColor(d) {
+            d += newColor;
+            if (d > max) {
+                d = max;
+                newColor = -newColor;
+            }
+            if (d < min) {
+                d = min;
+                newColor = -newColor;
+            }
+            if (channel === 0) {
+                r = d;
+            } else if (channel === 1) {
+                g = d;
+            } else {
+                b = d;
+            }
+            if (d === max || d === min) {
+                let newChannel = Math.floor(Math.random() * 3);
+                while (channel === newChannel) {
+                    newChannel = Math.floor(Math.random() * 3);
+                }
+                channel = newChannel;
+            }
+            if (Math.floor(Math.random() * chanceToChangeChannel) === 0) {
+                channel = Math.floor(Math.random() * 3);
+                if (Math.floor(Math.random() * 2) === 1) {
+                    newColor = -newColor;
+                }
+            }
+        }
+
+        function ready() {
+            if (!(channel >= 0 && channel <= 3)) {
+                channel = getRandomBeginingChannel();
+            }
+            if (scale < 1) {
+                scale = 1;
+            }
+            deathSpeed = scale / 4;
+            gamew = Math.floor(w / scale);
+            gameh = Math.floor(h / scale);
+            respawn();
+            for (let i = 0; i < snake.length; i++) {
+                snake[i].size = scale;
+            }
+            for (let i = 0; i < foodCount; i++) {
+                food[i].x = Math.floor(Math.random() * gamew) * scale;
+                food[i].y = Math.floor(Math.random() * gameh) * scale;
+            }
+            food = [];
+            for (let i = 0; i < foodCount; i++) {
+                food.push(
+                    new Point(
+                        Math.floor(Math.random() * gamew) * scale,
+                        Math.floor(Math.random() * gameh) * scale,
+                        color()
+                    )
+                );
+            }
+            begininigColor = checkColor(begininigColor);
+            newColor = checkColor(newColor);
+            max = checkColor(max);
+            min = checkColor(min);
+        }
+
+        function animatedDeath() {
+            if (!isDead) {
+                return;
+            }
+
+            snake[counter].size -= deathSpeed;
+            snake[counter].x += deathSpeed / 2;
+            snake[counter].y += deathSpeed / 2;
+            if (snake[counter].size <= 0) {
+                snake[counter].size = 0;
+                counter++;
+            }
+            if (counter === snake.length - 1) {
+                isDead = false;
+                showGameOverModal();
+                respawn();
+                counter = 0;
+                difficulty = olDifficulty;
+            }
+        }
+
+        function checkColor(n) {
+            if (n < 0) {
+                return 0;
+            }
+            if (n > 255) {
+                return 255;
+            }
+            return n;
+        }
+
+        const keyCodesMapper = {
+            arrowleft: 'a',
+            arrowright: 'd',
+            arrowdown: 's',
+            arrowup: 'w',
+            w: 'w',
+            a: 'a',
+            s: 's',
+            d: 'd',
+            ц: 'w',
+            ф: 'a',
+            ы: 's',
+            в: 'd',
+        };
+
+        document.addEventListener('keydown', (event) => {
+            if (isGameOverModalVisible) {
+                return;
+            }
+
+            const lowerCaseKey = event.key.toLowerCase();
+
+            if (keyCodesMapper[lowerCaseKey]) {
+                key = keyCodesMapper[lowerCaseKey];
+            }
+        });
+
+        let xDown = null;
+        let yDown = null;
+
+
+        document.addEventListener('pointerdown', (event) => {
+            if (isGameOverModalVisible) {
+                return;
+            }
+
+            xDown = event.screenX;
+            yDown = event.screenY;
+        });
+
+        document.addEventListener('pointermove', (event) => {
+            if (!xDown || !yDown || isGameOverModalVisible ) {
+                return;
+            }
+
+            const xDiff = xDown - event.screenX;
+            const yDiff = yDown - event.screenY;
+
+            if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+                key = xDiff < 0 ? 'd' : 'a';                    
+            } else {
+                key = yDiff < 0 ? 's' : 'w';                                                            
+            }
+
+            xDown = null;
+            yDown = null;   
+        });
+
+        function move() {
+            if (isDead) {
+                animatedDeath();
+                return;
+            }
+
+            if (
+                !(
+                    key === "w" ||
+                    key === "W" ||
+                    key === "ц" ||
+                    key === "Ц" ||
+                    key === "s" ||
+                    key === "S" ||
+                    key === "ы" ||
+                    key === "Ы" ||
+                    key === "a" ||
+                    key === "A" ||
+                    key === "ф" ||
+                    key === "Ф" ||
+                    key === "d" ||
+                    key === "D" ||
+                    key === "в" ||
+                    key === "В"
+                )
+            ) {
+                key = oldKey;
+            }
+            if (
+                (((key === "w" || key === "W" || key === "ц" || key === "Ц") &&
+                    (oldKey === "s" ||
+                        oldKey === "S" ||
+                        oldKey === "ы" ||
+                        oldKey === "Ы")) ||
+                    ((key === "s" || key === "S" || key === "ы" || key === "Ы") &&
+                        (oldKey === "w" ||
+                            oldKey === "W" ||
+                            oldKey === "ц" ||
+                            oldKey === "Ц")) ||
+                    ((key === "a" || key === "A" || key === "ф" || key === "Ф") &&
+                        (oldKey === "d" ||
+                            oldKey === "D" ||
+                            oldKey === "в" ||
+                            oldKey === "В")) ||
+                    ((key === "d" || key === "D" || key === "в" || key === "В") &&
+                        (oldKey === "a" ||
+                            oldKey === "A" ||
+                            oldKey === "ф" ||
+                            oldKey === "Ф"))) &&
+                segmentCount >= 1
+            ) {
+                key = oldKey;
+            }
+            segmentMove();
+            if (key === "w" || key === "W" || key === "ц" || key === "Ц") {
+                oldKey = key;
+                snake[0].y -= scale;
+                direction = 0;
+            }
+            if (key === "s" || key === "S" || key === "ы" || key === "Ы") {
+                oldKey = key;
+                snake[0].y += scale;
+                direction = 2;
+            }
+            if (key === "a" || key === "A" || key === "ф" || key === "Ф") {
+                oldKey = key;
+                snake[0].x -= scale;
+                direction = 3;
+            }
+            if (key === "d" || key === "D" || key === "в" || key === "В") {
+                oldKey = key;
+                snake[0].x += scale;
+                direction = 1;
+            }
+            if (snake[0].x > (gamew - 1) * scale) {
+                snake[0].x = 0;
+            }
+            if (snake[0].x < 0) {
+                snake[0].x = (gamew - 1) * scale;
+            }
+            if (snake[0].y > (gameh - 1) * scale) {
+                snake[0].y = 0;
+            }
+            if (snake[0].y < 0) {
+                snake[0].y = (gameh - 1) * scale;
+            }
+            for (let i = 0; i < foodCount; i++) {
+                if (snake[0].x === food[i].x && snake[0].y === food[i].y) {
+                    delete cells[`${snake[0].x / scale},${snake[0].y / scale}`];
+                    const props = Object.keys(cells);
+                    if (props.length) {
+                        const rndplc =
+                            cells[props[(Math.random() * props.length) ^ 0]];
+                        food[i].x = rndplc.x * scale;
+                        food[i].y = rndplc.y * scale;
+                    } else {
+                        food[i].x = Math.floor(Math.random() * gamew) * scale;
+                        food[i].y = Math.floor(Math.random() * gameh) * scale;
+                    }
+                    if (channel === 0) {
+                        addChannelColor(r);
+                    } else if (channel === 1) {
+                        addChannelColor(g);
+                    } else {
+                        addChannelColor(b);
+                    }
+                    points.push(new Point(snake[0].x, snake[0].y, getSegmentColor()));
+                    food[i].color = color();
+                }
+            }
+            for (let i = 1; i <= segmentCount; i++) {
+                if (snake[0].x === snake[i].x && snake[0].y === snake[i].y && !isDead) {
+                    isDead = true;
+                    olDifficulty = difficulty;
+                    difficulty = 1;
+                    points = [];
+                }
+            }
+        }
+
+        function respawn() {
+            snake.splice(1);
+            segmentCount = 0;
+            snake[0].x = Math.floor(Math.random() * gamew) * scale;
+            snake[0].y = Math.floor(Math.random() * gameh) * scale;
+            snake[0].size = scale;
+            r = Math.floor(Math.random() * begininigColor);
+            g = Math.floor(Math.random() * begininigColor);
+            b = Math.floor(Math.random() * begininigColor);
+            snake[0].color = getSegmentColor();
+            channel = getRandomBeginingChannel();
+        }
+
+        function segmentMove() {
+            for (let i = segmentCount; i >= 1; i--) {
+                snake[i].x = snake[i - 1].x;
+                snake[i].y = snake[i - 1].y;
+                if (snake[i].x > (gamew - 1) * scale) {
+                    snake[i].x = 0;
+                }
+                if (snake[i].x < 0) {
+                    snake[i].x = (gamew - 1) * scale;
+                }
+                if (snake[i].y > (gameh - 1) * scale) {
+                    snake[i].y = 0;
+                }
+                if (snake[i].y < 0) {
+                    snake[i].y = (gameh - 1) * scale;
+                }
+            }
+        }
+
+        function addsegment(newSegment) {
+            segmentCount++;
+            if (direction === 1) {
+                snake[segmentCount] = new PlayerSegment(
+                    snake[segmentCount - 1].x - scale,
+                    snake[segmentCount - 1].y,
+                    newSegment.color,
+                    scale
+                );
+            }
+            if (direction === 0) {
+                snake[segmentCount] = new PlayerSegment(
+                    snake[segmentCount - 1].x,
+                    snake[segmentCount - 1].y + scale,
+                    newSegment.color,
+                    scale
+                );
+            }
+            if (direction === 2) {
+                snake[segmentCount] = new PlayerSegment(
+                    snake[segmentCount - 1].x,
+                    snake[segmentCount - 1].y - scale,
+                    newSegment.color,
+                    scale
+                );
+            }
+            if (direction === 3) {
+                snake[segmentCount] = new PlayerSegment(
+                    snake[segmentCount - 1].x + scale,
+                    snake[segmentCount - 1].y,
+                    newSegment.color,
+                    scale
+                );
+            }
+        }
+
+        function drawRect(x, y, w, h, color) {
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.fillRect(x, y, w, h);
+            ctx.closePath();
+        }
+
+        const scoreNode = document.querySelector(".score");
+
+        function game() {
+            tick++;
+            if (tick % difficulty === 0) {
+                ctx.clearRect(0, 0, w, h);
+                w = canvas.width = getCanvasWidth();
+                h = canvas.height = getCanvasHeight();
+                gamew = Math.floor(w / scale);
+                gameh = Math.floor(h / scale);
+                move();
+                for (let i = 0; i < points.length; i++) {
+                    if (
+                        points[i].x === snake[snake.length - 1].x &&
+                        points[i].y === snake[snake.length - 1].y
+                    ) {
+                        const [newSegment] = points.splice(i, 1);
+                        addsegment(newSegment);
+                    }
+                }
+                for (let i = 0; i < foodCount; i++) {
+                    drawRect(food[i].x, food[i].y, scale, scale, food[i].color);
+                }
+                for (let i = 0; i <= segmentCount; i++) {
+                    drawRect(
+                        snake[i].x,
+                        snake[i].y,
+                        snake[i].size,
+                        snake[i].size,
+                        snake[i].color
+                    );
+                }
+                for (let i = 0; i <= gameh; i++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = "#000";
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(0, i * scale);
+                    ctx.lineTo(gamew * scale, i * scale);
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+                for (let i = 0; i <= gamew; i++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = "#000";
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(i * scale, 0);
+                    ctx.lineTo(i * scale, gameh * scale);
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+                scoreNode.textContent = segmentCount;
+            }
+            nextGameStep(game);
+        }
+        const nextGameStep = (function () {
+            return (
+                requestAnimationFrame ||
+                mozRequestAnimationFrame ||
+                webkitRequestAnimationFrame ||
+                oRequestAnimationFrame ||
+                msRequestAnimationFrame
+            );
+        })();
+        game();
+
+    </script>
+</body>
+
+</html>
