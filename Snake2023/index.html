@@ -21,7 +21,7 @@
             padding: 0;
             margin: 0;
             background-color: white;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .container {
@@ -277,7 +277,7 @@
         const getCanvasWidth = () => window.innerWidth;
         const getCanvasHeight = () => window.innerHeight - 360;
 
-        let scale = isMobile ? 50 : 30;
+        let scale = isMobile ? 40 : 30;
         let w = (canvas.width = getCanvasWidth()),
             h = (canvas.height = getCanvasHeight()),
             gamew = Math.floor(w / scale),
